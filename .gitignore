@@ -1,0 +1,21 @@
+# Generated fixture repositories and caches (see fixtures/banking-demo/README.md)
+fixtures/**/.build/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Node / frontend (arrives with C-PR1)
+node_modules/
+frontend/dist/
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/

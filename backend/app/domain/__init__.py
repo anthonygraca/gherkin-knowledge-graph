@@ -1,0 +1,61 @@
+"""Shared domain contracts: models, vocabularies, envelopes, ports, errors, oracle schemas."""
+
+from app.domain.enums import (
+    ArtifactType,
+    EvidenceResult,
+    FindingStatus,
+    FindingType,
+    RelationType,
+    ReviewDecision,
+    ReviewState,
+    RuleId,
+    Severity,
+)
+from app.domain.errors import (
+    ArtifactNotFound,
+    BaselineNotFound,
+    DomainError,
+    FeatureNotImplemented,
+    FixtureDataInvalid,
+    FixtureDataMissing,
+    InvalidRequest,
+    ProviderNotRegistered,
+    ThreadNotFound,
+)
+from app.domain.models import (
+    Artifact,
+    AssuranceFinding,
+    TraceCandidate,
+    TraceLink,
+    VerificationEvidence,
+    finding_fingerprint,
+    make_finding,
+)
+
+__all__ = [
+    "Artifact",
+    "ArtifactNotFound",
+    "ArtifactType",
+    "AssuranceFinding",
+    "BaselineNotFound",
+    "DomainError",
+    "EvidenceResult",
+    "FeatureNotImplemented",
+    "FindingStatus",
+    "FindingType",
+    "FixtureDataInvalid",
+    "FixtureDataMissing",
+    "InvalidRequest",
+    "ProviderNotRegistered",
+    "RelationType",
+    "ReviewDecision",
+    "ReviewState",
+    "RuleId",
+    "Severity",
+    "ThreadNotFound",
+    "TraceCandidate",
+    "TraceLink",
+    "VerificationEvidence",
+    "finding_fingerprint",
+    "make_finding",
+]
