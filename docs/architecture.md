@@ -46,10 +46,11 @@ Two rules explain most of the layout:
 
 ## Request flows
 
-**Read a thread.** `GET /api/threads/{id}?baseline=…` → `FixtureStore.resolve()` maps the tag or
-commit SHA to a baseline snapshot → the precomputed thread response for the canonical baseline is
-loaded and validated against `ThreadResponse` → returned. Accepted links, proposals, and evidence
-are separate arrays, so a caller that walks only `accepted_links` cannot be misled by a proposal.
+**Read a thread.** `GET /api/threads/{id}?baseline=…` → the baseline expression is resolved to a
+canonical baseline (`FixtureStore.resolve_baseline`) → the precomputed thread response for that
+baseline is loaded and validated against `ThreadResponse` → returned. Accepted links, proposals,
+and evidence are separate arrays, so a caller that walks only `accepted_links` cannot be misled by
+a proposal.
 
 **Propose candidates.** `POST /api/discovery` → source artifact existence is checked (404
 otherwise) → `ProviderRegistry.get(name)` returns the provider (400 for an unknown name) →
