@@ -3,6 +3,15 @@
 Milestone **M0 (Contract + fixture foundation)** is defined in `CONTINUOUS_TRACEABILITY_ROADMAP.md` §7.
 This file records what M0 includes, who owns it, and which command proves each exit criterion.
 
+**Acceptance source of truth.** [FT-01.feature](FT-01.feature) and
+[FT-02.feature](FT-02.feature) contain the canonical Gherkin criteria, with stable scenario
+IDs and the existing AC labels. Their scenario wording was extracted unchanged from this
+document. This index retains scope, rationale and the [verification map](#acceptance-verification-map).
+The files are specifications verified by the existing pytest checks; no Gherkin runner or step
+bindings are configured. A documentation migration does not constitute a new independent review
+or retroactively add scenario IDs to historical execution records. Follow
+[the development lifecycle](../development-lifecycle.md) for new stories.
+
 **Backlog mapping.** M0 reuses the roadmap's own foundation stories — **FT-01** and **FT-02**
 (owner: B lead, priority P0). Parts of the milestone that the backlog does not cover
 (repository layout, developer setup guide, initial CI workflow) are tracked as platform tasks
@@ -17,92 +26,35 @@ source of story numbers. Any change to this file is a contract change: A, B, and
 
 ### AC-1.1 Deterministic Git history
 
-```gherkin
-Scenario: Fixture history is reproducible
-  Given the fixture generator builds "banking-demo" twice in different directories
-  When each generated repository is asked for the tags "baseline-a" and "baseline-b"
-  Then both repositories report the same commit SHA for each tag
-  And those SHAs match the committed manifest "fixtures/banking-demo/expected/baselines.json"
-```
+Canonical scenario: [SCN-101 in FT-01.feature](FT-01.feature), tagged `@AC-1.1`.
 
 ### AC-1.2 Healthy chain has no findings
 
-```gherkin
-Scenario: Requirement with a complete accepted chain
-  Given "REQ-001" has accepted links to "SCN-001", "CODE-001", and "TEST-001"
-  And evidence "EV-001" recorded a passing run for "TEST-001" at baseline "baseline-a"
-  When findings for baseline "baseline-a" are inspected
-  Then no finding references "REQ-001"
-```
+Canonical scenario: [SCN-102 in FT-01.feature](FT-01.feature), tagged `@AC-1.2`.
 
 ### AC-1.3 Missing links are reported
 
-```gherkin
-Scenario: Coverage gaps at baseline "baseline-a"
-  Given "REQ-002" has no accepted verification scenario
-  And "SCN-002" has no accepted implementation
-  When findings for baseline "baseline-a" are inspected
-  Then a "missing_verification_link" finding references "REQ-002"
-  And a "missing_implementation_link" finding references "SCN-002"
-```
+Canonical scenario: [SCN-103 in FT-01.feature](FT-01.feature), tagged `@AC-1.3`.
 
 ### AC-1.4 Change after verification is reverification, not failure
 
-```gherkin
-Scenario: Implementation changed since verification
-  Given "SCN-001" verification passed at baseline "baseline-a" (evidence "EV-001")
-  And the file backing "CODE-001" changed between baseline "baseline-a" and "baseline-b"
-  And no later evidence exists for "SCN-001"
-  When findings for baseline "baseline-b" are inspected
-  Then a "reverification_required" finding references "REQ-001", "SCN-001", and "CODE-001"
-  And that finding references evidence "EV-001"
-  And no "verification_failed" finding references "REQ-001"
-```
+Canonical scenario: [SCN-104 in FT-01.feature](FT-01.feature), tagged `@AC-1.4`.
 
 ### AC-1.5 Confirmed failure stays distinct from staleness
 
-```gherkin
-Scenario: Failing test at the evaluated baseline
-  Given evidence "EV-003" recorded a failing run for "TEST-002" at baseline "baseline-b"
-  When findings for baseline "baseline-b" are inspected
-  Then a "verification_failed" finding references "REQ-003", "SCN-003", and "TEST-002"
-  And that finding references evidence "EV-003"
-  And no "reverification_required" finding references "SCN-003"
-```
+Canonical scenario: [SCN-105 in FT-01.feature](FT-01.feature), tagged `@AC-1.5`.
 
 ### AC-1.6 Superseded lifecycle
 
-```gherkin
-Scenario: Superseded requirement with live relationships
-  Given "REQ-003" is marked "superseded" in its requirement front matter
-  And "REQ-003" still has accepted links
-  When findings for baseline "baseline-a" or "baseline-b" are inspected
-  Then a "lifecycle_review_required" finding references "REQ-003"
-```
+Canonical scenario: [SCN-106 in FT-01.feature](FT-01.feature), tagged `@AC-1.6`.
 
 ### AC-1.7 Unreviewed proposal is never an accepted link
 
-```gherkin
-Scenario: Semantically plausible proposal stays pending
-  Given the fixture records "LNK-007" as a proposed link from "REQ-002" to "SCN-002"
-  When findings for baseline "baseline-a" are inspected
-  Then a "candidate_pending_review" finding references "REQ-002" and "SCN-002"
-  And "LNK-007" has review state "proposed"
-  And no accepted link exists between "REQ-002" and "SCN-002"
-```
+Canonical scenario: [SCN-107 in FT-01.feature](FT-01.feature), tagged `@AC-1.7`.
 
 ### AC-1.8 Fixture evidence labels are real
 
-```gherkin
-Scenario: The fixture test suite reproduces the labeled evidence
-  Given a checkout of tag "baseline-a"
-  When the fixture test suite runs
-  Then it passes
-  Given a checkout of tag "baseline-b"
-  When the fixture test suite runs
-  Then it fails exactly in "tests/test_accounts.py::test_withdraw_allows_fractional_amounts"
-  And it fails exactly in "tests/test_transfers.py::test_transfer_exactly_at_limit_is_permitted"
-```
+Canonical scenario: [SCN-108 in FT-01.feature](FT-01.feature), tagged `@AC-1.8`.
 
 > AC-1.8 is what makes the labels honest: the "passed" evidence at baseline-a and the
 > "failed" evidence at baseline-b are reproducible outcomes of the fixture code, not assertions
@@ -117,54 +69,23 @@ Scenario: The fixture test suite reproduces the labeled evidence
 
 ### AC-2.1 Mock API returns schema-valid fixture data
 
-```gherkin
-Scenario: Fixture-backed read endpoints
-  Given the backend runs with no network and no embedding or LLM service
-  When "GET /api/artifacts/REQ-001?baseline=baseline-a" is called
-  Then the response validates against the "Artifact" contract
-  And its "revision" equals the commit SHA tagged "baseline-a"
-  And "GET /api/threads/REQ-001?baseline=baseline-b" returns the accepted chain plus evidence
-  And "GET /api/findings?baseline=baseline-b" validates against the "FindingsResponse" contract
-```
+Canonical scenario: [SCN-201 in FT-02.feature](FT-02.feature), tagged `@AC-2.1`.
 
 ### AC-2.2 Baseline resolution
 
-```gherkin
-Scenario: Baselines are addressed by tag or commit
-  Given "baseline-a" resolves to a commit SHA in the fixture manifest
-  When the same endpoint is called with the tag and with that SHA
-  Then both responses are identical
-```
+Canonical scenario: [SCN-202 in FT-02.feature](FT-02.feature), tagged `@AC-2.2`.
 
 ### AC-2.3 Unknown identifiers fail loudly
 
-```gherkin
-Scenario: Unknown artifact
-  When "GET /api/artifacts/REQ-999" is called
-  Then the status is 404
-  And the body is an RFC 9457 problem document with a "urn:cta:error:artifact-not-found" type
-```
+Canonical scenario: [SCN-203 in FT-02.feature](FT-02.feature), tagged `@AC-2.3`.
 
 ### AC-2.4 Discovery proposes, never accepts (contract level of AI-04)
 
-```gherkin
-Scenario: Discover likely implementation from a scenario
-  Given the candidate-discovery provider is "fake"
-  When candidates are requested for "SCN-001"
-  Then "CODE-001" is returned as a proposed "implemented_by" candidate at rank 1
-  And the response includes the provider name, model version, and index revision
-  And the candidate carries no link identifier or review state
-  And no accepted link is created or modified
-```
+Canonical scenario: [SCN-204 in FT-02.feature](FT-02.feature), tagged `@AC-2.4`.
 
 ### AC-2.5 Unimplemented endpoints are honest
 
-```gherkin
-Scenario: Contract-only endpoints in M0
-  When "POST /api/assurance/evaluate" is called
-  Then the status is 501
-  And the problem document names the owning story and milestone
-```
+Canonical scenario: [SCN-205 in FT-02.feature](FT-02.feature), tagged `@AC-2.5`.
 
 ---
 
@@ -183,6 +104,11 @@ They are not separate issues: `M0-Pn` ids exist only in this document.
 ---
 
 ## Independent review gate
+
+This section preserves the first review's findings and repair gate. The subsequent repairs,
+oracle attestation and approving re-review are recorded in [STATUS.md](../STATUS.md) and the
+linked review records. Those decisions apply to their named snapshots; extracting the criteria
+into `.feature` files does not extend the old approval to newly changed documentation.
 
 M0 is not self-certified. The exit criteria above were reviewed independently against the committed
 revision, per `docs/reviews/M0-review-prompt.md`.
@@ -205,6 +131,40 @@ identically in a normal environment, the full offline suite passes, and the fixt
 reproduce the labeled pass/fail evidence.
 
 ---
+
+## Acceptance verification map
+
+This is an explicit specification-to-test mapping, not a runner binding, executed result or new
+approval. It requires review with the extracted feature files. Test selectors name existing
+substantive checks; parameterized checks cover more than one baseline/case. The run's tested
+revision/configuration and raw results must be retained separately before making a verification
+claim. M0 checks fixture contracts and reviewed sample findings, not a general assurance engine.
+
+| Criterion | Scenario | Existing verification selectors | Scope / limitation |
+| --- | --- | --- | --- |
+| AC-1.1 | SCN-101 | `backend/tests/test_fixture_repo.py::test_rebuilding_in_another_directory_is_reproducible`; `backend/tests/test_fixture_repo.py::test_generated_history_matches_the_committed_manifest`; `backend/tests/test_fixture_repo.py::test_tags_exist_and_resolve_to_those_commits` | Rebuilt history and manifest/tag identity. |
+| AC-1.2 | SCN-102 | `backend/tests/test_fixture_oracle.py::test_healthy_artifacts_have_no_finding`; `backend/tests/test_api_contract.py::test_findings_match_the_oracle_exactly` | Healthy A chain in the oracle and fixture-backed response. |
+| AC-1.3 | SCN-103 | `backend/tests/test_fixture_oracle.py::test_case_2_and_3_coverage_gaps_are_labeled`; `backend/tests/test_api_contract.py::test_findings_match_the_oracle_exactly` | Missing-link labels and served samples, not computed discovery. |
+| AC-1.4 | SCN-104 | `backend/tests/test_fixture_oracle.py::test_case_4_reverification_identifies_both_baselines_and_the_change`; `backend/tests/test_api_contract.py::test_findings_match_the_oracle_exactly` | Content change, pinned evidence and negative failure expectation. |
+| AC-1.5 | SCN-105 | `backend/tests/test_fixture_oracle.py::test_case_5_failure_is_distinct_from_staleness`; `backend/tests/test_api_contract.py::test_findings_match_the_oracle_exactly` | Recorded failure remains distinct from reverification in fixture labels. |
+| AC-1.6 | SCN-106 | `backend/tests/test_fixture_oracle.py::test_case_7_superseded_requirement_is_flagged_for_lifecycle_review`; `backend/tests/test_api_contract.py::test_findings_match_the_oracle_exactly` | Superseded metadata and lifecycle-review label. |
+| AC-1.7 | SCN-107 | `backend/tests/test_fixture_oracle.py::test_case_6_proposal_is_pending_and_not_accepted`; `backend/tests/test_api_contract.py::test_thread_keeps_proposals_out_of_accepted_links` | Pending proposal label and absence from accepted thread. |
+| AC-1.8 | SCN-108 | `backend/tests/test_fixture_repo.py::test_fixture_test_suite_reproduces_the_labeled_evidence` | Executes the nested fixture suite at both tags; expected B failures are fixture observations. |
+| AC-2.1 | SCN-201 | `backend/tests/test_api_contract.py::test_health_reports_contract_and_fixture_status`; `backend/tests/test_api_contract.py::test_artifact_is_addressable_by_tag_or_commit`; `backend/tests/test_api_contract.py::test_thread_carries_the_accepted_chain_with_evidence`; `backend/tests/test_api_contract.py::test_findings_match_the_oracle_exactly` | Validated response models and fixture revision; offline environment requires the separately recorded run context. |
+| AC-2.2 | SCN-202 | `backend/tests/test_api_contract.py::test_artifact_is_addressable_by_tag_or_commit`; `backend/tests/test_api_contract.py::test_findings_by_sha_and_by_tag_are_identical` | Artifact and findings responses resolve tags/SHAs consistently. |
+| AC-2.3 | SCN-203 | `backend/tests/test_api_contract.py::test_unknown_artifact_returns_a_problem_document` | Missing artifact produces the specified 404 problem. |
+| AC-2.4 | SCN-204 | `backend/tests/test_api_contract.py::test_discovery_returns_a_proposal_and_never_an_accepted_link`; `backend/tests/test_domain_contracts.py::test_candidate_has_no_acceptance_vocabulary` | Fake provider response/provenance and no candidate acceptance fields. |
+| AC-2.5 | SCN-205 | `backend/tests/test_api_contract.py::test_contract_only_endpoints_are_honest` | Parameterized endpoint checks include assurance evaluation's 501 and owning story. |
+
+Run the existing verification implementation with:
+
+```bash
+uv run --offline --project backend pytest backend/tests -q
+uv run --offline --project backend python tools/fixturectl.py verify
+```
+
+These commands do not execute `.feature` files. A green suite supports the mapped observations
+at its recorded revision; acceptance of this mapping and any broader claim remains a review task.
 
 ## Exit criteria → evidence
 

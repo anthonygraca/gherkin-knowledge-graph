@@ -1,13 +1,16 @@
 name: User story
-description: Agile user story with Given/When/Then acceptance criteria
-title: "As a <role>, I want <capability>, so that <benefit>"
+description: User story with source obligations and version-controlled Gherkin acceptance criteria
+title: "<STORY-ID>: <capability>"
 labels: ["user-story"]
 body:
   - type: markdown
     attributes:
       value: |
         File this as a **sub-issue of its Feature** (Sub-issues panel, or `gh issue create --parent <N>`).
-        One story = one capability. The Given/When/Then criteria are the definition of done.
+        Use the existing roadmap story ID in the title. One story = one capability.
+        Follow docs/development-lifecycle.md. Draft criteria may start here; once refined,
+        docs/stories/<STORY-ID>.feature holds the canonical acceptance criteria.
+        Link the reviewed file revision rather than maintaining competing normative copies.
   - type: input
     id: story
     attributes:
@@ -17,16 +20,38 @@ body:
     validations:
       required: true
   - type: textarea
+    id: upstream
+    attributes:
+      label: Source obligations and rationale
+      description: Link requirements, stakeholder needs, constraints or risk controls. Identify draft/unapproved sources explicitly; infrastructure work may cite an engineering constraint.
+    validations:
+      required: true
+  - type: input
+    id: acceptance_source
+    attributes:
+      label: Canonical acceptance specification
+      description: Repository path or reviewed revision link; required before implementation, not initial intake.
+      placeholder: docs/stories/AS-02.feature
+    validations:
+      required: false
+  - type: textarea
     id: acceptance
     attributes:
-      label: Acceptance criteria (Gherkin)
-      description: One or more Given/When/Then scenarios. These become the automated tests.
+      label: Draft acceptance criteria (Gherkin)
+      description: Include success, failure and relevant boundary/unknown cases. If the canonical file exists, link its revision here instead of copying it.
       value: |
         Scenario: <name>
           Given ...
           When ...
           Then ...
       render: gherkin
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification and validation approach
+      description: Identify intended substantive tests, independent expected outcomes, execution configuration and user demonstration. Record additional inspection/analysis obligations separately. A mapping is not execution evidence.
     validations:
       required: true
   - type: input

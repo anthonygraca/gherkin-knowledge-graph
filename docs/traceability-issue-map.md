@@ -12,6 +12,12 @@ A story's Gherkin scenarios are the definition of done: they become the automate
 story closes only when they pass offline. Proposals, tasks, and stories are separate kinds — a
 review finding or an implementation slice is never a substitute for a story id.
 
+Canonical criteria now live in `docs/stories/<STORY-ID>.feature`, following
+[the development lifecycle](development-lifecycle.md). The M0 story index provides explicit
+mappings to existing pytest checks; there is no direct Gherkin runner execution yet. Story
+delivery, scenario specification, test execution and engineering approval are separate records.
+This issue map identifies delivery work, not proof that every criterion was executed or accepted.
+
 ## How milestones fit
 
 A **milestone** is one of the roadmap's delivery slices (`CONTINUOUS_TRACEABILITY_ROADMAP.md` §7),
@@ -52,6 +58,7 @@ Retrieval has AI-01 in M0 and AI-02/AI-03 in M3. Stories whose slice has no mile
 | SETUP-01 | [#8](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/8) | F-01 | M0 | shared | Initial repository setup and commit↔issue traceability |
 | FT-01 | [#18](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/18) | F-01 | M0 | B lead | Deterministic fixture repository and hand-labeled oracle |
 | FT-02 | [#19](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/19) | F-01 | M0 | B lead | Versioned contracts with fixture-backed mock responses |
+| FT-03 | [#39](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/39) | F-01 | M0 | shared | Lifecycle traceability and canonical Gherkin acceptance specifications (maintenance slice; no later-milestone capability) |
 | DT-01 | [#20](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/20) | F-02 | M1 | B | Requirements and Gherkin scenarios parsed into artifacts |
 | DT-02 | [#21](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/21) | F-02 | M1 | B | Source and test artifacts tied to path and revision |
 | DT-03 | [#22](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/22) | F-03 | M1 | B | Typed, provenance-aware links with review state |
@@ -82,6 +89,7 @@ interrupted after the request had already succeeded server-side.
 | --- | --- | --- |
 | Baseline diff: artifacts changed between `baseline-a` and `baseline-b` | [#5](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/5) | AS-02 (#3) |
 | `reverification_required` rule, never `verification_failed` | [#6](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/6) | AS-02 (#3) |
+| Research design: hypotheses, benchmark inputs, and the CI / simple-storage / graph comparison plan | [#40](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/40) | F-10 (#16) — feature-level research-planning task; no owning story yet |
 
 ## Keeping this map honest
 

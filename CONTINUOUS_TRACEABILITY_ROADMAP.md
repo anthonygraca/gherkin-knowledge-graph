@@ -29,6 +29,28 @@ Build an inspectable digital thread connecting software **requirements → Gherk
 6. **Reproducibility.** A small labeled synthetic repository serves as the shared test oracle.
 7. **Vertical slices.** Integrate thin, end-to-end behavior before adding breadth.
 
+### Developing CTA with its own traceability discipline
+
+Use [the development lifecycle](docs/development-lifecycle.md) across every delivery increment:
+stakeholder needs and system obligations, allocation/design, story refinement with canonical
+Gherkin `.feature` acceptance criteria, implementation, verification, stakeholder validation,
+release, operation/change and eventual retirement. The initial
+[project definition](docs/project-definition.md) is a review draft, not a retrospectively approved
+baseline. M0's criteria now live in [FT-01.feature](docs/stories/FT-01.feature) and
+[FT-02.feature](docs/stories/FT-02.feature), with existing pytest verification mapped from the
+M0 story index; direct Gherkin execution is not implemented.
+
+The adoption slice is story **FT-03**
+([#39](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/39)):
+[criteria](docs/stories/FT-03.feature), [record and verification
+map](docs/stories/FT-03.md). It is a maintenance slice within M0 and does not amend M0's
+approved exit criteria.
+
+M0–M4 remain delivery increments and retain their prerequisites and independent-review gates.
+Do not confuse CTA's own acceptance evidence with evidence from the synthetic repositories it
+evaluates. Refine each eligible story's criteria and verification approach before implementation;
+link issues/PRs to the reviewed specification rather than maintaining competing copies.
+
 ## 2. Three parallel workstreams
 
 | Workstream | Owner | Responsibilities | Independent demonstration | Does not depend on |
@@ -141,6 +163,7 @@ Priority: **P0** is AI-free MVP; **P1** adds candidate discovery/review; **P2** 
 |---|---|---|---|---|
 | F-01 Foundation | FT-01 | As a developer, I want labeled fixture repos and baseline oracles so I can test without external systems. | B lead | P0 |
 | F-01 Foundation | FT-02 | As a developer, I want versioned API/domain contracts plus mock responses so I can build independently. | B lead | P0 |
+| F-01 Foundation | FT-03 | As a project contributor, I want requirements, story acceptance criteria, implementation and verification evidence connected through a documented lifecycle, so that each change has a reviewable engineering basis. | shared | P0 |
 | F-02 Ingestion | DT-01 | As a systems engineer, I want requirements and Gherkin scenarios parsed into stable artifacts. | B | P0 |
 | F-02 Ingestion | DT-02 | As an engineer, I want source and test artifacts tied to path and Git revision. | B | P0 |
 | F-03 Links | DT-03 | As an engineer, I want typed, provenance-aware traceability links. | B | P0 |
@@ -163,6 +186,10 @@ Priority: **P0** is AI-free MVP; **P1** adds candidate discovery/review; **P2** 
 | F-10 Automation | CI-02 | As a reviewer, I want new, unchanged, and resolved findings between baselines. | Shared | P2 |
 
 ### Representative executable acceptance criteria
+
+The following are planning examples for their owning stories. Canonical current criteria belong
+in `docs/stories/<STORY-ID>.feature` as each story is refined; these examples are not claims that
+step bindings or the corresponding capabilities already exist.
 
 **AS-01 — missing scenario link**
 ```gherkin
