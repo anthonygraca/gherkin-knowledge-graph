@@ -21,7 +21,7 @@ Tests executed:      uv run --project backend pytest backend/tests -q  →  107 
 Current API/schema version: 0.1.0
 Tracker:             docs/traceability-issue-map.md (features → user stories → tasks)
 Run records:         docs/reports/omp-m0-rereview/ (report, prompt log, metrics, evidence,
-                     probes, packets)
+                     probes, packets; excluded from ruff scope — records, not sources)
 Environment:         Python ≥3.11, uv, git ≥2.28; no GPU, LLM, vector store, Docker, or network
                      during tests
 ```

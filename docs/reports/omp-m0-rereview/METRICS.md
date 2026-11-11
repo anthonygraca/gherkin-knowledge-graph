@@ -13,7 +13,7 @@ reconstructed from memory or mtimes).
 | Final snapshot | Approved: commit `bca69cf14a7c94e9ff29ec860fd28fbef83a0798`, tree `e55ff9f9b2d669d1417ee1e4df0c858817a1eb82` |
 | Verdict / rounds | Round 1: NEEDS_INPUT (submission 1/7). Round 2: **APPROVE** (submission 2/7). No APPROVE-by-exhaustion; limit not reached |
 | Confirmed defects this run | R8 (evidence gap, blocking — repaired by human attestation, closed in round 2). OMP self-review defect: one stale doc reference (`FixtureStore.resolve`), fixed in `5f5d843` |
-| Rework | 1 doc-only fix + 1 bookkeeping commit set; no code rework; review counter used: 2 of 7 |
+| Rework | 1 doc-only fix + a bookkeeping commit set (reports, verdict records, one lint-scope line in `ruff.toml`); no code rework; review counter used: 2 of 7 |
 | Unresolved items | NOT VERIFIED list in `docs/STATUS.md` (hosted CI, macOS re-run, `uv --offline` under denial, UI, M2 classification, M3 provider side effects) — none blocks M0 |
 | Escapes observed later | none observed in-session |
 
@@ -22,7 +22,7 @@ reconstructed from memory or mtimes).
 | Item | Record |
 |---|---|
 | Gate exits | pytest 107 passed (two snapshots); `fixturectl verify` exit 0; `ruff check`/`format --check` clean; `git diff --check` exit 0 — raw outputs in `evidence/` and `evidence2/` |
-| Probes | `probe_r1`…`probe_r7` executed on the frozen snapshot; identical probe scripts committed under `probes/`; outputs under `evidence/` |
+| Probes | `probe_r1`…`probe_r7` executed on the frozen snapshot; identical probe scripts committed under `probes/` (excluded from lint scope so a formatter cannot rewrite them); outputs under `evidence/` |
 | Network-denied run | `unshare -rn`: socket `[Errno 101] Network is unreachable` (**denial effective**) + 107 passed |
 | Live HTTP | uvicorn 8031 (pristine) / 8032 (tampered copy): statuses and codes as recorded in `probes/p_http_live.py` output (`evidence/probe_http_live.txt`) |
 | Independent expectations | Fixture baselines from the committed manifest (`67109fac…`, `c02064fe…`); independent fingerprint vectors; oracle labels hand-written; human attestation recorded separately |
@@ -66,7 +66,7 @@ reconstructed from memory or mtimes).
 | First recorded / last recorded (UTC) | `2026-11-11T05:10:29Z` / `2026-11-11T05:52:48Z` (session start slightly earlier; not instrumented) |
 | Elapsed wall time | ≈ 43 min for the recorded window; all work sequential; user wait for the attestation inside that window (duration not instrumented) |
 | Agent/call inventory | 1 coordinator (OMP, this session), 2 Codex acceptance reviews; 0 advisory calls; 0 delegates |
-| Commit state | 3 commits unpushed on `feat/8-m0-foundation` (`5f5d843`, `bca69cf`, final reports commit); branch remains ahead of `origin` |
+| Commit state | 4 commits unpushed on `feat/8-m0-foundation` (`5f5d843`, `bca69cf`, `c0b70fa`, final `chore(lint)` commit); branch remains ahead of `origin` |
 | Batch / continuation | Not applicable — single selected task; no continuation list was authorized; nothing skipped |
 
 ## Quota

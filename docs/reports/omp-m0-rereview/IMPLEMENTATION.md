@@ -26,10 +26,10 @@ reasoning effort `xhigh`, read-only sandbox, two fresh sessions.
   #18/#19, hosted CI on the push) is a team action. This session made no push and started no M1/M2/M3
   work.
 
-**Approved vs. recorded content.** The approved snapshot is `bca69cf`. The `docs(reports)` commit
-that carries this file adds only the verdict record for round 2, the run reports, and the
-verdict-recording status update — the loop's allowed post-approval bookkeeping. Where this folder
-differs from `bca69cf`, `bca69cf` is authoritative.
+**Approved vs. recorded content.** The approved snapshot is `bca69cf`. The bookkeeping commits that
+carry this folder add the round-2 verdict record, the run reports, the verdict-recording status
+update, and one lint-scope line in `ruff.toml` (see the commit table below) — none of it changes
+product behavior, and `bca69cf` remains authoritative for everything approved.
 
 ## Starting state
 
@@ -51,12 +51,15 @@ differs from `bca69cf`, `bca69cf` is authoritative.
 |---|---|
 | `5f5d843` | `docs(architecture)`: the R1 repair renamed the store resolver (`FixtureStore.resolve` → `resolve_baseline`); the request-flow paragraph still named the removed helper. Self-review repair, docs only. The message was amended before any push so `git interpret-trailers --parse` validates the `Story:`/`Feature:`/`Workstream:` trailers (loop convention). |
 | `bca69cf` | `docs(review)`: round-1 verdict recorded verbatim (`docs/reviews/M0-rereview-1.md`), human attestation recorded (`docs/reviews/M0-oracle-human-review.md`), status updated for the open final verdict. |
-| final `docs(reports)` commit | `docs/reviews/M0-rereview-2.md`, this report + prompt log + metrics + evidence + probes + packet templates, and the final status update recording the approval. |
+| `c0b70fa` | `docs(reports)`: `docs/reviews/M0-rereview-2.md`, this report + prompt log + metrics + evidence + probes + packet templates, and the status update recording the approval. |
+| final `chore(lint)` commit | `ruff.toml`: exclude `docs/reports` from lint/format scope. The committed run records are archival evidence with their own manifest; linting them broke the root gate (`ruff check .` failed on the probe scripts) and reformatting them would rewrite evidence bytes — the same reason `fixtures` is excluded. No lint behavior changes for any other path; it is the only non-docs change in the post-approval bookkeeping series. |
 
-No product file (backend, tools, fixtures, ruff.toml, CI) changed in any of these commits — proven
-in the round-2 packet by identical `git ls-tree` blob sets (`sha256
+No backend, tool, fixture, API, or CI file changed in any of these commits — proven in the round-2
+packet by identical `git ls-tree` blob sets (`sha256
 4ac34915c1828c52d178943a692ac44a6b250cb20997f369a01b2a43bdbd69bd` for both snapshots) and an
-empty `git diff 191c829..HEAD -- backend tools fixtures ruff.toml .github`.
+empty `git diff 191c829..HEAD -- backend tools fixtures ruff.toml .github` at that point. The only
+non-docs change in the later bookkeeping series is the one-line `ruff.toml` exclusion in the commit
+table above.
 
 ## Verification performed (R1–R7 probes and gates; snapshots and outputs in `evidence/`)
 
@@ -75,6 +78,7 @@ Frozen round-1 snapshot: `191c829` + the single uncommitted in-scope change `doc
 | Offline suite | `uv run --project backend pytest backend/tests -q` | 107 passed, 1 warning (~3 s); re-run on the final docs snapshot: 107 passed |
 | Drift guard | `uv run --project backend python tools/fixturectl.py verify` | exit 0, "fixture generation is reproducible and committed files are current (banking-demo)" |
 | Lint/format | `ruff check .` + `ruff format --check .` | `All checks passed!`; `33 files already formatted` |
+| Lint after bookkeeping | `ruff check .` + `ruff format --check .` + `git diff --check main HEAD` | clean once `docs/reports` is excluded (the committed probe scripts are records, not sources); whitespace check exit 0 |
 | Whitespace | `git diff --check` | exit 0 |
 | Network denial | `unshare -rn` + socket probe + suite | socket `OSError: [Errno 101] Network is unreachable` (`NET-DENIED-OK`); 107 passed |
 | Live HTTP | uvicorn on 8031 (pristine) and 8032 (tampered copy) | health 200 `0.1.0`; thread `REQ-001@baseline-b` = `LNK-001…003` + `EV-001`; findings set at baseline-b includes `reverification_required` + `verification_failed`; discovery rank-1 `CODE-001` with no `link_id`/`review_state` keys; `POST /api/assurance/evaluate` → 501 `AS-01, AS-02, AS-03 (C-PR1)` / `M1/M2`; artifact tag/SHA bodies identical; 404 `artifact-not-found`; 422 `request-validation`; 404 `baseline-not-found`; tampered server → 500 `fixture-data-invalid` on both negative routes, unaffected thread still 200 |

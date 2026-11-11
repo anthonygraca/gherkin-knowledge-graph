@@ -37,7 +37,7 @@ rather than reconstructed.
 | (packet 2) | `packets/packet2_template.md` → `/tmp/cta-rereview-1/review-2-prompt.md`, sha256 `03225153e885f12213c013268b749df43013f07e17f1b33f9cfe9d0bc5d26d39`, 89,237 bytes; embedded round-1 verdict, attestation, incremental diff, blob-hash identity proof, round-2 gates (`evidence2/`) |
 | 05:48:17 → 05:51:06 | **Codex submission 2** (169 s, exit 0, session `01a1c926-5f47-7751-b38c-8dc16bdf4c03`, "tokens used 79,482"). Verdict: **APPROVE** at `bca69cf` (tree `e55ff9f`) |
 | 05:52:48 | Round-2 verdict copied byte-identical to `docs/reviews/M0-rereview-2.md` (sha256 `08787814859cfc0a1e42e514dec920d430a84b3c8b1da897fc6acf50e5911ac2`) |
-| after | Bookkeeping: `docs/STATUS.md` final update and this reports folder; final `docs(reports)` commit (no push) |
+| ~05:55–06:05 | Bookkeeping: `docs/STATUS.md` final update and this reports folder → commit `c0b70fa` (`docs(reports)`); the root `ruff check .` gate then flagged the committed probe scripts, so the final `chore(lint)` commit excludes `docs/reports` from lint/format scope (records are not sources — the same reason `fixtures` is excluded) and this log/report/metrics disclose it (no push) |
 
 ## 3. Exact reviewer invocations
 
