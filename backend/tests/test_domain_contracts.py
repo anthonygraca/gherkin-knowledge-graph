@@ -239,6 +239,41 @@ def test_policy_tables_cover_every_rule_and_agree_on_types() -> None:
     assert RULE_FINDING_TYPE[RuleId.LIFECYCLE_SUPERSEDED] is FindingType.LIFECYCLE_REVIEW_REQUIRED
 
 
+# Expected values computed independently from ``finding_fingerprint`` (review finding R6): if the
+# test took its expectation from the production helper, switching the hash function would pass.
+# Vectors deliberately include duplicate and out-of-order artifact ids.
+INDEPENDENT_FINGERPRINT_VECTORS = [
+    (
+        "RULE-MISSING-IMPLEMENTATION-LINK",
+        "missing_implementation_link",
+        ["SCN-002", "SCN-002"],
+        "FND-b48266a397c838c9",
+    ),
+    (
+        "RULE-REVERIFICATION-REQUIRED",
+        "reverification_required",
+        ["SCN-001", "CODE-001", "REQ-001"],
+        "FND-c458a6d4a5494d67",
+    ),
+    (
+        "RULE-LIFECYCLE-SUPERSEDED",
+        "lifecycle_review_required",
+        ["REQ-003"],
+        "FND-4a4f24555531acf3",
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    ("rule_id", "finding_type", "artifact_ids", "expected"),
+    INDEPENDENT_FINGERPRINT_VECTORS,
+)
+def test_fingerprint_matches_an_independently_computed_vector(
+    rule_id: str, finding_type: str, artifact_ids: list[str], expected: str
+) -> None:
+    assert finding_fingerprint(RuleId(rule_id), FindingType(finding_type), artifact_ids) == expected
+
+
 def test_finding_status_default_is_open() -> None:
     finding = make_finding(
         rule_id=RuleId.CANDIDATE_PENDING_REVIEW,

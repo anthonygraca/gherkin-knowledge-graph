@@ -9,8 +9,24 @@ from typing import Any, TypeVar
 from pydantic import BaseModel, ValidationError
 
 from app.domain.errors import FixtureDataInvalid, FixtureDataMissing
+from app.version import SCHEMA_VERSION
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
+
+
+def require_supported_schema_version(declared: str, where: Path | str) -> None:
+    """Reject fixture data written against a different contract version.
+
+    Every loader of contract-bearing fixture data calls this: serving a file with an unsupported
+    ``schema_version`` would silently mix contract versions during workstream integration.
+    """
+    if declared != SCHEMA_VERSION:
+        raise FixtureDataInvalid(
+            f"{where} declares schema_version {declared!r} but this build implements "
+            f"{SCHEMA_VERSION!r}. Regenerate fixtures with "
+            f"'uv run --project backend python tools/fixturectl.py all' "
+            f"and review the contract change."
+        )
 
 
 def load_json(path: Path) -> Any:

@@ -246,10 +246,10 @@ def test_change_summary_matches_content_hash_comparison(
 ) -> None:
     parsed = oracle(fixture_settings, "baseline-b")
     assert parsed.change_summary is not None
-    changed = store.changed_artifact_ids("baseline-b", "baseline-a")
+    changed = store.changed_artifacts("baseline-b", "baseline-a")
     assert changed == sorted(parsed.change_summary.changed_artifact_ids)
 
-    all_ids = {artifact.artifact_id for artifact in store.resolve("baseline-b").artifacts}
+    all_ids = {artifact.artifact_id for artifact in store.list_artifacts("baseline-b")}
     assert sorted(all_ids - set(changed)) == sorted(parsed.change_summary.unchanged_artifact_ids)
 
 

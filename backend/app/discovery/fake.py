@@ -19,8 +19,7 @@ from pathlib import Path
 from app.domain.enums import RelationType
 from app.domain.models import TraceCandidate
 from app.domain.oracle import CandidateIndexFile
-from app.persistence.fixtures import load_model
-from app.version import SCHEMA_VERSION
+from app.persistence.fixtures import load_model, require_supported_schema_version
 
 
 def canonical_index_payload(index: CandidateIndexFile) -> dict[str, object]:
@@ -59,12 +58,10 @@ class FakeCandidateDiscovery:
     could be smuggled.
     """
 
-    def __init__(self, index: CandidateIndexFile) -> None:
-        if index.schema_version != SCHEMA_VERSION:
-            raise ValueError(
-                f"candidate index declares schema_version {index.schema_version!r} but the "
-                f"contracts are {SCHEMA_VERSION!r}"
-            )
+    def __init__(
+        self, index: CandidateIndexFile, *, source: Path | str = "candidate index"
+    ) -> None:
+        require_supported_schema_version(index.schema_version, source)
         self._index = index
         self.provider_name: str = index.provider
         self.model_version: str = index.model_version
@@ -72,7 +69,7 @@ class FakeCandidateDiscovery:
 
     @classmethod
     def from_fixture(cls, path: Path) -> FakeCandidateDiscovery:
-        return cls(load_model(path, CandidateIndexFile))
+        return cls(load_model(path, CandidateIndexFile), source=path)
 
     @property
     def candidate_count(self) -> int:

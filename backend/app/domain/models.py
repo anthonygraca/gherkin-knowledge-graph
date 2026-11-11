@@ -185,6 +185,30 @@ class AssuranceFinding(_FrozenModel):
         return _sorted_unique(value)
 
 
+def validate_link_partition(
+    *, accepted: Iterable[TraceLink], proposed: Iterable[TraceLink]
+) -> None:
+    """Enforce the invariant that proposal and acceptance never share a container.
+
+    Applied to every model that exposes both collections (snapshot and API response), so a
+    mispartitioned file is rejected at the boundary instead of being served to a consumer that
+    trusts ``accepted_links`` to contain only accepted relationships.
+    """
+    non_accepted = sorted(
+        link.link_id for link in accepted if link.review_state is not ReviewState.ACCEPTED
+    )
+    if non_accepted:
+        raise ValueError(
+            "accepted_links may only contain links with review_state=accepted: "
+            f"{', '.join(non_accepted)}"
+        )
+    promoted = sorted(
+        link.link_id for link in proposed if link.review_state is ReviewState.ACCEPTED
+    )
+    if promoted:
+        raise ValueError(f"proposed_links may not contain accepted links: {', '.join(promoted)}")
+
+
 def finding_fingerprint(
     rule_id: RuleId | str, finding_type: FindingType | str, artifact_ids: Iterable[str]
 ) -> str:

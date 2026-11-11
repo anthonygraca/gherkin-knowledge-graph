@@ -12,7 +12,7 @@ Baseline handling, stated once and relied on everywhere:
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.domain.enums import RelationType, ReviewDecision
 from app.domain.models import (
@@ -22,6 +22,7 @@ from app.domain.models import (
     TraceCandidate,
     TraceLink,
     VerificationEvidence,
+    validate_link_partition,
 )
 
 
@@ -54,6 +55,11 @@ class ThreadResponse(_FrozenModel):
     accepted_links: list[TraceLink]
     proposed_links: list[TraceLink]
     evidence: list[VerificationEvidence]
+
+    @model_validator(mode="after")
+    def _link_partition(self) -> ThreadResponse:
+        validate_link_partition(accepted=self.accepted_links, proposed=self.proposed_links)
+        return self
 
 
 class FindingsResponse(_FrozenModel):

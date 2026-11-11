@@ -14,7 +14,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Path, Query
 
-from app.api.deps import FindingsDep, ProvidersDep, SettingsDep, StoreDep
+from app.api.deps import FindingsDep, ProvidersDep, RepositoryDep, SettingsDep, StoreDep
 from app.domain.api import (
     DiscoveryRequest,
     DiscoveryResponse,
@@ -58,6 +58,7 @@ _PROBLEM_501: dict[str, object] = {
     summary="Liveness, contract version, and fixture baseline status",
 )
 def get_health(settings: SettingsDep, store: StoreDep, providers: ProvidersDep) -> HealthResponse:
+    """``baselines`` comes from the port; ``baseline_commits`` is a fixture-only convenience map."""
     return HealthResponse(
         status="ok",
         package_version=PACKAGE_VERSION,
@@ -78,10 +79,10 @@ def get_health(settings: SettingsDep, store: StoreDep, providers: ProvidersDep) 
 )
 def get_artifact(
     artifact_id: Annotated[str, Path(pattern=ARTIFACT_ID_PATTERN, description="e.g. REQ-001")],
-    store: StoreDep,
+    repository: RepositoryDep,
     baseline: Annotated[str | None, BASELINE_QUERY] = None,
 ) -> Artifact:
-    return store.artifact(artifact_id, baseline=baseline)
+    return repository.get_artifact(artifact_id, baseline=baseline)
 
 
 @router.get(
@@ -96,6 +97,7 @@ def get_thread(
     store: StoreDep,
     baseline: Annotated[str | None, BASELINE_QUERY] = None,
 ) -> ThreadResponse:
+    """Fixture-only replay of a precomputed thread; DT-04 (#23) replaces it with assembled data."""
     return store.thread(artifact_id, baseline=baseline)
 
 
@@ -113,11 +115,11 @@ def get_thread(
     ),
 )
 def get_findings(
-    store: StoreDep,
+    repository: RepositoryDep,
     findings: FindingsDep,
     baseline: Annotated[str | None, BASELINE_QUERY] = None,
 ) -> FindingsResponse:
-    return findings.findings(store.resolve(baseline))
+    return findings.findings(repository.resolve_baseline(baseline))
 
 
 @router.post(
@@ -129,10 +131,10 @@ def get_findings(
 )
 def post_discovery(
     payload: DiscoveryRequest,
-    store: StoreDep,
+    repository: RepositoryDep,
     providers: ProvidersDep,
 ) -> DiscoveryResponse:
-    store.artifact(payload.artifact_id)  # 404 when the source artifact is unknown
+    repository.get_artifact(payload.artifact_id)  # 404 when the source artifact is unknown
     provider = providers.get(payload.provider)  # 400 when the provider name is unknown
     candidates = provider.discover(
         payload.artifact_id,

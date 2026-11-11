@@ -33,6 +33,7 @@ from app.domain.models import (
     TraceLink,
     VerificationEvidence,
     _require_aware,
+    validate_link_partition,
 )
 
 
@@ -228,10 +229,7 @@ class BaselineSnapshot(_FrozenModel):
 
     @model_validator(mode="after")
     def _link_states(self) -> BaselineSnapshot:
-        if any(link.review_state != "accepted" for link in self.accepted_links):
-            raise ValueError("accepted_links may only contain links with review_state=accepted")
-        if any(link.review_state == "accepted" for link in self.proposed_links):
-            raise ValueError("proposed_links may not contain accepted links")
+        validate_link_partition(accepted=self.accepted_links, proposed=self.proposed_links)
         ids = [a.artifact_id for a in self.artifacts]
         if len(ids) != len(set(ids)):
             raise ValueError("artifact ids must be unique within a baseline snapshot")

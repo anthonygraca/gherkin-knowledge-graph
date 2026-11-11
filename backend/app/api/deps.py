@@ -12,6 +12,7 @@ from fastapi import Depends, Request
 
 from app.assurance.sample_findings import SampleFindingsSource
 from app.discovery.registry import ProviderRegistry
+from app.domain.ports import ArtifactRepository
 from app.persistence.store import FixtureStore
 from app.settings import Settings
 
@@ -20,7 +21,13 @@ def provide_settings(request: Request) -> Settings:
     return request.app.state.settings
 
 
+def provide_repository(request: Request) -> ArtifactRepository:
+    """The shared port: routes read artifacts, links, and evidence through this, not the class."""
+    return request.app.state.store
+
+
 def provide_store(request: Request) -> FixtureStore:
+    """The concrete M0 store, for the fixture-only surfaces (thread replay, baseline commit map)."""
     return request.app.state.store
 
 
@@ -33,6 +40,7 @@ def provide_providers(request: Request) -> ProviderRegistry:
 
 
 SettingsDep = Annotated[Settings, Depends(provide_settings)]
+RepositoryDep = Annotated[ArtifactRepository, Depends(provide_repository)]
 StoreDep = Annotated[FixtureStore, Depends(provide_store)]
 FindingsDep = Annotated[SampleFindingsSource, Depends(provide_findings_source)]
 ProvidersDep = Annotated[ProviderRegistry, Depends(provide_providers)]
