@@ -55,14 +55,15 @@ curl -s -X POST localhost:8011/api/assurance/evaluate -H 'content-type: applicat
 ```
 
 Also useful: run the fixture's own suite at both tags (the fixture tests are inside the generated
-repository):
+repository). Run each from its worktree root — the fixture repository's `conftest.py` is what puts
+`src` on `sys.path`, so pointing pytest at a path from outside fails collection:
 
 ```bash
 REPO="$PWD/fixtures/banking-demo/.build/repo"
 git -C "$REPO" worktree add --detach /tmp/cta-a baseline-a
 git -C "$REPO" worktree add --detach /tmp/cta-b baseline-b
-backend/.venv/bin/python -m pytest -q /tmp/cta-a/tests   # expect: pass
-backend/.venv/bin/python -m pytest -q /tmp/cta-b/tests   # expect: exactly 2 failures
+(cd /tmp/cta-a && "$OLDPWD/backend/.venv/bin/python" -m pytest -q --tb=short)   # expect: 5 passed
+(cd /tmp/cta-b && "$OLDPWD/backend/.venv/bin/python" -m pytest -q --tb=short)   # expect: exactly 2 failures
 git -C "$REPO" worktree remove --force /tmp/cta-a; git -C "$REPO" worktree remove --force /tmp/cta-b
 ```
 
@@ -99,6 +100,14 @@ Report as:
 4. **Falsification attempts that failed** — the attacks above that found nothing, in one line each,
    so the team knows what has been covered. No praise, no summary of the work, no restating the docs.
 5. **Recommendation** — whether M1 may start, and which single change should land before it does.
+
+## For a re-review after repairs
+
+Target the findings list in `docs/reviews/M0-review.md` with the same commands you used, against the
+new revision. For each finding: confirm the reproduction now fails (the probe is rejected, the guard
+exits non-zero, the mutation is caught), confirm a regression test exists that would catch it again,
+and confirm nothing regressed elsewhere. Report per finding: `repaired`, `partially repaired`, or
+`not repaired`, with the command output that shows it.
 
 Write your review to `docs/reviews/M0-review.md`. Do not modify any other file: this is a read-only
 review. If you believe a finding requires a code change, describe it; do not implement it.

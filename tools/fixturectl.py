@@ -82,6 +82,9 @@ GIT_IDENTITY = {
     "GIT_COMMITTER_EMAIL": "fixture@example.invalid",
     "GIT_CONFIG_GLOBAL": os.devnull,
     "GIT_CONFIG_SYSTEM": os.devnull,
+    # Pin the object format: without this the generator inherits GIT_DEFAULT_HASH from the caller's
+    # environment and every baseline SHA changes (review finding R5).
+    "GIT_DEFAULT_HASH": "sha1",
     "LC_ALL": "C",
     "TZ": "UTC",
 }
@@ -591,6 +594,20 @@ def compare_tree(committed: Path, generated: Path) -> list[str]:
     return problems
 
 
+def compare_file(committed: Path, generated: Path) -> list[str]:
+    """Compare a single generated file, handling absence explicitly.
+
+    A directory walker cannot verify a file: passed two file paths it enumerates nothing and
+    reports success. The baseline manifest is a single file, so it needs this comparison
+    (review finding R3).
+    """
+    if not committed.is_file():
+        return [f"missing from the repository: {committed}"]
+    if committed.read_text(encoding="utf-8") != generated.read_text(encoding="utf-8"):
+        return [f"out of date: {committed}"]
+    return []
+
+
 # ----------------------------------------------------------------------------------------
 # Commands
 # ----------------------------------------------------------------------------------------
@@ -625,14 +642,14 @@ def command_materialize(*, quiet: bool = False) -> list[Path]:
     return written
 
 
-def command_verify(*, api_dir: Path | None = None) -> int:
+def command_verify(*, api_dir: Path | None = None, baselines_path: Path | None = None) -> int:
     committed_api = api_dir or API_DIR
+    committed_baselines = baselines_path or (EXPECTED_DIR / "baselines.json")
     with tempfile.TemporaryDirectory(prefix="cta-fixture-verify-") as temporary:
         scratch = Path(temporary)
         manifest = build_repo(FIXTURE_DIR, scratch / "repo")
-        generated_expected = scratch / "expected"
-        generated_expected.mkdir()
-        write_json(generated_expected / "baselines.json", manifest)
+        generated_baselines = scratch / "baselines.json"
+        write_json(generated_baselines, manifest)
         generated_api = scratch / "api"
         materialize(
             repo=scratch / "repo",
@@ -640,9 +657,7 @@ def command_verify(*, api_dir: Path | None = None) -> int:
             expected_dir=EXPECTED_DIR,
             api_dir=generated_api,
         )
-        problems = compare_tree(
-            EXPECTED_DIR / "baselines.json", generated_expected / "baselines.json"
-        )
+        problems = compare_file(committed_baselines, generated_baselines)
         problems += compare_tree(committed_api, generated_api)
 
     if problems:
@@ -676,6 +691,12 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="compare against this directory instead of fixtures/api-responses",
     )
+    verify_parser.add_argument(
+        "--baselines",
+        type=Path,
+        default=None,
+        help="compare against this manifest instead of expected/baselines.json",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -689,7 +710,7 @@ def main(argv: list[str] | None = None) -> int:
             command_build()
             command_materialize()
             return 0
-        return command_verify(api_dir=args.api_dir)
+        return command_verify(api_dir=args.api_dir, baselines_path=args.baselines)
     except FixtureToolError as exc:
         print(f"fixturectl: {exc}", file=sys.stderr)
         return 2

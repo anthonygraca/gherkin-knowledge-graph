@@ -7,6 +7,7 @@ longer produces.
 
 from __future__ import annotations
 
+import json
 import shutil
 import subprocess
 import sys
@@ -55,3 +56,28 @@ def test_drift_detection_fails_when_a_generated_file_is_missing(tmp_path: Path) 
     result = run_verify("--api-dir", str(tampered_api))
     assert result.returncode == 1
     assert "missing from the repository" in result.stderr
+
+
+def test_drift_detection_fails_when_the_baseline_manifest_is_tampered(tmp_path: Path) -> None:
+    """Review R3: a directory walker cannot verify a single file, and reported false success."""
+    manifest = tmp_path / "baselines.json"
+    payload = json.loads(
+        (REPO_ROOT / "fixtures/banking-demo/expected/baselines.json").read_text(encoding="utf-8")
+    )
+    payload["tags"]["baseline-a"] = "0" * 40
+    manifest.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    result = run_verify("--baselines", str(manifest))
+    assert result.returncode == 1
+    assert "baselines.json" in result.stderr
+    assert "out of date" in result.stderr
+
+
+def test_drift_detection_fails_when_the_baseline_manifest_is_missing(tmp_path: Path) -> None:
+    """Review R3: deleting the manifest must be reported, not silently accepted."""
+    missing = tmp_path / "baselines.json"
+
+    result = run_verify("--baselines", str(missing))
+    assert result.returncode == 1
+    assert "missing from the repository" in result.stderr
+    assert "baselines.json" in result.stderr

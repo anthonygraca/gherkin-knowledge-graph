@@ -43,6 +43,11 @@ evidence-only commit would look like a source change.
 | 3 | Require whole-dollar withdrawals and cover the at-limit transfer boundary | — |
 | 4 | Record baseline B verification evidence | `baseline-b` |
 
+The generator pins everything that would otherwise leak in from the caller's environment: author and
+committer identity, dates, timezone, git config (global and system config are ignored), the branch
+name, and the object format (`sha1`, so a host exporting `GIT_DEFAULT_HASH` cannot change the
+baselines). Reproducibility is therefore a property of the fixture, not of the machine.
+
 ## Artifacts and conventions
 
 Identity is declared in the artifacts themselves (see `docs/domain-contracts.md`):

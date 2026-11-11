@@ -4,7 +4,7 @@
 
 * Python 3.11 or newer (3.12 is what CI uses)
 * [uv](https://docs.astral.sh/uv/) for dependency and environment management
-* `git` 2.28 or newer (fixture generation creates real repositories and tags)
+* `git` 2.29 or newer (fixture generation creates real repositories, tags, and pins the object format)
 
 Not required: Docker, a GPU, a model server, a database server, network access during tests.
 The first `uv sync` downloads dependencies from a package index; everything after that runs

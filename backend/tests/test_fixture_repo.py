@@ -172,3 +172,12 @@ def test_baseline_tag_tree_contains_the_expected_paths(
     assert "evidence/accepted-links.json" in listed
     assert "requirements/REQ-001.md" in listed
     assert "src/accounts.py" in listed
+
+
+def test_generator_pins_the_object_format(
+    fixture_settings: Settings, tmp_path, monkeypatch: pytest.MonkeyPatch, committed_manifest
+) -> None:
+    """Review R5: an inherited GIT_DEFAULT_HASH must not change the baseline SHAs."""
+    monkeypatch.setenv("GIT_DEFAULT_HASH", "sha256")
+    manifest = fixturectl.build_repo(fixture_settings.fixture_dir, tmp_path / "sha256-host")
+    assert manifest.tags == committed_manifest.tags
