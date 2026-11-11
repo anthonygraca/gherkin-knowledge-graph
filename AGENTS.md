@@ -5,6 +5,12 @@ Read `CONTINUOUS_TRACEABILITY_ROADMAP.md` (the plan) and `docs/stories/M0-founda
 `docs/STATUS.md`. Do not start a later milestone's work while an earlier milestone's exit
 criteria are unmet.
 
+Follow `docs/development-lifecycle.md` for this project's own lifecycle traceability. Canonical
+story acceptance criteria live in `docs/stories/<STORY-ID>.feature`; the M0 Markdown index maps
+them to existing pytest checks. These specifications are not directly executed by a Gherkin
+runner yet. Keep draft requirements, reviewed criteria, test mappings and actual execution
+evidence distinct; do not infer approval or passing evidence from file creation.
+
 ## Non-negotiable invariants
 
 1. **Proposals ≠ accepted links ≠ verification.** `TraceCandidate` has no link id and no

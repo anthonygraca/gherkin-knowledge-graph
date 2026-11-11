@@ -12,6 +12,37 @@
 
 Keep the roadmap ID at the start of the issue title so issues and `CONTINUOUS_TRACEABILITY_ROADMAP.md` stay cross-referenceable.
 
+## Lifecycle and acceptance specifications
+
+Follow [the development lifecycle](docs/development-lifecycle.md): stakeholder need → system
+obligation → story and behavioral acceptance criteria → design → implementation → verification
+evidence → stakeholder validation → release and maintenance. The initial
+[project definition](docs/project-definition.md) is a draft requiring owner/team review, not an
+approved requirements baseline. Preserve the milestone prerequisites in `docs/STATUS.md`. The
+adoption slice is **FT-03**
+([#39](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/39)) —
+[criteria](docs/stories/FT-03.feature), [record](docs/stories/FT-03.md); its criteria and the
+draft project definition still need owner/team review.
+
+For each newly refined story, store the canonical behavioral criteria in
+`docs/stories/<STORY-ID>.feature`. Tag the Feature with the existing story ID and `@issue-N`,
+and each scenario with a stable `@SCN-nnn`. Keep one current normative copy: after intake,
+the GitHub issue and PR link to the reviewed feature-file revision. Preserve old AC labels when
+migrating criteria, and record substantive changes as reviewed changes rather than silent edits.
+
+Before implementation, identify the source obligation/rationale, owner, examples including a
+failure case, design impact and intended verification method. Map every scenario to substantive
+tests and retain actual results at the tested revision/configuration. A specification, test mapping,
+approval and passing execution are separate records. Nonbehavioral obligations may need additional
+inspection/analysis records; they are not fabricated test passes.
+
+The M0 examples are [FT-01.feature](docs/stories/FT-01.feature) and
+[FT-02.feature](docs/stories/FT-02.feature), with their
+[pytest verification map](docs/stories/M0-foundation.md#acceptance-verification-map).
+They currently have no direct Gherkin runner bindings. Selecting a runner and adding bindings
+requires a scoped story/ADR; do not report unbound scenarios as executed. Fixture `.feature`
+files describe the synthetic repository evaluated by CTA, not CTA's own acceptance contract.
+
 ## Commit messages
 
 ```text

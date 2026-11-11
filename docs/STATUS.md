@@ -2,8 +2,8 @@
 
 ```text
 Date:                2026-11-11
-Current branch:      feat/8-m0-foundation — M0 implementation, the R1–R7 repairs, and the
-                     independent re-review records
+Current branch:      main — at efa824b (PR #38 merged 2026-11-11); the M0 implementation, the
+                     R1–R7 repairs, and the independent re-review records are on main
 Milestone:           M0 — implementation complete; exit gate SATISFIED by re-review round 2
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
                      docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
@@ -70,8 +70,8 @@ this session made no push.
 **NOT VERIFIED** anywhere in this run (state honestly in any report; none of these establishes
 an unmet M0 criterion):
 
-* hosted GitHub Actions execution — trigger: the CI run when this branch is pushed/merged (the
-  same gate commands pass locally on Python 3.12.16);
+* hosted GitHub Actions execution — the merge to `main` triggered it; the hosted result is not
+  verified in this record (the same gate commands pass locally on Python 3.12.16);
 * the first review's macOS / Git 2.54 environment — accepted limitation; the generator pins the
   object format and every identity/date/TZ input (R5);
 * `uv run --offline` under an OS-level network denial — the network-denied suite ran the venv
@@ -82,10 +82,24 @@ an unmet M0 criterion):
 
 ## Next tasks (in order)
 
+**Development lifecycle alignment:** The owner's requested process is documented in
+[development-lifecycle.md](development-lifecycle.md), starting with the draft
+[project definition](project-definition.md). FT-01/FT-02 criteria have been extracted without
+wording changes into `.feature` files and mapped to the existing pytest checks in
+[the M0 index](stories/M0-foundation.md#acceptance-verification-map). This is a specification
+organization change, not new requirement approval, direct Gherkin execution, or another M0
+independent re-review. Review the draft intent and extracted criteria/mappings before claiming
+a new accepted lifecycle baseline. The implementation/landing prerequisites below still apply.
+The adoption slice is story **FT-03**
+([#39](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/39)) — see its
+[criteria](stories/FT-03.feature) and [record/verification map](stories/FT-03.md). Its author
+checks are recorded; the review of the draft intent and of the extracted criteria/mappings
+remains outstanding, so nothing here changes the M0 approval recorded above.
+
 | # | Task | Issue | Acceptance condition |
 | --- | --- | --- | --- |
 | 1 | **Re-review M0** — done: round 1 NEEDS_INPUT (R1–R7 repaired; ACs PASS; R8), owner attestation recorded, round 2 **APPROVE** at `bca69cf` (`docs/reviews/M0-rereview-1.md`, `M0-rereview-2.md`) | #18, #19 | Every R1–R7 finding reported `repaired` with command output; no open major finding — met |
-| 2 | **Land the work** (team, outside this session): undraft/merge PR #38, close #18/#19; hosted CI runs on the push | #18, #19 | PR #38 merged with a green CI run; the milestone exit gate recorded in this file |
+| 2 | **Land the work** — PR #38 is merged as `efa824b` (2026-11-11); the remaining team actions are closing #18/#19 and confirming the hosted CI result for the merge commit | #18, #19 | PR #38 merged — met; tracker closure of #18/#19 and the hosted-run confirmation outstanding |
 | 3 | Then start B-PR1 / C-PR1 / A-PR1 in parallel | #20, #21, #23 / #2, #26 / #30 | See `docs/stories/M0-foundation.md` for the per-stream acceptance conditions |
 
 Task 1 has passed. M1/M2 (B-PR1/C-PR1) and M3 (A) may start once the branch lands: a milestone
