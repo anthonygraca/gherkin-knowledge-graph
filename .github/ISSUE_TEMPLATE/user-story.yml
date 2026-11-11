@@ -1,0 +1,57 @@
+name: User story
+description: Agile user story with Given/When/Then acceptance criteria
+title: "As a <role>, I want <capability>, so that <benefit>"
+labels: ["user-story"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        File this as a **sub-issue of its Feature** (Sub-issues panel, or `gh issue create --parent <N>`).
+        One story = one capability. The Given/When/Then criteria are the definition of done.
+  - type: input
+    id: story
+    attributes:
+      label: User story
+      description: As a <role>, I want <capability>, so that <benefit>.
+      placeholder: As a verification engineer, I want potential stale-evidence findings, so that I can schedule reverification without declaring failure.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria (Gherkin)
+      description: One or more Given/When/Then scenarios. These become the automated tests.
+      value: |
+        Scenario: <name>
+          Given ...
+          When ...
+          Then ...
+      render: gherkin
+    validations:
+      required: true
+  - type: input
+    id: feature
+    attributes:
+      label: Parent feature
+      description: Issue number of the Feature this story belongs to
+      placeholder: "#1"
+    validations:
+      required: false
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - P0
+        - P1
+        - P2
+      default: 0
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Dependencies / notes
+      description: Blocked-by issues, fixture cases covered, roadmap section references
+    validations:
+      required: false
