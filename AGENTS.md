@@ -57,34 +57,31 @@ uv run --project backend ruff format --check .
 uv run --project backend uvicorn app.main:app --reload       # dev server (fixtures only)
 ```
 
-## Commit messages are traceability data
+## Commit traceability (authoritative: `CONTRIBUTING.md`)
 
-Every commit MUST reference the roadmap item it implements. Use a conventional-commit subject
-plus machine-readable trailers:
+Every commit MUST reference the work item it serves, using the repository convention:
 
 ```
-feat(fixtures): deterministic banking-demo history with labeled oracle
+<type>(<scope>): <summary>
 
-Adds the nested fixture repository, hand-labeled findings oracle, and generated API samples.
+<why, not just what>
 
-Story: FT-01
-Feature: F-01
-Issue: #12
-Workstream: B
+Refs #<issue>
 ```
 
-* `Story:` — required. One or more roadmap story ids (`FT-01`, `FT-02`, `DT-01`, `AS-01`,
-  `AI-01`, `CI-01`, …) or M0 platform task ids (`M0-P1`, `M0-P2`, `M0-P3`).
-* `Feature:` — the roadmap feature id (`F-01` … `F-10`).
-* `Issue:` — the GitHub issue or PR number once one exists; omit until then.
-* `Workstream:` — `A`, `B`, `C`, or `shared`.
-
-Trailers are parsed by `git interpret-trailers --parse`; M4/CI-01 joins commits to stories from
-them, so do not invent alternative trailer names. Check your own message with:
-
-```bash
-git log -1 --format=%B | git interpret-trailers --parse
-```
+* `Refs #<issue>` for partial work; `Closes #<issue>` only when the issue is genuinely complete
+  (its Gherkin acceptance criteria are tested). Reference every served item: `Refs #3, #4`.
+* Types: `feat` `fix` `docs` `test` `refactor` `chore` `ci`.
+* Look up a roadmap id (`AS-02`, `FT-01`, …) in `docs/traceability-issue-map.md`. The roadmap id is
+  the prefix of the issue title, so the map can always be rebuilt from the tracker.
+* A GitHub issue number is the reference of record. Do not add a parallel id scheme in the message:
+  `Refs #N` is what GitHub links on the issue timeline, and `Refs #(\d+)` is the machine-readable
+  form (it is not a `git interpret-trailers` key/value pair).
+* Pre-convention history (`ae859cd`, `204eb49`) is retro-attributed to SETUP-01 (#8) and must not
+  be rewritten.
+* Branches: `<type>/<issue>-<slug>`; PR title `<ID>: <summary>`; PR body `Closes #<issue>` or
+  `Refs #<issue>`. Cross-boundary changes need a review from a second workstream.
+* `main` takes no direct commits once CI exists: work lands through a pull request.
 
 ## Change conventions
 
@@ -121,4 +118,11 @@ git log -1 --format=%B | git interpret-trailers --parse
 4. `uv run --project backend pytest backend/tests` passes offline; `fixturectl.py verify` passes.
 5. `ruff check` and `ruff format --check` pass.
 6. Docs include how to invoke or demo the change; assumptions in freshness rules are stated.
-7. Commit message carries the story trailers.
+7. The commit message carries `Refs #<issue>` (see `CONTRIBUTING.md`).
+
+## Definition of done (per milestone)
+
+A milestone closes only when its exit criteria pass **and** an independent review of those criteria
+(`docs/reviews/`) has no open major finding. The reviewer is not the author of the change, and a
+review verdict of "not verified" blocks the next milestone until the findings are repaired and
+re-reviewed.

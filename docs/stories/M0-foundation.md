@@ -11,7 +11,7 @@ source of story numbers. Any change to this file is a contract change: A, B, and
 
 ---
 
-## FT-01 — labeled fixture repository and baseline oracle (owner: B lead)
+## FT-01 — labeled fixture repository and baseline oracle (owner: B lead) · GitHub [#18](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/18)
 
 > As a developer, I want labeled fixture repos and baseline oracles so I can test without external systems.
 
@@ -111,7 +111,7 @@ Scenario: The fixture test suite reproduces the labeled evidence
 
 ---
 
-## FT-02 — versioned contracts and mock responses (owner: B lead)
+## FT-02 — versioned contracts and mock responses (owner: B lead) · GitHub [#19](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/19)
 
 > As a developer, I want versioned API/domain contracts plus mock responses so I can build independently.
 
@@ -175,6 +175,34 @@ Scenario: Contract-only endpoints in M0
 | M0-P1 | Repository layout and module ownership | `docs/architecture.md`, `AGENTS.md` |
 | M0-P2 | Developer setup guide and offline test command | `docs/setup.md`, `README.md` |
 | M0-P3 | Initial CI workflow (offline job) | `.github/workflows/ci.yml` |
+
+On the tracker these three platform tasks belong to the **SETUP-01** user story
+([#8](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/8), sub-issue of F-01 [#7](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/7)).
+They are not separate issues: `M0-Pn` ids exist only in this document.
+
+---
+
+## Independent review gate
+
+M0 is not self-certified. The exit criteria above were reviewed independently against the committed
+revision, per `docs/reviews/M0-review-prompt.md`.
+
+* Review: `docs/reviews/M0-review.md` · verdict **"M0 not verified"**
+* Blocking findings, all mapped to the two foundation stories:
+  * **R1 (major, #19)** — `FixtureStore` does not satisfy the declared `ArtifactRepository` port,
+    so the M0 "everyone can begin independently" exit criterion is unmet.
+  * **R2 (major, #19)** — `ThreadResponse` accepts a non-accepted link inside `accepted_links`.
+  * **R3 (major, #18)** — `fixturectl.py verify` reports success for a tampered or deleted
+    `expected/baselines.json`.
+  * **R4 (minor, #19)**, **R5 (minor, #18)**, **R6 (minor, #19)**, **R7 (minor, #18)** — see the
+    review for reproductions.
+* Rule: M1 does not start until R1–R3 are repaired, re-tested, and cleared by a re-review. The
+  per-finding acceptance conditions are the "Next tasks" table in `docs/STATUS.md`.
+
+Verified by the review and worth keeping: the proposal-versus-accepted separation survived the
+attack attempts (discovery never wrote an accepted link or evidence), the fixture history rebuilds
+identically in a normal environment, the full offline suite passes, and the fixture's own tests
+reproduce the labeled pass/fail evidence.
 
 ---
 

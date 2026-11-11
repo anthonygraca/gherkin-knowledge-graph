@@ -8,8 +8,10 @@ reverification after a change, and unreviewed semantic link suggestions.
 Nothing about normal development or testing requires a GPU, LLM, embedding service, vector
 database, or network access. The whole project runs from committed fixture data.
 
-**Status: Milestone M0 complete** (contract + fixture foundation). See `docs/STATUS.md` for
-current state and the next three tasks.
+**Status: M0 implementation complete; exit gate not yet satisfied.** An independent review
+(`docs/reviews/M0-review.md`) returned **"M0 not verified"** with three major contract/verification
+findings (R1–R3) that are mapped to issues #18/#19 in `docs/STATUS.md`. M1 does not start until
+those are repaired and re-reviewed.
 
 ## Quickstart
 
@@ -68,6 +70,9 @@ tools/fixturectl.py                 builds the fixture history and generated res
 * `docs/api-contracts.md` — endpoint reference with request/response examples
 * `docs/stories/M0-foundation.md` — M0 acceptance criteria and follow-on assignments
 * `docs/adr/` — architecture decision records, including deferred decisions
-* `docs/STATUS.md` — milestone state, tests executed, next tasks
+* `docs/STATUS.md` — milestone state, open review findings, tests executed, next tasks
+* `docs/traceability-issue-map.md` — roadmap ids → GitHub features, user stories, and milestones
 * `docs/reviews/M0-review-prompt.md` — prompt for an independent review of this milestone
+* `docs/reviews/M0-review.md` — the independent review of M0 (verdict: not verified; blockers listed)
+* `CONTRIBUTING.md` — tracker shape, commit/branch/PR conventions (authoritative)
 * `fixtures/banking-demo/README.md` — the fixture repository and its oracle
