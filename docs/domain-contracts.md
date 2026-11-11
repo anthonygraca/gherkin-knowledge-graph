@@ -32,6 +32,12 @@ CI commits metadata after a verified revision.
   resolved commit SHA.
 * Multiple baseline snapshots coexist in the fixture snapshot; later workstreams add the
   ingestion and query paths that populate them.
+* Every loader of contract-bearing fixture data checks `schema_version` and refuses to serve a file
+  written against another version (`fixture-data-invalid`, 500). Serving mixed contract versions is
+  a defect, not a compatibility mode.
+* `ArtifactRepository` is the consumer-facing read contract: `baselines`, `resolve_baseline`,
+  `get_artifact`, `list_artifacts`, `list_links`, `list_evidence`, `changed_artifacts`. The M0
+  mock satisfies it, and a test reads the whole thread through the port alone.
 
 ## Relations
 

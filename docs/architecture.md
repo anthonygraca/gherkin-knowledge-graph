@@ -20,8 +20,12 @@ Two rules explain most of the layout:
 1. **The oracle is a first-class input.** Hand-labeled files (`expected/*.json`) plus a
    *generated* snapshot are the shared input for every workstream, and the generated files are
    drift-checked (`fixturectl.py verify`, CI, and a test).
-2. **Everything reachable from the API is behind a port.** M0 implementations are fixture
-   replays; M1+ implementations replace them without touching routes, contracts, or tests.
+2. **Everything reachable from the API is behind a port.** Routes that read the thread's facts
+   depend on `ArtifactRepository` (`RepositoryDep`), not on `FixtureStore`: artifacts, artifact
+   lists, links, evidence, changed artifacts, and baseline resolution all go through the port.
+   Two surfaces are explicitly fixture-only and are named as such in the code: the precomputed
+   thread replay (`FixtureStore.thread`, replaced by DT-04) and the sample-findings source
+   (`SampleFindingsSource`, replaced by AS-01…AS-03).
 
 ## Modules
 
