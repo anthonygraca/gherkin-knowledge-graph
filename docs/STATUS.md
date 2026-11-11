@@ -2,7 +2,7 @@
 
 ```text
 Date:                2026-11-10
-Current branch:      main (uncommitted working tree of M0 work at time of writing; see git log)
+Current branch:      main — M0 is the series of commits after ae859cd ("Initial commit")
 Milestone completed: M0 — Contract + fixture foundation
 Implemented stories: FT-01, FT-02 (foundation). Platform tasks M0-P1, M0-P2, M0-P3.
 Tests executed:      uv run --project backend pytest backend/tests -q  →  92 passed
