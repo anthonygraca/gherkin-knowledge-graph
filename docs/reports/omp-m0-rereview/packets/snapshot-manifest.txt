@@ -1,0 +1,142 @@
+generated_at_utc: 2026-11-11T05:18:50Z
+head: 191c8292f0492d34582f6e33db3cb6f29be9a9e0
+first_review_reviewed_commit: acf0738aa1ae91327bba433a80238d776a952343
+branch: feat/8-m0-foundation
+package_version: "0.1.0"
+
+== tracked files: git ls-files -s ==
+100644 b2807e14554b535f19e455079d83d3c89d50f5bc 0	.github/ISSUE_TEMPLATE/user-story.yml
+100644 da306270ca2757c1b7db04d7072d5cba1c07174b 0	.github/workflows/ci.yml
+100644 2ca438270a599d26072fd7b97c92cfa6c006d30d 0	.gitignore
+100644 f1ae7d90956d361a8f01ab61fd837564dae44fc4 0	AGENTS.md
+100644 431eb3ebe38d94e78215e04cff935b31a2be36ff 0	CODEX_KICKOFF_PROMPT.md
+100644 117ab02f7b4a9ddfe8a69788973bf61b842e66f7 0	CONTINUOUS_TRACEABILITY_ROADMAP.md
+100644 622eb9e4fde350c1a3551a195540d21e40cad047 0	CONTRIBUTING.md
+100644 75b15b95646a781688ca366953af718fde522c4e 0	README.md
+100644 66d03aa413bdb53ec4a6ba52a1b5b2be2b1e6bfc 0	backend/app/__init__.py
+100644 de08488a1d262c55ddc2e21bfcc29e8c423860a4 0	backend/app/api/__init__.py
+100644 98e2bb78a8bcbe9324e0c68ffe8266365f096514 0	backend/app/api/deps.py
+100644 d0759e2a68e55352dac143566907ba9fbefd76af 0	backend/app/api/errors.py
+100644 ae5ec6be977259f27e9f0ae09c9513b93cf56f2d 0	backend/app/api/routes.py
+100644 6b3718ae27f9bf6e6d9c5f95a3283df3524b2950 0	backend/app/assurance/__init__.py
+100644 6ee51dd5964207f5d23dd32c417de3d75d00f00c 0	backend/app/assurance/sample_findings.py
+100644 aff144d29ec6d8b39a0f904ad8478aa6fff74731 0	backend/app/discovery/__init__.py
+100644 9053a5692a0333dfbea511becbfb17323c30c0f6 0	backend/app/discovery/fake.py
+100644 548870cd30a72fe878f69d68fede3a70ddc93401 0	backend/app/discovery/registry.py
+100644 492d5a54ce1dae791cae7656e8f427f2053f42ad 0	backend/app/domain/__init__.py
+100644 c4bbf9fc0c0c6a210c5ac4af06c28aa6c3488f6d 0	backend/app/domain/api.py
+100644 b0ba404f40bb083942a879dc9d12eb6e0d57f993 0	backend/app/domain/enums.py
+100644 6566f0d62b149320299b9395b7d8ef6272142285 0	backend/app/domain/errors.py
+100644 fcbbe3483eed62b6e2f4718a6b0b70b412da654b 0	backend/app/domain/models.py
+100644 561295172299a821bfb9a70ee2d9754243bae9e1 0	backend/app/domain/oracle.py
+100644 5625f44d5310e023ca26a8f58d01036f04c9be48 0	backend/app/domain/policy.py
+100644 01bd3fa15d240ba7bbd82d15840726035570c538 0	backend/app/domain/ports.py
+100644 f7b6cb962c6e2793bbe3f01f8c8aa508f499a8e2 0	backend/app/main.py
+100644 1a912c9bf5fcae11a2bac9a88e6ec92c33f24d72 0	backend/app/persistence/__init__.py
+100644 27c91c2618e2fbe2e35bad097314039363cf2a18 0	backend/app/persistence/fixtures.py
+100644 0000bafd9f646a5e5eec198d9d0d4bf1b7f1f001 0	backend/app/persistence/store.py
+100644 8ed246964f62ced0eb37bde2a897231b8c5e854f 0	backend/app/settings.py
+100644 d360954311d6062a51461e2410e2df21583bc0bd 0	backend/app/version.py
+100644 2cbd66f1cec96241cba279f536d23607788e5a50 0	backend/pyproject.toml
+100644 b6428497c949f9b4e19d9be58b2af2d95997ba4d 0	backend/tests/conftest.py
+100644 c1120dba7a4ccee55b05b5eeacfbb5512170e566 0	backend/tests/test_api_contract.py
+100644 bb9b6061b05897855b2c3280c67aa1f4706b7d7f 0	backend/tests/test_contract_boundaries.py
+100644 87c030d803a23de7b9e9a525a5bbacc95ed08f22 0	backend/tests/test_domain_contracts.py
+100644 a3f52e58fd6c079e5d64a0e0a211952014ea50a1 0	backend/tests/test_fake_discovery.py
+100644 c19c462127534519f90bd9ff116c3bd06347c761 0	backend/tests/test_fixture_drift.py
+100644 45554d5ca6d6693b4990d8b26d3475d273766e76 0	backend/tests/test_fixture_oracle.py
+100644 d0cc7f04a5092a388b68b058adb858ed8498aee3 0	backend/tests/test_fixture_repo.py
+100644 85c4049ee0f75ce959b81809f61ff6e36f1f51e5 0	backend/uv.lock
+100644 7f24a26de36a6ce390e56010d2fa9dcc6dd4bc94 0	docs/STATUS.md
+100644 3a49439753c773ae604e7b9145587e4bf57bd915 0	docs/adr/0001-project-layout-and-packaging.md
+100644 c91f50c3ff32876dc64db1dc19a8b66d933b1542 0	docs/adr/0002-fixture-repository-and-generated-baselines.md
+100644 d6c58c8cdf599559658c139b606b547ba6cb6be0 0	docs/adr/0003-artifact-identity-and-revisions.md
+100644 3157ad63875fb7c6e24ac96d6eba805bf3db6bbd 0	docs/adr/0004-proposals-vs-accepted-links.md
+100644 20f5984789e4f989ae4ad54d3833973ad6c17d63 0	docs/adr/0005-evidence-freshness-policy.md
+100644 6d8ffad055a8df2672c0e0eb9731e255201d7ad5 0	docs/adr/0006-deferred-decisions.md
+100644 95345201dcbd89719bdc32e6ec3bd4a324a41669 0	docs/api-contracts.md
+100644 3fddcd9454394983fc3ab93f6799e0424678ebf0 0	docs/architecture.md
+100644 2ffd594c2ebbd72bba3a4bc9ac49d8f6c6ddc164 0	docs/domain-contracts.md
+100644 39bbfd1f177eb28ee7b0d763ed670c2b97bcdf5c 0	docs/reviews/M0-review-prompt.md
+100644 a8df3ecf4b8338e4b2d855329b38f15e14abc782 0	docs/reviews/M0-review.md
+100644 62eba0db5004742b236d4889ead139a3f65b0370 0	docs/setup.md
+100644 fea70482729f8651c5fb023440435c2a996bcc75 0	docs/stories/M0-foundation.md
+100644 2d3ded49a1c07c9c86d35c5c43bbaed631ca33be 0	docs/traceability-issue-map.md
+100644 38617dd398b2466d3d27cd211152f3e1607db509 0	fixtures/README.md
+100644 a6a47c9dcbb44f9e7e005f36ba9b1a871f124df3 0	fixtures/api-responses/README.md
+100644 90f1db9d5847d7d0ebd4616d31d1cdd243068da4 0	fixtures/api-responses/discovery.REQ-002.json
+100644 b73dc810d162c2e6ab199a0e987c98549a6a712d 0	fixtures/api-responses/discovery.SCN-001.json
+100644 a5166eb0978faff46562a1ea5ab00f7b3799eb48 0	fixtures/api-responses/discovery.SCN-002.json
+100644 4a0d090282890c02a1b701beb54d31bff317aa0b 0	fixtures/api-responses/discovery.SCN-003.json
+100644 688f9e05d5d97ce029be18608a0b028807c4eda8 0	fixtures/api-responses/findings.baseline-a.json
+100644 3689517a1c32699dc9917e5e81be338a3e2c2d55 0	fixtures/api-responses/findings.baseline-b.json
+100644 782bb60841f24f0a76182bb7390c02dcd579137d 0	fixtures/api-responses/snapshot.json
+100644 4483b4875b30b1bfe1f597d7bdd9be7412e859b0 0	fixtures/api-responses/threads/REQ-001.baseline-a.json
+100644 0c1580a9098b5e7051e6a0678753f18dfe95a950 0	fixtures/api-responses/threads/REQ-001.baseline-b.json
+100644 c3b8d3426b734b8a650083a82b89a6d3908bdb00 0	fixtures/api-responses/threads/REQ-002.baseline-a.json
+100644 e9932b6d603606b8f11f265eed0ac403caa91fc5 0	fixtures/api-responses/threads/REQ-002.baseline-b.json
+100644 1b74366c7c0505400c0d1354c0f313efc25d402c 0	fixtures/api-responses/threads/REQ-003.baseline-a.json
+100644 ee95e2911357c307d08db869a5f8acc81304006a 0	fixtures/api-responses/threads/REQ-003.baseline-b.json
+100644 f1af67013245ae8733becb9205bc3adf51084095 0	fixtures/banking-demo/README.md
+100644 69f5d460aa0bdccd3bd251517d46cd1b73d9d2fe 0	fixtures/banking-demo/changes/02-baseline-a-evidence/evidence/verification-runs.json
+100644 8ffead6d5a435ddee9a7fd05b4241ac2c0635120 0	fixtures/banking-demo/changes/03-baseline-b-change/src/accounts.py
+100644 1f87c9e36ae79b349b01cd9eaae1502f4b639dd4 0	fixtures/banking-demo/changes/03-baseline-b-change/tests/test_transfers.py
+100644 fb4f1ca755c3fd58833c98ed47570d78720e36db 0	fixtures/banking-demo/changes/04-baseline-b-evidence/evidence/verification-runs.json
+100644 a516d5316a41914871d49d218fc09ca28fe9b23a 0	fixtures/banking-demo/expected/baseline-a.json
+100644 6ce7b7d82e1498810e69ce6e7d85ebdb1ffc2c13 0	fixtures/banking-demo/expected/baseline-b.json
+100644 d68c97847a49a86cbbf6d4a7dc6d9dd453c1634a 0	fixtures/banking-demo/expected/baselines.json
+100644 c242c040e2ad837a2d38cb7f733acd07a350c75f 0	fixtures/banking-demo/expected/candidate-links.json
+100644 cd73a8761f40f4d9c03dccff9829fa360ac0fb34 0	fixtures/banking-demo/history.json
+100644 aae4dd240b80b45f9cb79c6e88a9a2d6ff51a346 0	fixtures/banking-demo/tree/conftest.py
+100644 3e94186497f7e07152b61f203f9688496e254fb8 0	fixtures/banking-demo/tree/evidence/accepted-links.json
+100644 9e4c715cf19a530d195bd6c59a8fd8bae7676478 0	fixtures/banking-demo/tree/evidence/proposed-links.json
+100644 d4d2fb33f0e84d774491d3b0420d9319a8c0073a 0	fixtures/banking-demo/tree/features/transfers.feature
+100644 9151d756c40124e5ee4ae2fb646967f610c99e82 0	fixtures/banking-demo/tree/features/withdrawals.feature
+100644 2f9d4581e2c525313becd52c59f808a12e68566c 0	fixtures/banking-demo/tree/requirements/REQ-001.md
+100644 8a3f5c7bd5ed1e0ebf593946402046ce65094816 0	fixtures/banking-demo/tree/requirements/REQ-002.md
+100644 d96cbc223b2945c4599139520a6151694728bd21 0	fixtures/banking-demo/tree/requirements/REQ-003.md
+100644 703fb40cb6852acff8a351ffa7f4c9098b018795 0	fixtures/banking-demo/tree/src/__init__.py
+100644 7f3a81eae6dfb10276304906733f003d28680134 0	fixtures/banking-demo/tree/src/accounts.py
+100644 fef71a51f3c252c1fa98fba8e97077c765e2cb84 0	fixtures/banking-demo/tree/src/transfers.py
+100644 28b521bba620ea78873b4ae77bdedabc8e5af271 0	fixtures/banking-demo/tree/tests/test_accounts.py
+100644 482b5d4ae9493ba0103c265f7b79a6f998b10aa9 0	fixtures/banking-demo/tree/tests/test_transfers.py
+100644 b2e07ff092ff76f1ba0164f5556036849fb98066 0	prompts/omp-codex-agentic-loop.md
+100644 ded38648466c56d0d5dd04ad81a733e8acb07c7f 0	ruff.toml
+100755 20d46dfed8c0307a3722d1c98f6300be110772b6 0	tools/fixturectl.py
+
+== working tree: git status --porcelain -uall ==
+ M README.md
+ M docs/architecture.md
+ M prompts/omp-codex-agentic-loop.md
+
+== delta since first review: git diff --raw acf0738a..HEAD ==
+:000000 100644 0000000 b2807e1 A	.github/ISSUE_TEMPLATE/user-story.yml
+:100644 100644 1d8f50d f1ae7d9 M	AGENTS.md
+:000000 100644 0000000 622eb9e A	CONTRIBUTING.md
+:100644 100644 c262fd2 75b15b9 M	README.md
+:100644 100644 f1d8f5e 98e2bb7 M	backend/app/api/deps.py
+:100644 100644 d97bbe1 ae5ec6b M	backend/app/api/routes.py
+:100644 100644 aed740f 6ee51dd M	backend/app/assurance/sample_findings.py
+:100644 100644 5311c8d 9053a56 M	backend/app/discovery/fake.py
+:100644 100644 97a1412 c4bbf9f M	backend/app/domain/api.py
+:100644 100644 777e5bc fcbbe34 M	backend/app/domain/models.py
+:100644 100644 94bd11c 5612951 M	backend/app/domain/oracle.py
+:100644 100644 d5f0de6 27c91c2 M	backend/app/persistence/fixtures.py
+:100644 100644 6a0f725 0000baf M	backend/app/persistence/store.py
+:000000 100644 0000000 bb9b606 A	backend/tests/test_contract_boundaries.py
+:100644 100644 f9b9697 87c030d M	backend/tests/test_domain_contracts.py
+:100644 100644 cb44edd c19c462 M	backend/tests/test_fixture_drift.py
+:100644 100644 07c0aef 45554d5 M	backend/tests/test_fixture_oracle.py
+:100644 100644 1b6d048 d0cc7f0 M	backend/tests/test_fixture_repo.py
+:100644 100644 2497e29 7f24a26 M	docs/STATUS.md
+:100644 100644 09b5620 3fddcd9 M	docs/architecture.md
+:100644 100644 56d103e 2ffd594 M	docs/domain-contracts.md
+:100644 100644 6f7db77 39bbfd1 M	docs/reviews/M0-review-prompt.md
+:000000 100644 0000000 a8df3ec A	docs/reviews/M0-review.md
+:100644 100644 06bfc26 62eba0d M	docs/setup.md
+:100644 100644 83bcd9c fea7048 M	docs/stories/M0-foundation.md
+:000000 100644 0000000 2d3ded4 A	docs/traceability-issue-map.md
+:100644 100644 47874c2 f1af670 M	fixtures/banking-demo/README.md
+:000000 100644 0000000 b2e07ff A	prompts/omp-codex-agentic-loop.md
+:100644 100644 802e323 ded3864 M	ruff.toml
+:100755 100755 892dd5c 20d46df M	tools/fixturectl.py

@@ -1,0 +1,10 @@
+$ uv run --project backend python /tmp/cta-rereview-1/p_r5_hash.py
+exit=0 elapsed=0.4s
+--- stdout ---
+different directories, tags equal: True | equals committed: True
+global commit.gpgsign=true + TZ=Pacific/Honolulu, tags equal committed: True
+GIT_DEFAULT_HASH=sha256, tags equal committed: True
+committed tags: {'baseline-a': '67109fac965377629c9ab5835541aa64461db785', 'baseline-b': 'c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54'}
+sha256-env tags: {'baseline-a': '67109fac965377629c9ab5835541aa64461db785', 'baseline-b': 'c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54'}
+
+--- stderr ---

@@ -1,0 +1,19 @@
+$ uv run --project backend python /tmp/cta-rereview-1/p_r3_verify.py
+exit=0 elapsed=0.7s
+--- stdout ---
+R3 manifest tampered: exit=1
+Generated fixture files are out of date:
+  - out of date: /tmp/cta-m0-manifest-wou36_e1/baselines.json
+
+Regenerate and commit with:
+  uv run --project backend python tools/fixturectl.py all
+---
+R3 manifest deleted: exit=1
+Generated fixture files are out of date:
+  - missing from the repository: /tmp/cta-m0-manifest-wou36_e1/sub/baselines.json
+
+Regenerate and commit with:
+  uv run --project backend python tools/fixturectl.py all
+---
+
+--- stderr ---

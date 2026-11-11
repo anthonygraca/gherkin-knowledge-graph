@@ -1,0 +1,15 @@
+$ uv run --project backend python tools/fixturectl.py build
+exit=0
+--- stdout ---
+81efe21a8ffd  baseline-a-source
+67109fac9653  baseline-a-evidence  tags: baseline-a
+812256f7e959  baseline-b-change
+c02064fed61b  baseline-b-evidence  tags: baseline-b
+wrote /home/anthonygraca/CSU Fullerton Dropbox/Anthony Graca/cpsc-583-knowledge-representation/project/gherkin-knowledge-graph/fixtures/banking-demo/expected/baselines.json (unchanged)
+
+--- stderr ---
+
+== git status --porcelain -uall after build ==
+ M README.md
+ M docs/architecture.md
+ M prompts/omp-codex-agentic-loop.md

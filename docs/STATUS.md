@@ -4,18 +4,24 @@
 Date:                2026-11-11
 Current branch:      feat/8-m0-foundation — M0 implementation, the R1–R7 repairs, and the
                      independent re-review records
-Milestone:           M0 — implementation complete; exit gate pending the re-review verdict
+Milestone:           M0 — implementation complete; exit gate SATISFIED by re-review round 2
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
-                     docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, reasoning
-                     effort xhigh): NEEDS_INPUT. R1–R7 all repaired; AC-1.1…AC-1.8 and
-                     AC-2.1…AC-2.5 all PASS; sole blocker R8 (no recorded human review of the
-                     hand-labeled oracle), now attested at docs/reviews/M0-oracle-human-review.md
+                     docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
+                     NEEDS_INPUT; R1–R7 all repaired; AC-1.1…AC-1.8 and AC-2.1…AC-2.5 all PASS;
+                     sole blocker R8 (no recorded human review of the hand-labeled oracle)
+                     docs/reviews/M0-oracle-human-review.md — the owner's attestation (R8
+                     evidence, sha256-tied to the three oracle files at revision 191c829)
+                     docs/reviews/M0-rereview-2.md — re-review round 2 (GPT-6.1 Sol, xhigh):
+                     APPROVE at snapshot bca69cf (tree e55ff9f); R8 repaired/closed; no open
+                     major finding; M0 exit criteria verified within scope
 Tests executed:      uv run --project backend pytest backend/tests -q  →  107 passed (offline;
                      also 107 passed under an OS-level network denial)
                      uv run --project backend python tools/fixturectl.py verify  →  exit 0
                      uv run --project backend ruff check . && ruff format --check .  →  clean
 Current API/schema version: 0.1.0
 Tracker:             docs/traceability-issue-map.md (features → user stories → tasks)
+Run records:         docs/reports/omp-m0-rereview/ (report, prompt log, metrics, evidence,
+                     probes, packets)
 Environment:         Python ≥3.11, uv, git ≥2.28; no GPU, LLM, vector store, Docker, or network
                      during tests
 ```
@@ -36,18 +42,19 @@ Environment:         Python ≥3.11, uv, git ≥2.28; no GPU, LLM, vector store,
   committed generated fixtures are what the generator produces and proof that the fixture's own
   suite passes at `baseline-a` and fails exactly twice at `baseline-b`.
 
-## Open findings that block M1
+## Findings and their dispositions (M0)
 
 The independent review is ground truth. Reproduce before repairing; do not declare the milestone
-complete while a major finding is open.
+complete while a major finding is open. No major finding is open at the approved snapshot.
 
-All seven findings below have repair commits and regression tests on branch
-`feat/8-m0-foundation` (PR #38). Re-review round 1 dispositioned R1–R7 as repaired and passed
-every M0 acceptance criterion, and raised one new blocking evidence gap — R8, no recorded human
-review of the hand-labeled oracle. That attestation is now recorded at
-`docs/reviews/M0-oracle-human-review.md`. **M0 still requires the final re-review verdict**: a
-milestone closes only when an independent review of its exit criteria has no open *major*
-finding, and round 2 is where that verdict will land.
+All findings below have repair commits and regression tests on branch `feat/8-m0-foundation`
+(PR #38). Round 1 dispositioned R1–R7 as repaired, passed every M0 acceptance criterion, and
+raised one blocking evidence gap — R8, no recorded human review of the hand-labeled oracle. The
+repository owner's attestation is recorded at `docs/reviews/M0-oracle-human-review.md`, and
+round 2 (`docs/reviews/M0-rereview-2.md`) **approved** the snapshot `bca69cf` with **no open
+major finding**, satisfying the independent-review gate in `AGENTS.md`'s milestone definition
+of done. Milestone closure itself (undraft/merge PR #38, closing #18/#19) is a team action;
+this session made no push.
 
 | Finding | Severity | What it meant | Repair | Regression test |
 | --- | --- | --- | --- | --- |
@@ -60,23 +67,31 @@ finding, and round 2 is where that verdict will land.
 | R7 | minor | The review prompt's fixture-test command failed collection | Prompt now runs pytest from each worktree root and explains why | — (documentation; exercised manually) |
 | R8 | major (evidence gap) | Round 1 raised: no recorded human review of the hand-labeled oracle (`AGENTS.md` invariant 6) | Repository-owner attestation recorded (`docs/reviews/M0-oracle-human-review.md`), tied to the three files' sha256 values at `191c829`; final disposition in round 2 | — (human record, not an automated test) |
 
-Unverified by review (state honestly in any report): general staleness/failure classification for
-inputs other than the fixture's `REQ-001` case; hosted Linux CI; and side-effect freedom for
-future provider plugins. (Cross-environment reproducibility was R5 and is now pinned; the
-hand-labeled oracle's human review is now attested by the repository owner at revision
-`191c829` — see `docs/reviews/M0-oracle-human-review.md`.)
+**NOT VERIFIED** anywhere in this run (state honestly in any report; none of these establishes
+an unmet M0 criterion):
+
+* hosted GitHub Actions execution — trigger: the CI run when this branch is pushed/merged (the
+  same gate commands pass locally on Python 3.12.16);
+* the first review's macOS / Git 2.54 environment — accepted limitation; the generator pins the
+  object format and every identity/date/TZ input (R5);
+* `uv run --offline` under an OS-level network denial — the network-denied suite ran the venv
+  interpreter directly under `unshare -rn`, with the denial proven effective;
+* browser/UI behavior — no frontend exists in M0 (arrives with C-PR1, AS-04/AS-05);
+* general staleness/failure classification beyond the labeled fixture cases — M2 (C: AS-02/AS-03);
+* side-effect freedom for future provider plugins — M3 (A: AI-02/AI-04).
 
 ## Next tasks (in order)
 
 | # | Task | Issue | Acceptance condition |
 | --- | --- | --- | --- |
-| 1 | **Re-review M0** against the repair commits (prompt: `docs/reviews/M0-review-prompt.md`, section "For a re-review after repairs"). Round 1 done: R1–R7 repaired, all M0 acceptance criteria PASS, R8 raised; the owner's oracle attestation is recorded. Round 2 must carry the final verdict. | #18, #19 | Every R1–R7 finding reported `repaired` with command output; no open major finding |
-| 2 | Land the review verdict and close the M0 stories | #18, #19 | PR #38 no longer a draft; FT-01/FT-02 acceptance criteria demonstrably pass; the milestone exit gate is recorded in this file |
+| 1 | **Re-review M0** — done: round 1 NEEDS_INPUT (R1–R7 repaired; ACs PASS; R8), owner attestation recorded, round 2 **APPROVE** at `bca69cf` (`docs/reviews/M0-rereview-1.md`, `M0-rereview-2.md`) | #18, #19 | Every R1–R7 finding reported `repaired` with command output; no open major finding — met |
+| 2 | **Land the work** (team, outside this session): undraft/merge PR #38, close #18/#19; hosted CI runs on the push | #18, #19 | PR #38 merged with a green CI run; the milestone exit gate recorded in this file |
 | 3 | Then start B-PR1 / C-PR1 / A-PR1 in parallel | #20, #21, #23 / #2, #26 / #30 | See `docs/stories/M0-foundation.md` for the per-stream acceptance conditions |
 
-M1 does not start before task 1 passes: a milestone closes only when an independent review has no
-open major finding (`AGENTS.md`, milestone definition of done). This session stopped at M0 and
-made no push; no M1 work has started.
+Task 1 has passed. M1/M2 (B-PR1/C-PR1) and M3 (A) may start once the branch lands: a milestone
+closes only when an independent review has no open major finding (`AGENTS.md`, milestone
+definition of done) — satisfied at `bca69cf`. This session stopped at M0 and made no push; no
+M1 work has started.
 
 ## Verification commands (copy/paste)
 

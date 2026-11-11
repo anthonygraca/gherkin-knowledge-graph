@@ -1,0 +1,6 @@
+$ uv run --project backend ruff check .
+exit=0 elapsed=0.0s
+--- stdout ---
+All checks passed!
+
+--- stderr ---

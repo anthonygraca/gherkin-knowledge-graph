@@ -1,0 +1,5 @@
+$ git diff --check
+exit=0 elapsed=0.0s
+--- stdout ---
+
+--- stderr ---

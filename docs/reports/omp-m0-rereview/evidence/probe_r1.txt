@@ -1,0 +1,11 @@
+$ uv run --project backend python /tmp/cta-rereview-1/p_r1_port.py
+exit=0 elapsed=0.2s
+--- stdout ---
+isinstance(store, ArtifactRepository): True
+get_artifact('REQ-001',): OK -> artifact_id='REQ-001' artifact_type=<ArtifactType.REQUIREMENT: 'requirement'> title='Instant withdrawal availability' source_uri='fixture://banking-demo/requirements/REQ-001.md' repository='banking-demo' revision='67109fac965377629c9ab5835541aa64461db785' content_hash='sha256:7f97fd8702c4b6456f6d3e57db82b78ede9103967d9fb29cbeb02843d0fd0b95' locator='requirements/REQ-001.md' metadata={'status': 'active'}
+list_links('baseline-a',): OK -> ['LNK-001', 'LNK-002', 'LNK-003', 'LNK-004', 'LNK-005', 'LNK-006']
+changed_artifacts('baseline-b', 'baseline-a'): OK -> ['CODE-001', 'TEST-002']
+port-only reads: baseline-b | ['SCN-002', 'SCN-003', 'SCN-001', 'REQ-001', 'REQ-002', 'REQ-003', 'CODE-001', 'CODE-002', 'TEST-001', 'TEST-002']
+evidence: ['EV-001', 'EV-002']
+
+--- stderr ---

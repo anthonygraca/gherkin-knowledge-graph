@@ -1,0 +1,17 @@
+$ uv run --project backend python /tmp/cta-rereview-1/p_http_live.py
+exit=0
+--- stdout ---
+health: 200 0.1.0 ['baseline-a', 'baseline-b']
+thread REQ-001 @baseline-b: ['LNK-001', 'LNK-002', 'LNK-003'] evidence: ['EV-001'] baseline field: baseline-b
+findings @baseline-b: ['candidate_pending_review', 'lifecycle_review_required', 'missing_implementation_link', 'missing_verification_link', 'reverification_required', 'verification_failed']
+discovery SCN-001 rank1: CODE-001 1 | link_id key present: False | review_state key present: False
+POST /api/assurance/evaluate: 501 not-implemented | AS-01, AS-02, AS-03 (C-PR1) | M1/M2
+artifact tag/SHA bodies identical: True
+unknown artifact: 404 artifact-not-found
+malformed id: 422 request-validation
+unknown baseline: 404 baseline-not-found
+tampered server mispartitioned thread: 500 fixture-data-invalid
+tampered server unsupported findings version: 500 fixture-data-invalid | mentions 999.0.0: True
+tampered server unaffected thread: 200
+
+--- stderr ---
