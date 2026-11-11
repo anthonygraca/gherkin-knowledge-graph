@@ -1,0 +1,20 @@
+{
+  "schema_version": "0.1.0",
+  "artifact_id": "REQ-002",
+  "provider": "fake",
+  "model_version": "fake-fixture-v1",
+  "index_revision": "sha256:acb64531ff9e59bdad1de5f61232eff7cb2e4528de28da9bb25c85b58278da3d",
+  "candidates": [
+    {
+      "source_id": "REQ-002",
+      "target_id": "SCN-002",
+      "proposed_relation_type": "verified_by",
+      "rank": 1,
+      "score": 0.88,
+      "discovery_provider": "fake",
+      "model_version": "fake-fixture-v1",
+      "index_revision": "sha256:acb64531ff9e59bdad1de5f61232eff7cb2e4528de28da9bb25c85b58278da3d",
+      "rationale": "Both describe the daily transfer allowance and what happens to a transfer that exceeds it."
+    }
+  ]
+}

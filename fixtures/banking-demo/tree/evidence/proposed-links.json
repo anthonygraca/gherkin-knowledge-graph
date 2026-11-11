@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.1.0",
+  "repository": "banking-demo",
+  "review_state": "proposed",
+  "links": [
+    {
+      "link_id": "LNK-007",
+      "source_id": "REQ-002",
+      "target_id": "SCN-002",
+      "relation_type": "verified_by",
+      "review_state": "proposed",
+      "provenance": {
+        "method": "discovery-proposal",
+        "discovery_provider": "fake",
+        "model_version": "fake-fixture-v1",
+        "index_revision": "{{DISCOVERY_INDEX_REVISION}}",
+        "score": 0.88,
+        "recorded_by": "rv-ana",
+        "note": "Recorded from a discovery response; left pending review on purpose."
+      },
+      "created_at": "2026-09-30T08:15:00+00:00",
+      "updated_at": "2026-09-30T08:15:00+00:00"
+    }
+  ]
+}

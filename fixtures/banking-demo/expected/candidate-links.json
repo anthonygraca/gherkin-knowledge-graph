@@ -1,0 +1,48 @@
+{
+  "schema_version": "0.1.0",
+  "fixture": "banking-demo",
+  "provider": "fake",
+  "model_version": "fake-fixture-v1",
+  "candidates": [
+    {
+      "source_id": "REQ-002",
+      "target_id": "SCN-002",
+      "proposed_relation_type": "verified_by",
+      "score": 0.88,
+      "rationale": "Both describe the daily transfer allowance and what happens to a transfer that exceeds it.",
+      "label": "positive"
+    },
+    {
+      "source_id": "SCN-001",
+      "target_id": "CODE-001",
+      "proposed_relation_type": "implemented_by",
+      "score": 0.94,
+      "rationale": "The scenario steps match Account.withdraw in src/accounts.py.",
+      "label": "positive"
+    },
+    {
+      "source_id": "SCN-001",
+      "target_id": "TEST-001",
+      "proposed_relation_type": "exercised_by",
+      "score": 0.83,
+      "rationale": "tests/test_accounts.py covers the withdrawal flow of SCN-001.",
+      "label": "positive"
+    },
+    {
+      "source_id": "SCN-002",
+      "target_id": "CODE-001",
+      "proposed_relation_type": "implemented_by",
+      "score": 0.71,
+      "rationale": "Shares account vocabulary, but daily limits belong to the transfers module. Deliberate negative label for retrieval evaluation.",
+      "label": "negative"
+    },
+    {
+      "source_id": "SCN-003",
+      "target_id": "TEST-002",
+      "proposed_relation_type": "exercised_by",
+      "score": 0.9,
+      "rationale": "tests/test_transfers.py exercises the daily limit boundary.",
+      "label": "positive"
+    }
+  ]
+}

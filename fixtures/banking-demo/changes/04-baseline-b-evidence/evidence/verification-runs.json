@@ -1,0 +1,33 @@
+{
+  "schema_version": "0.1.0",
+  "repository": "banking-demo",
+  "runs": [
+    {
+      "evidence_id": "EV-001",
+      "test_id": "TEST-001",
+      "scenario_id": "SCN-001",
+      "result": "passed",
+      "tested_commit": "{{COMMIT:baseline-a-source}}",
+      "executed_at": "2026-10-01T09:12:00+00:00",
+      "run_uri": "ci://banking-demo/runs/1001"
+    },
+    {
+      "evidence_id": "EV-002",
+      "test_id": "TEST-002",
+      "scenario_id": "SCN-003",
+      "result": "passed",
+      "tested_commit": "{{COMMIT:baseline-a-source}}",
+      "executed_at": "2026-10-01T09:12:40+00:00",
+      "run_uri": "ci://banking-demo/runs/1001"
+    },
+    {
+      "evidence_id": "EV-003",
+      "test_id": "TEST-002",
+      "scenario_id": "SCN-003",
+      "result": "failed",
+      "tested_commit": "{{COMMIT:baseline-b-change}}",
+      "executed_at": "2026-10-15T14:05:00+00:00",
+      "run_uri": "ci://banking-demo/runs/1002"
+    }
+  ]
+}
