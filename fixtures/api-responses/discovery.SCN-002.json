@@ -1,0 +1,20 @@
+{
+  "schema_version": "0.1.0",
+  "artifact_id": "SCN-002",
+  "provider": "fake",
+  "model_version": "fake-fixture-v1",
+  "index_revision": "sha256:acb64531ff9e59bdad1de5f61232eff7cb2e4528de28da9bb25c85b58278da3d",
+  "candidates": [
+    {
+      "source_id": "SCN-002",
+      "target_id": "CODE-001",
+      "proposed_relation_type": "implemented_by",
+      "rank": 1,
+      "score": 0.71,
+      "discovery_provider": "fake",
+      "model_version": "fake-fixture-v1",
+      "index_revision": "sha256:acb64531ff9e59bdad1de5f61232eff7cb2e4528de28da9bb25c85b58278da3d",
+      "rationale": "Shares account vocabulary, but daily limits belong to the transfers module. Deliberate negative label for retrieval evaluation."
+    }
+  ]
+}

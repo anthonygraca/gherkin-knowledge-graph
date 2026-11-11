@@ -1,0 +1,41 @@
+$ uv run --project backend python /tmp/cta-rereview-1/p_r7_worktree.py
+exit=0 elapsed=1.2s
+--- stdout ---
+repo: /home/anthonygraca/CSU Fullerton Dropbox/Anthony Graca/cpsc-583-knowledge-representation/project/gherkin-knowledge-graph/fixtures/banking-demo/.build/repo
+python: /home/anthonygraca/CSU Fullerton Dropbox/Anthony Graca/cpsc-583-knowledge-representation/project/gherkin-knowledge-graph/backend/.venv/bin/python
+HEAD is now at 67109fa Record baseline A verification evidence
+--- baseline-a: exit=0
+.....                                                                    [100%]
+5 passed in 0.02s
+HEAD is now at c02064f Record baseline B verification evidence
+--- baseline-b: exit=1
+st_accounts.py:27: in test_withdraw_allows_fractional_amounts
+    account.withdraw(1_050)
+src/accounts.py:35: in withdraw
+    raise ValueError("withdrawal amount must be a whole-dollar amount")
+E   ValueError: withdrawal amount must be a whole-dollar amount
+_________________ test_transfer_exactly_at_limit_is_permitted __________________
+tests/test_transfers.py:31: in test_transfer_exactly_at_limit_is_permitted
+    ledger.transfer(DAILY_TRANSFER_LIMIT_CENTS)
+src/transfers.py:27: in transfer
+    raise DailyLimitExceededError("daily transfer limit exceeded")
+E   src.transfers.DailyLimitExceededError: daily transfer limit exceeded
+=========================== short test summary info ============================
+FAILED tests/test_accounts.py::test_withdraw_allows_fractional_amounts - Valu...
+FAILED tests/test_transfers.py::test_transfer_exactly_at_limit_is_permitted
+2 failed, 4 passed in 0.04s
+HEAD is now at 67109fa Record baseline A verification evidence
+--- outside-invocation: exit=2
+e>
+    from src.transfers import DAILY_TRANSFER_LIMIT_CENTS, DailyLimitExceededError, TransferLedger
+E   ModuleNotFoundError: No module named 'src'
+=========================== short test summary info ============================
+ERROR ../../../../../../../tmp/cta-acceptance-abmnw8hu/outside/tests/test_accounts.py
+ERROR ../../../../../../../tmp/cta-acceptance-abmnw8hu/outside/tests/test_transfers.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+2 errors in 0.10s
+
+--- stderr ---
+Preparing worktree (detached HEAD 67109fa)
+Preparing worktree (detached HEAD c02064f)
+Preparing worktree (detached HEAD 67109fa)

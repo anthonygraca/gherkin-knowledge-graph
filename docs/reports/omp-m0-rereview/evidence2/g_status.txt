@@ -1,0 +1,4 @@
+$ git status --porcelain -uall
+exit=0
+ M README.md
+ M prompts/omp-codex-agentic-loop.md

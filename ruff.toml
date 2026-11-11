@@ -1,0 +1,26 @@
+# Single lint/format configuration for the whole repository.
+#
+# It lives at the root because linting must give identical results no matter which directory the
+# command is run from: with per-package configs, files under tools/ (outside backend/) resolved no
+# configuration at all and were sorted as if `app` were third-party.
+#
+# Fixture content is excluded on purpose: fixtures/banking-demo/tree is frozen fixture data whose
+# bytes are hashed into the fixture manifest, so it must never be reformatted.
+#
+# Committed run records (docs/reports/) are archival evidence with their own manifest; linting or
+# reformatting them would rewrite evidence bytes, so they are excluded for the same reason.
+
+line-length = 100
+target-version = "py311"
+extend-exclude = ["fixtures", "docs/reports"]
+
+# Only real Python files: ruff also understands Markdown/notebook code fragments, and reformatting
+# an illustrative snippet inside a document rewrites prose the reader is meant to see (for example
+# prompts/omp-codex-agentic-loop.md). Documentation snippets are examples, not sources.
+include = ["*.py"]
+
+[lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[lint.isort]
+known-first-party = ["app"]

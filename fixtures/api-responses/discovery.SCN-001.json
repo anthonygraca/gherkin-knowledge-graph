@@ -1,0 +1,31 @@
+{
+  "schema_version": "0.1.0",
+  "artifact_id": "SCN-001",
+  "provider": "fake",
+  "model_version": "fake-fixture-v1",
+  "index_revision": "sha256:acb64531ff9e59bdad1de5f61232eff7cb2e4528de28da9bb25c85b58278da3d",
+  "candidates": [
+    {
+      "source_id": "SCN-001",
+      "target_id": "CODE-001",
+      "proposed_relation_type": "implemented_by",
+      "rank": 1,
+      "score": 0.94,
+      "discovery_provider": "fake",
+      "model_version": "fake-fixture-v1",
+      "index_revision": "sha256:acb64531ff9e59bdad1de5f61232eff7cb2e4528de28da9bb25c85b58278da3d",
+      "rationale": "The scenario steps match Account.withdraw in src/accounts.py."
+    },
+    {
+      "source_id": "SCN-001",
+      "target_id": "TEST-001",
+      "proposed_relation_type": "exercised_by",
+      "rank": 2,
+      "score": 0.83,
+      "discovery_provider": "fake",
+      "model_version": "fake-fixture-v1",
+      "index_revision": "sha256:acb64531ff9e59bdad1de5f61232eff7cb2e4528de28da9bb25c85b58278da3d",
+      "rationale": "tests/test_accounts.py covers the withdrawal flow of SCN-001."
+    }
+  ]
+}

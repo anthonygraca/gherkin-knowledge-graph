@@ -1,0 +1,42 @@
+{
+  "schema_version": "0.1.0",
+  "root_id": "REQ-002",
+  "baseline": "baseline-a",
+  "artifacts": [
+    {
+      "artifact_id": "REQ-002",
+      "artifact_type": "requirement",
+      "title": "Daily transfer limit enforcement",
+      "source_uri": "fixture://banking-demo/requirements/REQ-002.md",
+      "repository": "banking-demo",
+      "revision": "67109fac965377629c9ab5835541aa64461db785",
+      "content_hash": "sha256:d2a710e2da2b3d30397976a9b36430cbb42acca2e55bd325bb0481711df4468b",
+      "locator": "requirements/REQ-002.md",
+      "metadata": {
+        "status": "active"
+      }
+    }
+  ],
+  "accepted_links": [],
+  "proposed_links": [
+    {
+      "link_id": "LNK-007",
+      "source_id": "REQ-002",
+      "target_id": "SCN-002",
+      "relation_type": "verified_by",
+      "review_state": "proposed",
+      "provenance": {
+        "method": "discovery-proposal",
+        "discovery_provider": "fake",
+        "model_version": "fake-fixture-v1",
+        "index_revision": "sha256:acb64531ff9e59bdad1de5f61232eff7cb2e4528de28da9bb25c85b58278da3d",
+        "score": 0.88,
+        "recorded_by": "rv-ana",
+        "note": "Recorded from a discovery response; left pending review on purpose."
+      },
+      "created_at": "2026-09-30T08:15:00Z",
+      "updated_at": "2026-09-30T08:15:00Z"
+    }
+  ],
+  "evidence": []
+}

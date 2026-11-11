@@ -1,0 +1,95 @@
+{
+  "schema_version": "0.1.0",
+  "repository": "banking-demo",
+  "review_state": "accepted",
+  "links": [
+    {
+      "link_id": "LNK-001",
+      "source_id": "REQ-001",
+      "target_id": "SCN-001",
+      "relation_type": "verified_by",
+      "review_state": "accepted",
+      "provenance": {
+        "method": "manual-review",
+        "reviewer_id": "rv-ana",
+        "decided_at": "2026-09-28T10:00:00+00:00",
+        "note": "SCN-001 is the only reviewed scenario covering the withdrawal flow."
+      },
+      "created_at": "2026-09-27T15:30:00+00:00",
+      "updated_at": "2026-09-28T10:00:00+00:00"
+    },
+    {
+      "link_id": "LNK-002",
+      "source_id": "SCN-001",
+      "target_id": "CODE-001",
+      "relation_type": "implemented_by",
+      "review_state": "accepted",
+      "provenance": {
+        "method": "manual-review",
+        "reviewer_id": "rv-ana",
+        "decided_at": "2026-09-28T10:05:00+00:00",
+        "note": "Account.withdraw implements the withdrawal steps."
+      },
+      "created_at": "2026-09-27T15:35:00+00:00",
+      "updated_at": "2026-09-28T10:05:00+00:00"
+    },
+    {
+      "link_id": "LNK-003",
+      "source_id": "SCN-001",
+      "target_id": "TEST-001",
+      "relation_type": "exercised_by",
+      "review_state": "accepted",
+      "provenance": {
+        "method": "manual-review",
+        "reviewer_id": "rv-ana",
+        "decided_at": "2026-09-28T10:10:00+00:00",
+        "note": "tests/test_accounts.py exercises the withdrawal steps."
+      },
+      "created_at": "2026-09-27T15:40:00+00:00",
+      "updated_at": "2026-09-28T10:10:00+00:00"
+    },
+    {
+      "link_id": "LNK-004",
+      "source_id": "REQ-003",
+      "target_id": "SCN-003",
+      "relation_type": "verified_by",
+      "review_state": "accepted",
+      "provenance": {
+        "method": "manual-review",
+        "reviewer_id": "rv-ben",
+        "decided_at": "2026-09-19T11:00:00+00:00",
+        "note": "Legacy boundary semantics, kept for audit after supersession."
+      },
+      "created_at": "2026-09-19T11:00:00+00:00",
+      "updated_at": "2026-09-19T11:00:00+00:00"
+    },
+    {
+      "link_id": "LNK-005",
+      "source_id": "SCN-003",
+      "target_id": "CODE-002",
+      "relation_type": "implemented_by",
+      "review_state": "accepted",
+      "provenance": {
+        "method": "manual-review",
+        "reviewer_id": "rv-ben",
+        "decided_at": "2026-09-19T11:05:00+00:00"
+      },
+      "created_at": "2026-09-19T11:05:00+00:00",
+      "updated_at": "2026-09-19T11:05:00+00:00"
+    },
+    {
+      "link_id": "LNK-006",
+      "source_id": "SCN-003",
+      "target_id": "TEST-002",
+      "relation_type": "exercised_by",
+      "review_state": "accepted",
+      "provenance": {
+        "method": "manual-review",
+        "reviewer_id": "rv-ben",
+        "decided_at": "2026-09-19T11:10:00+00:00"
+      },
+      "created_at": "2026-09-19T11:10:00+00:00",
+      "updated_at": "2026-09-19T11:10:00+00:00"
+    }
+  ]
+}

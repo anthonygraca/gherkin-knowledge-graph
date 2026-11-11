@@ -1,0 +1,20 @@
+{
+  "schema_version": "0.1.0",
+  "artifact_id": "SCN-003",
+  "provider": "fake",
+  "model_version": "fake-fixture-v1",
+  "index_revision": "sha256:acb64531ff9e59bdad1de5f61232eff7cb2e4528de28da9bb25c85b58278da3d",
+  "candidates": [
+    {
+      "source_id": "SCN-003",
+      "target_id": "TEST-002",
+      "proposed_relation_type": "exercised_by",
+      "rank": 1,
+      "score": 0.9,
+      "discovery_provider": "fake",
+      "model_version": "fake-fixture-v1",
+      "index_revision": "sha256:acb64531ff9e59bdad1de5f61232eff7cb2e4528de28da9bb25c85b58278da3d",
+      "rationale": "tests/test_transfers.py exercises the daily limit boundary."
+    }
+  ]
+}

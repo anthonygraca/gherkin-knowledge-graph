@@ -1,0 +1,51 @@
+{
+  "schema_version": "0.1.0",
+  "fixture": "banking-demo",
+  "baseline": "baseline-a",
+  "notes": [
+    "Case 1 (healthy chain): REQ-001 has accepted links to SCN-001, CODE-001 and TEST-001, and EV-001 recorded a passing run at this baseline, so REQ-001 must have no finding.",
+    "Case 2 (missing verification link): REQ-002 has no accepted scenario link.",
+    "Case 3 (missing implementation link): SCN-002 has no accepted implementation link.",
+    "Case 6 (proposal pending review): LNK-007 proposes REQ-002 verified_by SCN-002 and is still unreviewed; it must not be counted as an accepted link.",
+    "Case 7 (lifecycle): REQ-003 is superseded but still carries accepted relationships."
+  ],
+  "healthy_artifact_ids": ["REQ-001"],
+  "findings": [
+    {
+      "rule_id": "RULE-MISSING-VERIFICATION-LINK",
+      "finding_type": "missing_verification_link",
+      "severity": "high",
+      "status": "open",
+      "artifact_ids": ["REQ-002"],
+      "evidence_ids": [],
+      "explanation": "REQ-002 has no accepted verification scenario at baseline-a."
+    },
+    {
+      "rule_id": "RULE-MISSING-IMPLEMENTATION-LINK",
+      "finding_type": "missing_implementation_link",
+      "severity": "medium",
+      "status": "open",
+      "artifact_ids": ["SCN-002"],
+      "evidence_ids": [],
+      "explanation": "SCN-002 has no accepted implementation link at baseline-a."
+    },
+    {
+      "rule_id": "RULE-CANDIDATE-PENDING-REVIEW",
+      "finding_type": "candidate_pending_review",
+      "severity": "low",
+      "status": "open",
+      "artifact_ids": ["REQ-002", "SCN-002"],
+      "evidence_ids": [],
+      "explanation": "Proposed link LNK-007 (REQ-002 verified_by SCN-002) has not been reviewed."
+    },
+    {
+      "rule_id": "RULE-LIFECYCLE-SUPERSEDED",
+      "finding_type": "lifecycle_review_required",
+      "severity": "medium",
+      "status": "open",
+      "artifact_ids": ["REQ-003"],
+      "evidence_ids": [],
+      "explanation": "REQ-003 is superseded but still has accepted relationships; a lifecycle review is required."
+    }
+  ]
+}

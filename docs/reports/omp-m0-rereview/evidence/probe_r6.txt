@@ -1,0 +1,47 @@
+$ uv run --project backend python /tmp/cta-rereview-1/p_r6_mutation.py
+exit=0 elapsed=5.6s
+--- stdout ---
+$ uv sync --offline --frozen --project backend
+exit=0
+ + opentelemetry-api==1.45.2
+ + packaging==26.3
+ + pluggy==1.7.0
+ + pydantic==2.14.3
+ + pydantic-core==2.50.4
+ + pygments==2.21.0
+ + pytest==8.4.2
+ + ruff==0.17.4
+ + starlette==1.10.0
+ + typing-extensions==4.16.0
+ + typing-inspection==0.4.5
+ + uvicorn==0.54.0
+---
+$ uv run --offline --project backend python tools/fixturectl.py all
+exit=0
+81efe21a8ffd  baseline-a-source
+67109fac9653  baseline-a-evidence  tags: baseline-a
+812256f7e959  baseline-b-change
+c02064fed61b  baseline-b-evidence  tags: baseline-b
+wrote /tmp/cta-m0-fingerprint-mutation-hy16zclr/clone/fixtures/banking-demo/expected/baselines.json (unchanged)
+wrote fixtures/api-responses/findings.baseline-a.json
+wrote fixtures/api-responses/findings.baseline-b.json
+2 generated file(s) changed
+warning: `VIRTUAL_ENV=/home/anthonygraca/CSU Fullerton Dropbox/Anthony Graca/cpsc-583-knowledge-representation/project/gherkin-knowledge-graph/backend/.venv` does not match the project environment path `backend/.venv` and will be ignored; use `--active` to target the active environment instead
+---
+$ uv run --offline --project backend pytest backend/tests -q
+exit=1
+backend/tests/test_domain_contracts.py:274: AssertionError
+=============================== warnings summary ===============================
+backend/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /tmp/cta-m0-fingerprint-mutation-hy16zclr/clone/backend/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED backend/tests/test_domain_contracts.py::test_fingerprint_matches_an_independently_computed_vector[RULE-MISSING-IMPLEMENTATION-LINK-missing_implementation_link-artifact_ids0-FND-b48266a397c838c9]
+FAILED backend/tests/test_domain_contracts.py::test_fingerprint_matches_an_independently_computed_vector[RULE-REVERIFICATION-REQUIRED-reverification_required-artifact_ids1-FND-c458a6d4a5494d67]
+FAILED backend/tests/test_domain_contracts.py::test_fingerprint_matches_an_independently_computed_vector[RULE-LIFECYCLE-SUPERSEDED-lifecycle_review_required-artifact_ids2-FND-4a4f24555531acf3]
+3 failed, 104 passed, 1 warning in 3.05s
+warning: `VIRTUAL_ENV=/home/anthonygraca/CSU Fullerton Dropbox/Anthony Graca/cpsc-583-knowledge-representation/project/gherkin-knowledge-graph/backend/.venv` does not match the project environment path `backend/.venv` and will be ignored; use `--active` to target the active environment instead
+---
+
+--- stderr ---
