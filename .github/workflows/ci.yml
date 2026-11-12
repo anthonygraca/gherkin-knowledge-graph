@@ -4,8 +4,38 @@ on:
   push:
     branches: [main]
   pull_request:
+    # Base-branch retargeting fires `edited`, not `synchronize`; the newly applicable
+    # commit range must be checked again (independent review finding R1).
+    types: [opened, synchronize, reopened, edited]
 
 jobs:
+  commit-reference:
+    name: Commit references
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # Lint actual PR commits, not GitHub's synthetic test-merge message.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate new commit subjects and issue references offline
+        env:
+          COMMIT_BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ -n "$COMMIT_BASE" ]; then
+            python tools/commitlint.py --base "$COMMIT_BASE"
+          else
+            python tools/commitlint.py
+          fi
+
   offline:
     name: Offline contract, fixture, and API tests
     runs-on: ubuntu-latest
