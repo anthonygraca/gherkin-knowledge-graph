@@ -1,0 +1,48 @@
+# Issue #8 verification, captured with gh in the session shell
+# $ date -u
+Thu Nov 12 03:51:45 UTC 2026
+# Context: the earlier retained attempt (evidence/issue8.log, exit 4) ran inside an eval subprocess without GH_TOKEN; this capture uses the authenticated session shell.
+
+## gh issue view 8 (number,title,state,milestone,labels,url,updatedAt)
+{"labels":[{"id":"LA_kwDOVolfEM8AAAADCPyACQ","name":"user-story","description":"Agile user story with Given/When/Then acceptance criteria","color":"1d76db"}],"milestone":{"number":3,"title":"M0 — Contract + fixture foundation","description":"Roadmap section 7 M0: repo layout, setup guide, fixture generator, tagged baselines, labeled expected outputs, Pydantic contracts, OpenAPI stub/examples, fake candidate provider, sample findings response, initial CI workflow. Exit: a new developer can clone, run one documented command, and execute deterministic offline tests with no network or AI services.","dueOn":null},"number":8,"state":"OPEN","title":"SETUP-01 — Initial repository setup and commit↔issue traceability","updatedAt":"2026-11-11T03:40:23Z","url":"https://github.com/anthonygraca/gherkin-knowledge-graph/issues/8"}
+
+## gh api .../issues/8/parent
+{"number":7,"state":"open","title":"F-01 Foundation — fixture oracles, contracts, and repo conventions"}
+
+## gh issue view 8 (body)
+## User story (setup)
+
+**As a** developer on the CTA project, **I want** every commit to reference the work item it serves, **so that** any change can be traced from requirement to code to evidence without archaeology.
+
+**Feature:** #7 · **Priority:** P0 · **Milestone:** M0 · **Owner:** shared
+
+### Acceptance criteria
+
+```gherkin
+Scenario: Every commit on main references its work item
+  Given the repository conventions in CONTRIBUTING.md
+  When a developer commits a change
+  Then the commit message includes "Refs #<issue>" or "Closes #<issue>"
+  And the commit appears on that issue's timeline
+  And pre-convention commits are listed below as explicit exceptions
+```
+
+### Deliverables
+
+- [x] Repository created with an initial README (pre-convention commit `ae859cd`)
+- [x] User-story issue form `.github/ISSUE_TEMPLATE/user-story.yml` (commit `204eb49`)
+- [x] Label taxonomy started: `user-story` added to the default set (note: personal repos have no issue custom fields, so story points/priority must live in labels)
+- [ ] `CONTRIBUTING.md` defining commit, branch, and PR conventions
+- [ ] Retro-attribution of pre-convention commits (recorded below)
+- [ ] Follow-up (separate issue when CI exists): enforce `Refs #<issue>` on pull requests
+
+### Pre-convention commits (retro-attributed to this story)
+
+- `ae859cd509c077a57e1e0c46d1bf5edbde984f3f` — Initial commit (README stub), authored before conventions existed
+- `204eb49810e25636461ec0e039d7e7277c1a3e89` — Add user-story issue form; predates this story's creation
+
+### Definition of done (roadmap §9)
+
+- `CONTRIBUTING.md` present on `main` and its own commit references this issue
+- A later commit referencing `Refs #N` shows up on issue N's timeline (spot-checked)
+- Conventions are consistent with the roadmap's ID scheme (`F-01`, `AS-01`, `SETUP-01`)

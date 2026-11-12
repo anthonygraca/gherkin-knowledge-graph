@@ -54,7 +54,7 @@ with "zero post-adoption commits yet". Since then:
 
 | # | Command (repo root) | Exit | Result | Evidence |
 | --- | --- | --- | --- | --- |
-| E1 | `uv run --offline --project backend pytest backend/tests/test_commitlint.py -q` | 0 | 28 passed | `evidence/focused-verbose.log` (28 node IDs) |
+| E1 | `uv run --offline --project backend pytest backend/tests/test_commitlint.py -v` (an earlier `-q` run produced the same 28 passes but was not captured) | 0 | 28 passed | `evidence/focused-verbose.log` (28 node IDs) |
 | E2 | `uv run --offline --project backend pytest backend/tests -q` | 0 | 135 passed, 1 pre-existing warning | `evidence/suite-full.log` |
 | E3 | `unshare -rn -- backend/.venv/bin/python -m pytest backend/tests -q` | 0 | 135 passed under OS-level network denial | `evidence/suite-nonet.log` |
 | E4 | `unshare -rn -- python3 -c "<socket probe>"` | 0 | `network denied: [Errno 101] Network is unreachable` (denial effective) | `evidence/nonet-probe.log` |
@@ -150,3 +150,39 @@ is `evidence/manifest.json`.
 - Tracker closure of #18/#19 (team action; the M0 approval itself is recorded).
 - FT-03 / draft project-definition owner review remains outstanding; it does not change the M0
   approval.
+
+## 9. Review round 1 (submission 1) and dispositions
+
+- **Attempt 1** (2026-11-12T00:26:39Z, ≈ 4 s): no verdict — workspace out of credits (§5).
+- **Attempt 2** (2026-11-12T03:37:53Z → 03:44:42Z, 409.7 s, exit 0, session
+  `01a1cdd5-57e9-76a2-b48a-9a6dae4e4674`): packet v1.1 (v1 + `packets/review-1-addendum.md`); usage
+  1,354,752 input (1,254,528 cached) / 17,233 output (11,763 reasoning). **Verdict: REQUEST_CHANGES**
+  — all eight scenarios PASS; R1 (major, blocking) and R2 (minor, nonblocking). Full record:
+  `docs/reviews/SETUP-01-review.md`; raw verdict sha256
+  `257acec1b808910cb46fc0e1c62b8172bf470352f2cf62eea18356e42bf2b882`.
+- **R1 — repaired.** GitHub's default `pull_request` activity types are `opened`, `synchronize`,
+  and `reopened`; a retargeted base fires `edited`, so the newly applicable range was never
+  re-checked. `.github/workflows/ci.yml` now declares
+  `types: [opened, synchronize, reopened, edited]`, and `CONTRIBUTING.md` states the retargeting
+  behavior. Recheck: `probes/r1_two_base_repro.py` shows the same head passing when the unlinked
+  ancestor is excluded by the base (exit 0) and failing when the adoption baseline is the base
+  (exit 1, flagging `65daeff2…`) — `evidence/repair1-r1-repro.log`; the trigger structure is
+  validated with PyYAML — `evidence/repair1-yaml-check.log`. Hosted event execution remains a
+  publication follow-up.
+- **R2 — repaired (records only).** `evidence/issue8-verified.log` attaches the successful `gh`
+  verification; the retained `evidence/issue8.log` is unmodified — its exit-4 failure was the eval
+  subprocess lacking `GH_TOKEN`, explained by the erratum in `PROMPT_LOG.md` §5. The E1 row above
+  now names the captured `-v` invocation.
+- **Resubmission (submission 2 of 7) → APPROVE.** Reviewed snapshot v2 (HEAD `a82e466` plus the
+  frozen tree; the reviewer confirmed all seven slice hashes and the 34-file manifest, sha256
+  `34ebf5c37dd17bf863c57589406f41e99252e821087df5127c17bf11806720e1`). R1 closed — independently
+  re-verified by the reviewer (YAML plus the unchanged-head/two-base reproduction); R2 closed on
+  record provenance; all eight scenarios PASS; no new blocking finding. Verdict record:
+  `docs/reviews/SETUP-01-review-2.md` (committed copy sha256
+  `11571c21146e8fdfa195174591b88ee82a0a8c928f01fefe4e87a5316ee44818`). NOT VERIFIED (publication
+  follow-ups): hosted execution including the `edited` trigger; required-status-check configuration;
+  the post-commit `--base f34ae07 --head HEAD` audit.
+- **Commits after approval:** slice `37135cf`
+  (`ci(traceability): [issue #8] enforce commit references in CI`, 7 files); the review-record pair
+  (`docs(review)`); reports and this file (`docs(reports)`). The slice is unpushed (local-only
+  policy); a PR is prepared but not opened.

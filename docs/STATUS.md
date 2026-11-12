@@ -16,9 +16,9 @@ Independent review:  docs/reviews/M0-review.md — first review: "M0 not verifie
                      docs/reviews/M0-rereview-2.md — re-review round 2 (GPT-6.1 Sol, xhigh):
                      APPROVE at snapshot bca69cf (tree e55ff9f); R8 repaired/closed; no open
                      major finding; M0 exit criteria verified within scope
-Active task:         SETUP-01 commit-reference enforcement — verified locally; mandatory
-                     independent review BLOCKED (Codex workspace out of credits, no verdict);
-                     slice uncommitted on branch ci/8-commit-reference-enforcement
+Active task:         SETUP-01 commit-reference enforcement — review round 2 APPROVE at snapshot v2
+                     (2 of 7 submissions); slice committed locally as 37135cf; review/report
+                     commits on branch ci/8-commit-reference-enforcement (unpushed)
 Tests executed:      M0 approved snapshot (bca69cf): 107 passed offline (also under an OS-level
                      network denial); fixturectl verify exit 0; ruff clean.
                      Current tree (main f34ae07 + the uncommitted SETUP-01 slice): 135 passed
@@ -33,25 +33,33 @@ Environment:         Python ≥3.11, uv, git ≥2.28; no GPU, LLM, vector store,
                      during tests
 ```
 
-## Current task — SETUP-01 commit-reference enforcement (BLOCKED on review)
+## Current task — SETUP-01 commit-reference enforcement (approved; committed locally)
 
-The previously uncommitted SETUP-01 follow-up slice (#8) — `tools/commitlint.py`,
-`backend/tests/test_commitlint.py`, the `Commit references` CI job, the `AGENTS.md`/`CONTRIBUTING.md`
-subject-convention updates, and `docs/stories/SETUP-01.feature`/`SETUP-01.md` — was resumed and
-**fully re-verified** on base `f34ae07`: focused 28 passed, full suite 135 passed (also under an
-OS-level network denial), `fixturectl verify` exit 0, ruff clean, `git diff --check` clean, and the
-checker passes on real history (`checked 3 commit(s)`) while still flagging the pre-rewrite tip
-`24810877f4d9`. The four file hashes recorded by the author still match.
+The previously uncommitted SETUP-01 follow-up slice (#8) was resumed, re-verified on base `f34ae07`
+(focused 28 passed; full suite 135 passed — also under an OS-level network denial; `fixturectl
+verify` exit 0; ruff and `git diff --check` clean), repaired per review round 1, and **approved** in
+round 2 at snapshot v2 (`2026-11-12`):
 
-**No approval exists.** The mandatory independent Codex submission (`gpt-6.1-sol`, effort `xhigh`)
-failed **without a verdict** at `2026-11-12T00:26:39Z` — the workspace has no credits — so nothing
-was substituted and no self-approval was manufactured. The slice remains **uncommitted**; branch
-`ci/8-commit-reference-enforcement` carries only this checkpoint (the records folder plus this
-file). The review counter is untouched (0 of 7 submissions consumed).
+* **Round 1 (submission 1 of 7) — REQUEST_CHANGES.** R1 (blocking): the bare `pull_request` trigger
+  omitted `edited`, so a PR retargeted to a new base was never re-checked — repaired in
+  `.github/workflows/ci.yml` (`types: [opened, synchronize, reopened, edited]`), rechecked in
+  `reports/omp-setup-01-commitlint/probes/`. R2 (records): repaired.
+* **Round 2 (submission 2 of 7) — APPROVE.** R1/R2 closed, all eight scenarios PASS, no new
+  blocking finding; the reviewer confirmed all seven slice hashes and the 34-file manifest.
 
-Next action: refill the Codex workspace credits (or explicitly authorize another reviewer), then
-rerun the recorded `codex exec` submission against the frozen packet. Full detail:
-[reports/omp-setup-01-commitlint/IMPLEMENTATION.md](reports/omp-setup-01-commitlint/IMPLEMENTATION.md).
+**Local commits** on `ci/8-commit-reference-enforcement` (base `f34ae07`; checkpoint `a82e466`):
+`37135cf` — the slice (`ci(traceability): [issue #8] enforce commit references in CI`); the
+review-record pair (`docs(review)`); and this commit (`docs(reports)` — records plus this file).
+The local range audit runs at the end of this session; its result is recorded in the session
+record and the final report.
+
+**Publication is pending:** the slice is unpushed under the local-only policy. Next action is a
+branch push + PR against `main` once the repository owner authorizes it (`Refs #8`; `Closes` is not
+appropriate — the original issue's criteria are broader than this slice). NOT VERIFIED until then:
+hosted execution including the `edited` trigger, and required-status-check configuration. Full
+records: [reports/omp-setup-01-commitlint/IMPLEMENTATION.md](reports/omp-setup-01-commitlint/IMPLEMENTATION.md),
+[reviews/SETUP-01-review.md](reviews/SETUP-01-review.md),
+[reviews/SETUP-01-review-2.md](reviews/SETUP-01-review-2.md).
 
 ## What exists
 

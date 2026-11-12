@@ -1,0 +1,7 @@
+$ python3 tools/commitlint.py
+exit=0
+--- stdout ---
+commitlint: checked 4 commit(s)
+
+--- stderr ---
+

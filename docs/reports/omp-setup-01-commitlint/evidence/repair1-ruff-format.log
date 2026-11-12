@@ -1,0 +1,7 @@
+$ uv run --offline --project backend ruff format --check .
+exit=0
+--- stdout ---
+35 files already formatted
+
+--- stderr ---
+

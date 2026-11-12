@@ -70,3 +70,28 @@ checkpoint commit created at the end of this session — elapsed, not summed. In
 window: recon, the verification battery, packet assembly, the ≈ 4 s failed review call, evidence
 sanitization, and this checkpoint. No user pauses occurred beyond normal turn latency; the exact
 end timestamp and commit SHA are recorded in the session report and the external archive.
+
+## Amendment after review round 1
+
+| Field | Value |
+| --- | --- |
+| Codex acceptance calls (cumulative) | 2 attempted, 1 completed (attempt 1: infrastructure failure, no verdict; attempt 2: completed) |
+| Attempt 2 result | `2026-11-12T03:37:53Z` → `03:44:42Z` (409.7 s wall), exit 0, session `01a1cdd5-57e9-76a2-b48a-9a6dae4e4674`, verdict **REQUEST_CHANGES** (R1 blocking, R2 nonblocking; all eight scenarios PASS) |
+| Attempt 2 tokens | input 1,354,752 (cached 1,254,528; cache-write 0) · output 17,233 (reasoning 11,763) — from the `turn.completed` event |
+| Cumulative tokens | equal to attempt 2 (attempt 1 emitted no usage before failing); cost: unavailable |
+| Advice calls | none |
+| Submissions consumed | **1 of 7** (round 1 = submission 1; the resubmission is submission 2) |
+| User pause | `2026-11-12T00:44Z` → `03:37Z` (credits refill) — corrects the original "no user pauses" sentence; the refill is user effort, not coordinator wall time |
+| Phases added | R1/R2 repair ≈ 03:45–03:55; records and evidence ≈ 03:50–04:10; resubmission prepared after the snapshot freeze |
+
+## Amendment after review round 2
+
+| Field | Value |
+| --- | --- |
+| Codex acceptance calls (cumulative) | 3 attempted, 2 completed (attempt 1: infrastructure failure, no verdict; round 1: REQUEST_CHANGES; round 2: APPROVE) |
+| Round 2 result | `2026-11-12T03:59:26Z` → `04:02:44Z` (198.0 s wall), exit 0, session `01a1cde9-154d-70a3-9e83-f28dc17182c4`, verdict **APPROVE** at snapshot v2 |
+| Round 2 tokens | input 814,167 (cached 717,312) · output 8,524 (reasoning 3,322) |
+| Cumulative tokens | input 2,168,919 (cached 1,971,840) · output 25,757 (reasoning 15,085); cost unavailable |
+| Submissions consumed | **2 of 7** (round 1 + round 2); task approved with no open blocking finding |
+| Rework | one blocking finding (R1) repaired after round 1; none in round 2 |
+| Commit state | slice `37135cf` plus review/report commits on `ci/8-commit-reference-enforcement`; unpushed (local-only policy) |
