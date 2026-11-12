@@ -2,10 +2,9 @@
 
 ```text
 Date:                2026-11-12
-Current branch:      main — at f34ae07 (PR #41 merged 2026-11-11; the platform-generated merge
-                     message was then replaced by the owner with the conforming merge commit
-                     f34ae07, pushed 2026-11-12T00:07Z, CI run 43124897661 success). The M0 work,
-                     the lifecycle documents, and the research record are on main.
+Current branch:      main — at d4af73a (PR #42 merged 2026-11-12; #38 → efa824b, #41 → f34ae07
+                     after the owner's conforming merge-message rewrite, #42 → d4af73a with a
+                     conforming merge subject; hosted push run 43161043845 success)
 Milestone:           M0 — implementation complete; exit gate SATISFIED by re-review round 2
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
                      docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
@@ -16,9 +15,10 @@ Independent review:  docs/reviews/M0-review.md — first review: "M0 not verifie
                      docs/reviews/M0-rereview-2.md — re-review round 2 (GPT-6.1 Sol, xhigh):
                      APPROVE at snapshot bca69cf (tree e55ff9f); R8 repaired/closed; no open
                      major finding; M0 exit criteria verified within scope
-Active task:         SETUP-01 commit-reference enforcement — APPROVED (round 2) and committed;
-                     branch pushed; PR #42 opened with both hosted checks passing; next: owner
-                     review/merge and required-check configuration
+Active task:         none — SETUP-01 commit-reference enforcement landed via PR #42; commitlint
+                     green on the landed history (9 commits). Next work: M1 (B: DT-01/DT-02,
+                     C: AS-01/AS-04) with A's M3 items in parallel; outstanding owner actions:
+                     #18/#19 closure, FT-03 review, required-check ruleset, README work item
 Tests executed:      M0 approved snapshot (bca69cf): 107 passed offline (also under an OS-level
                      network denial); fixturectl verify exit 0; ruff clean.
                      Current tree (main f34ae07 + the uncommitted SETUP-01 slice): 135 passed
@@ -33,7 +33,7 @@ Environment:         Python ≥3.11, uv, git ≥2.28; no GPU, LLM, vector store,
                      during tests
 ```
 
-## Current task — SETUP-01 commit-reference enforcement (approved; committed locally)
+## SETUP-01 commit-reference enforcement — landed (2026-11-12)
 
 The previously uncommitted SETUP-01 follow-up slice (#8) was resumed, re-verified on base `f34ae07`
 (focused 28 passed; full suite 135 passed — also under an OS-level network denial; `fixturectl
@@ -50,17 +50,21 @@ round 2 at snapshot v2 (`2026-11-12`):
 **Local commits** on `ci/8-commit-reference-enforcement` (base `f34ae07`; checkpoint `a82e466`):
 `37135cf` — the slice (`ci(traceability): [issue #8] enforce commit references in CI`); the
 review-record pair (`docs(review)`); and this commit (`docs(reports)` — records plus this file).
-The local range audit runs at the end of this session; its result is recorded in the session
-record and the final report.
+Audits after the local commits: range `--base f34ae07 --head HEAD` → 5 commits, exit 0; full
+history → 8 commits, exit 0; the landed `main` reports 9 commits, exit 0.
 
-**Publication (user-authorized 2026-11-12):** branch pushed at `2026-11-12T05:00:55Z`; PR **#42**
-opened ([url](https://github.com/anthonygraca/gherkin-knowledge-graph/pull/42), head `df0f376`,
-not a draft, `MERGEABLE`). Hosted checks on the PR: **Commit references — pass** (4 s; the new job
-validated the head-vs-base range hosted) and **Offline contract, fixture, and API tests — pass**
-(11 s) — run `43158573099`. Merge, issue closure, the `edited` retargeting path, and
-required-status-check configuration remain NOT VERIFIED / owner actions (`Refs #8`; `Closes` is not
-appropriate — the original issue's criteria are broader than this slice). Full
-records: [reports/omp-setup-01-commitlint/IMPLEMENTATION.md](reports/omp-setup-01-commitlint/IMPLEMENTATION.md),
+**Landed (owner-merged 2026-11-12T05:23:12Z):** PR **#42** merged as
+`d4af73a514d90a9784329303c03c49e996113c19` with a conforming subject
+(`docs: [issue #8] Merge pull request #42 …`). Hosted runs: PR run `43158573099` (both checks pass)
+and main push run `43161043845` — **Commit references pass** and **Offline contract, fixture, and
+API tests pass**. Issue #8 remains open by design (`Refs`, not `Closes`). The task retrospective is
+[reports/omp-setup-01-commitlint/RETROSPECTIVE.md](reports/omp-setup-01-commitlint/RETROSPECTIVE.md);
+its run rules are folded into `prompts/omp-codex-agentic-loop.md`, which now also records the M1
+handoff for the next session. Still outstanding / owner actions: the required-status-check ruleset
+(`Administration: write` needed), tracker closure of #18/#19, the FT-03/project-definition reviews,
+and the uncommitted README rewrite (its own work item). The `edited` retargeting trigger path has
+not been exercised hosted. Full records:
+[reports/omp-setup-01-commitlint/IMPLEMENTATION.md](reports/omp-setup-01-commitlint/IMPLEMENTATION.md),
 [reviews/SETUP-01-review.md](reviews/SETUP-01-review.md),
 [reviews/SETUP-01-review-2.md](reviews/SETUP-01-review-2.md).
 

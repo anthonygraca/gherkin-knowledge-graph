@@ -197,6 +197,10 @@ is `evidence/manifest.json`.
 - Hosted checks (run `43158573099`, 15 s total): **Commit references — pass** (4 s; the new job
   validated the head-vs-base range hosted for the first time) and **Offline contract, fixture, and
   API tests — pass** (11 s). Verified `2026-11-12T05:01:56Z`.
-- Still NOT VERIFIED / owner actions: merge (requires the owner's merge with a conforming subject),
-  issue closure (#8 stands open; the M0 tracker items #18/#19 likewise), the `edited` retargeting
-  path itself, and making **Commit references** a required status check.
+- **Landed:** PR #42 merged `2026-11-12T05:23:12Z` as
+  `d4af73a514d90a9784329303c03c49e996113c19`, conforming subject
+  (`docs: [issue #8] Merge pull request #42 …`); main push run `43161043845` — **Commit references
+  pass** and offline suite pass; `commitlint` reports 9 commits green on the landed history.
+- Still open / owner actions: tracker closure of #18/#19 and #8, the `edited` retargeting path
+  itself, and making **Commit references** a required status check (`Administration: write` needed —
+  a fine-grained PAT without it returns 403 on the rulesets endpoint).
