@@ -184,5 +184,19 @@ is `evidence/manifest.json`.
   the post-commit `--base f34ae07 --head HEAD` audit.
 - **Commits after approval:** slice `37135cf`
   (`ci(traceability): [issue #8] enforce commit references in CI`, 7 files); the review-record pair
-  (`docs(review)`); reports and this file (`docs(reports)`). The slice is unpushed (local-only
-  policy); a PR is prepared but not opened.
+  (`docs(review)`); reports and this file (`docs(reports)`). The slice was unpushed at commit time;
+  publication followed the owner's explicit grant (§10).
+
+## 10. Publication (owner-authorized 2026-11-12)
+
+- Branch pushed `2026-11-12T05:00:55Z`: `git push -u origin ci/8-commit-reference-enforcement`
+  (`df0f376` on the remote).
+- **PR #42** opened: https://github.com/anthonygraca/gherkin-knowledge-graph/pull/42 —
+  title "SETUP-01: Enforce commit references in CI", base `main`, head `df0f376`, not a draft,
+  `MERGEABLE`; body carries `Refs #8` (no `Closes`).
+- Hosted checks (run `43158573099`, 15 s total): **Commit references — pass** (4 s; the new job
+  validated the head-vs-base range hosted for the first time) and **Offline contract, fixture, and
+  API tests — pass** (11 s). Verified `2026-11-12T05:01:56Z`.
+- Still NOT VERIFIED / owner actions: merge (requires the owner's merge with a conforming subject),
+  issue closure (#8 stands open; the M0 tracker items #18/#19 likewise), the `edited` retargeting
+  path itself, and making **Commit references** a required status check.

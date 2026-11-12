@@ -94,4 +94,4 @@ end timestamp and commit SHA are recorded in the session report and the external
 | Cumulative tokens | input 2,168,919 (cached 1,971,840) · output 25,757 (reasoning 15,085); cost unavailable |
 | Submissions consumed | **2 of 7** (round 1 + round 2); task approved with no open blocking finding |
 | Rework | one blocking finding (R1) repaired after round 1; none in round 2 |
-| Commit state | slice `37135cf` plus review/report commits on `ci/8-commit-reference-enforcement`; unpushed (local-only policy) |
+| Commit state | slice `37135cf` plus review/report commits on `ci/8-commit-reference-enforcement`; pushed 2026-11-12T05:00:55Z and opened as PR #42 (hosted run 43158573099: both checks pass) |

@@ -141,3 +141,16 @@ this checkpoint is recorded in the session report and the archive, not inside th
   (`074dba9e2b471a2fb7b4292334394b36b2b177432621735400114f1fa2542074`); `evidence/review-2-stderr.log`
   (empty); `evidence/freeze2-*.log`; `evidence/manifest-round2.json` (`34ebf5c3…` full value
   recomputable).
+
+## 7. Publication (owner-authorized)
+
+- `2026-11-12T05:00:55Z` — branch pushed (`git push -u origin ci/8-commit-reference-enforcement`);
+  remote head `df0f376`.
+- `2026-11-12T05:00:57Z` — PR #42 opened by `gh pr create`:
+  https://github.com/anthonygraca/gherkin-knowledge-graph/pull/42 (title per convention,
+  `Refs #8` in the body, not a draft).
+- `2026-11-12T05:01:28Z`–`05:01:56Z` — hosted checks on run `43158573099`:
+  **Commit references — pass** (4 s) and **Offline contract, fixture, and API tests — pass** (11 s).
+  The commit-reference job ran hosted for the first time and validated the PR head-vs-base range.
+- Not verified / owner actions: merge with a conforming subject, issue closure, the `edited`
+  retargeting path itself, required-status-check configuration.

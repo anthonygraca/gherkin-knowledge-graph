@@ -16,9 +16,9 @@ Independent review:  docs/reviews/M0-review.md — first review: "M0 not verifie
                      docs/reviews/M0-rereview-2.md — re-review round 2 (GPT-6.1 Sol, xhigh):
                      APPROVE at snapshot bca69cf (tree e55ff9f); R8 repaired/closed; no open
                      major finding; M0 exit criteria verified within scope
-Active task:         SETUP-01 commit-reference enforcement — review round 2 APPROVE at snapshot v2
-                     (2 of 7 submissions); slice committed locally as 37135cf; review/report
-                     commits on branch ci/8-commit-reference-enforcement (unpushed)
+Active task:         SETUP-01 commit-reference enforcement — APPROVED (round 2) and committed;
+                     branch pushed; PR #42 opened with both hosted checks passing; next: owner
+                     review/merge and required-check configuration
 Tests executed:      M0 approved snapshot (bca69cf): 107 passed offline (also under an OS-level
                      network denial); fixturectl verify exit 0; ruff clean.
                      Current tree (main f34ae07 + the uncommitted SETUP-01 slice): 135 passed
@@ -53,10 +53,13 @@ review-record pair (`docs(review)`); and this commit (`docs(reports)` — record
 The local range audit runs at the end of this session; its result is recorded in the session
 record and the final report.
 
-**Publication is pending:** the slice is unpushed under the local-only policy. Next action is a
-branch push + PR against `main` once the repository owner authorizes it (`Refs #8`; `Closes` is not
-appropriate — the original issue's criteria are broader than this slice). NOT VERIFIED until then:
-hosted execution including the `edited` trigger, and required-status-check configuration. Full
+**Publication (user-authorized 2026-11-12):** branch pushed at `2026-11-12T05:00:55Z`; PR **#42**
+opened ([url](https://github.com/anthonygraca/gherkin-knowledge-graph/pull/42), head `df0f376`,
+not a draft, `MERGEABLE`). Hosted checks on the PR: **Commit references — pass** (4 s; the new job
+validated the head-vs-base range hosted) and **Offline contract, fixture, and API tests — pass**
+(11 s) — run `43158573099`. Merge, issue closure, the `edited` retargeting path, and
+required-status-check configuration remain NOT VERIFIED / owner actions (`Refs #8`; `Closes` is not
+appropriate — the original issue's criteria are broader than this slice). Full
 records: [reports/omp-setup-01-commitlint/IMPLEMENTATION.md](reports/omp-setup-01-commitlint/IMPLEMENTATION.md),
 [reviews/SETUP-01-review.md](reviews/SETUP-01-review.md),
 [reviews/SETUP-01-review-2.md](reviews/SETUP-01-review-2.md).
