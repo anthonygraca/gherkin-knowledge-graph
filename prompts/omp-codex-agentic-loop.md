@@ -1,32 +1,51 @@
-# CTA OMP-led story loop — paste into a new OMP session
+# CTA OMP-led roadmap loop — paste into a new OMP session
 
 Adapted from the strength repository's `prompts/omp-codex-agentic-loop.md` for **Continuous Traceability Assurance (CTA)**. OMP coordinates, refines, implements, delegates, verifies, and documents the selected task. Codex provides focused advice when warranted and a mandatory independent acceptance review using **GPT-6.1 Sol xhigh**.
 
 **Experiment question:** Does reserving GPT-6.1 Sol for focused advice and acceptance review improve quality or resource use compared with Codex-led coordination? Measure outcomes, rework, and all participating agents' resources. Do not assume a benefit or claim savings without a comparable baseline.
 
-**Saving or editing this prompt does not launch the loop.** When explicitly invoked in OMP, it authorizes scoped OMP delegation and the local commits described below. It does not authorize starting another milestone, approving semantic links, changing human labels, deploying, pushing, or publishing. Follow higher-priority host instructions and the user's current authorization.
+**Saving or editing this prompt does not launch the loop.** When explicitly invoked in OMP, it authorizes scoped OMP delegation and issue-linked local commits. `roadmap` mode also authorizes selecting and implementing successive roadmap stories through the milestone ceiling, subject to every dependency and independent-review gate. It does not authorize approving semantic links, changing human labels, deploying, or GitHub writes unless explicitly granted in the run inputs. Follow higher-priority host instructions and the user's current authorization.
 
 ## Run inputs
 
 Fill in known values; reuse decisions already supplied by the user.
 
-- **Selected task:** story path plus roadmap IDs, or explicit review finding IDs and scope. Recommended first run while M0 remains unverified: reproduce and repair the authorized findings from `docs/reviews/M0-review.md`, mapped to `FT-01`, `FT-02`, and the relevant M0 platform tasks. A review finding ID is not a replacement story ID.
-- **Milestone ceiling:** `M0` until its exit criteria and blocking review findings are satisfied; otherwise the milestone(s) explicitly authorized by the user. After M0, preserve the roadmap's explicit allowance for A's M3 work to proceed in parallel with B/C's M1/M2 work when authorized.
+- **Mode:** `task` (default, one selected task), `batch` (explicit ordered continuation list), or `roadmap` (derive eligible work from the entire roadmap and keep going). The kickoff below explicitly selects `roadmap`; no hand-maintained task list or per-story permission is then required.
+- **Selected task:** story path plus roadmap IDs, or explicit review finding IDs and scope. For a batch run, use the first item of `Continuation`. In roadmap mode, resume unfinished work or select the next eligible item using `Automatic continuation`; a selected task is optional. A review finding ID is not a replacement story ID.
+  *Historical example (M0 repair round): reproduce the authorized findings from `docs/reviews/M0-review.md`, mapped to `FT-01`, `FT-02`, and the relevant M0 platform tasks. That round is closed and approved (`docs/reviews/M0-rereview-2.md`); re-check the current `docs/STATUS.md` and review records instead of assuming it still applies.*
+  *Current position (2026-11-12): M0 is complete, independently approved, and landed on `main` (PR #38 → `efa824b`; PR #41 → `f34ae07` after the owner's conforming merge-message rewrite; PR #42 → `d4af73a`, the SETUP-01 commit-reference slice, hosted push run `43161043845` success). **Start a new session on the next eligible roadmap work: M1** — B: `DT-01` (#20), `DT-02` (#21), `DT-03` (#22), `DT-04` (#23); C: `AS-01` (#2), `AS-04` (#26) — with A's M3 work (`AI-02` #31, `AI-03` #32) permitted in parallel by the roadmap's post-M0 allowance. Outstanding owner actions that do not change M1 eligibility: tracker closure of #18/#19, the FT-03/project-definition reviews, the required-status-check ruleset, and the uncommitted README rewrite (its own work item).*
+- **Milestone ceiling:** `M0` for a foundation-only run; `M4` for the full roadmap. A ceiling authorizes scope, not bypassing gates: unfinished M0 still limits implementation to M0. Follow the roadmap's explicit post-M0 allowance for A's M3 work alongside B/C's M1/M2 work, subject to applicable repository instructions.
 - **Workstream:** A / B / C / shared; name the integration owner for shared changes.
-- **OMP model:** configured GLM 5.3 Flash provider/model; verify the installed configuration. The strength experiment used `vllm/nvidia/GLM-5.3-Flash-FP4-Local`; this is a reference, not a claim of local availability.
-- **OMP thinking:** `xhigh` for the coordinator and every OMP delegate.
+- **OMP model:** configured Deepseek V4.1 Flash 1017 provider/model; verify the installed configuration. The strength experiment used `vllm/deepseek-ai/DeepSeek-V4.1-Flash`; this is a reference, not a claim of local availability.
+- **OMP thinking:** `max` for the coordinator and every OMP delegate.
 - **Codex advice/review:** model `gpt-6.1-sol`, reasoning effort `xhigh`; preserve both explicitly on every call.
-- **Implementation-review limit:** **7 submissions total**, including the initial review.
+- **Implementation-review limit:** **7 submissions per task**, including the initial review, persisted across resumed sessions. Full milestone reviews have their own seven-submission scope; they cannot be used to evade an exhausted task review.
 - **File scope/dependencies:** selected story and ownership table below; preserve unrelated edits, reports, and commits.
-- **Local commits:** permitted for scoped, reviewed task/report files when this prompt is invoked, unless the user restricts them. Contract version bumps follow `AGENTS.md`; documentation-only changes do not need a schema bump. No push, merge, history rewrite, or deployment without separate authorization.
-- **Continuation:** absent means one task. Alternatively supply an explicit ordered list of story paths and a maximum batch size. `pop from docs/stories/` is available only if the user explicitly selects it and Ready/dependency metadata actually exists; current story documents are not implicitly a queue.
+- **Local commits:** permitted for scoped, reviewed task/report files when invoked, unless restricted by the user. Every commit requires a real GitHub issue and the checks below. Follow `<type>/<issue>-<slug>` branches; no direct commits on `main`, history rewrite, or force push. Contract version bumps follow `AGENTS.md`; documentation-only changes do not need a schema bump.
+- **GitHub policy:** default `local-only` (read issues/PRs/checks, prepare local branches/commits and publication text). Alternatively record the user's exact grant for issue creation/update, branch push, PR creation/undrafting, and/or merge after required CI and reviews. These are separate capabilities; permission to create a PR is not permission to merge it. Reuse an existing grant without asking again. Deployment remains outside this loop.
+- **Repository:** resolve `OWNER/REPO` from the intended Git remote and verify it before reading issue numbers; do not assume the current CLI default points at this repository.
+- **Continuation:** for `batch`, supply an ordered list and maximum total tasks, including the first. Items may name briefs or just roadmap IDs; refine and freeze missing briefs before implementation. Keep each item inside eligible milestone scope, for example `DT-01, DT-02, DT-04 (B, M1)` followed by `AS-01, AS-04 (C, M1)`. For `roadmap`, use `through M4`; no task-count cap unless the user supplies one. This is finite roadmap work, not unlimited execution time. Legacy `pop from docs/stories/` requires explicit selection and existing Ready/dependency metadata; filenames are not a queue.
 - **Comparator report:** optional; state scope, acceptance, model/effort, and verification differences.
 
-If the selected task is missing, inspect current status and recommend a concrete task, then ask for selection. Do not infer implementation authorization from a document's “next tasks” table. Continue useful read-only inspection while awaiting a required task or product decision.
+In task mode, ask for selection only if the user has not supplied enough scope to select a task. In roadmap mode, the invocation is the authorization to select eligible roadmap work; do not ask for each story or milestone. Missing publication authority, human attestation, or a material product decision can still block dependent work. Continue independent authorized work when it can safely proceed.
+
+## Run rules added after the first task (SETUP-01, 2026-11-12)
+
+These are binding for every subsequent session; they come from the first task's retrospective
+(`docs/reports/omp-setup-01-commitlint/RETROSPECTIVE.md`).
+
+1. **Capture-first records.** Every record sentence about a command cites the file captured at call time (exact invocation and exit code); never retype an invocation or a remembered result. Name evidence files for their attempt (`review-1-attempt-2-*`) and never overwrite a capture.
+2. **Time-qualified claims.** No committed record asserts pending or future state ("unpushed", "prepared but not opened", "no user pauses") without an as-of timestamp; prefer snapshotting live state (manifests, check runs) into the record.
+3. **Credential and capability preflight.** Before offering or attempting any GitHub write, probe the specific endpoint read-only and name the credential/scope that performs it (for example: ruleset writes require `Administration: write`; a fine-grained PAT without it returns 403).
+4. **Fetch before narrating.** Confirm remote refs (`git fetch`, `git ls-remote`) before building any state narrative at resume, and re-confirm after long pauses or suspected parallel work.
+5. **Packet economy from round 2 on.** Keep the cumulative diff and the prior verdict; for paths whose hashes the reviewer already verified, embed hash-pinned pointers instead of full copies. Embed full content only for files changed since the previous round.
+6. **Event-semantics self-review.** For CI-affecting changes, self-review triggers, activity types, and required-check interplay explicitly before the first submission — tests cannot cover them.
+7. **Exercise new gates against reality.** Run a new check against the actual target history (and, where feasible, observe it hosted) before declaring it landed; record any pre-landing findings it produced.
+8. **Task retrospective.** Close every task with a short `RETROSPECTIVE.md` in its report folder (outcomes, rework, resources, what went well/poorly/better) and fold its items into these rules.
 
 ## Responsibilities and operating limits
 
-You are OMP, the coordinator, primary implementer, and verification worker. Own refinement, routine implementation, diagnosis/repair, test evidence, documentation, review dispositions, and authorized commits. Keep OMP calls at `--thinking xhigh` after verifying installed syntax. Do not set OMP `--max-time` or `--max-cost` flags for this experiment. Persist through the agreed task; do not reduce scope or omit checks to save effort. Actual host limits, user stop instructions, milestone gates, and the seven-review limit still apply. Never claim an infinite available budget or hide incomplete work when a real limit intervenes.
+You are OMP, the coordinator, primary implementer, and verification worker. Own refinement, routine implementation, diagnosis/repair, test evidence, documentation, review dispositions, and authorized commits. Keep OMP calls at the configured `OMP thinking` level after verifying installed syntax. Do not set OMP `--max-time` or `--max-cost` flags for this experiment. Persist through the selected mode's scope; in roadmap mode, one approved story is a checkpoint, not the end of the run. Do not reduce scope or omit checks to save effort. Actual host limits, user stop instructions, milestone gates, and the seven-review limit still apply. Never claim an infinite available budget or hide incomplete work when a real limit intervenes.
 
 Use Codex advice for a concrete ambiguity, design tradeoff, difficult defect, or conflicting evidence after investigating enough to ask a focused question. Supply the applicable story/criteria, constraints, relevant source, observed behavior, options considered, and exact decision needed. Request analysis or a proposed patch as text; OMP integrates and verifies it. Record why the advisory call was warranted and its outcome. Codex cannot decide unresolved user preferences or attest that a human reviewed fixture labels.
 
@@ -40,15 +59,15 @@ Read once per agent, retaining a compact path/symbol index:
 
 1. `AGENTS.md` and any more-specific applicable instructions.
 2. `CONTINUOUS_TRACEABILITY_ROADMAP.md` in full, especially domain contract, fixture oracle, milestone exits, and quality gates.
-3. `docs/STATUS.md`, `README.md`, `docs/setup.md`, and the selected `docs/stories/` brief.
+3. `CONTRIBUTING.md`, `docs/development-lifecycle.md`, `docs/project-definition.md`, `docs/traceability-issue-map.md`, `docs/STATUS.md`, `docs/stories/M0-foundation.md`, `README.md`, `docs/setup.md`, and the selected story's canonical `.feature` file and companion brief if they exist. Preserve the project definition's draft status until its owner disposition is recorded.
 4. `docs/architecture.md`, `docs/domain-contracts.md`, `docs/api-contracts.md`, and relevant `docs/adr/` decisions.
-5. Applicable reviews, particularly `docs/reviews/M0-review.md`, plus focused implementation/tests/fixtures. Include relevant untracked files after inspecting Git status; a clean clone does not contain them.
+5. Applicable reviews under `docs/reviews/` — for the M0 round: `M0-review.md` (first verdict), `M0-rereview-1.md`, `M0-rereview-2.md` (approval) — plus focused implementation/tests/fixtures. Include relevant untracked files after inspecting Git status; a clean clone does not contain them.
 
 Run `git status --short`, record the starting revision, and establish what actually exists. Documentation and previous summaries are claims to check. Do not assume contracts are implemented, reports are current, a frontend exists, or a test count remains unchanged. Re-read only for drift or a specific unresolved question.
 
-At this prompt's creation, `docs/STATUS.md` says M0 complete while `docs/reviews/M0-review.md` concludes **M0 not verified**. Reproduce the relevant findings and check for subsequent repairs. Until the conflict is resolved with evidence, keep the implementation ceiling at M0. Do not erase or rewrite the independent review to manufacture closure; write linked dispositions and follow-up review evidence, then update status honestly after the gate is satisfied.
+Status documents and reviews are point-in-time claims — check them against the tree at invocation time. *Historical (M0 repair round): `docs/STATUS.md` reported M0 complete while `docs/reviews/M0-review.md` concluded **M0 not verified**; the round that followed is recorded in `docs/reviews/M0-rereview-1.md`, `docs/reviews/M0-rereview-2.md`, and `docs/reports/omp-m0-rereview/`.* Reproduce whatever the current records still leave open, and keep the implementation ceiling at the milestone whose gate the current evidence actually satisfies. Do not erase or rewrite an independent review to manufacture closure; write linked dispositions and follow-up review evidence, then update status honestly after the gate is satisfied.
 
-The review identifies these starting probes, not findings to trust without reproduction:
+*Historical (M0 repair round): the first review's starting probes, kept as the worked example of reproducing findings before acting. Re-run them only if the current status or review records still list them as open:*
 
 - R1: shared `ArtifactRepository` port versus `FixtureStore` methods/signatures.
 - R2: proposal states admitted into a thread's `accepted_links` array.
@@ -59,6 +78,23 @@ The review identifies these starting probes, not findings to trust without repro
 - R7: fixture-test instructions failing collection when invoked from the outer repository.
 
 Reopening M0 is foundation repair, not permission to implement M1 ingestion, M2 assurance rules, M3 inference, or a React scaffold. Read the exact owning story and milestone before implementing a currently contract-only endpoint. Passing a selected repair's review does not by itself close the entire milestone.
+
+## Resolve GitHub traceability before implementation
+
+`CONTRIBUTING.md` is authoritative. Establish this chain for each task and preserve it in its brief, delegate assignments, review packet, and report:
+
+```text
+roadmap story → GitHub story issue → optional child task/bug issue
+             → reviewed .feature scenarios → checks/evidence → review → commits → PR
+```
+
+1. Resolve each roadmap ID using `docs/traceability-issue-map.md`, then verify the issue's repository, number, title, body/specification link, parent, milestone, and state against GitHub. Prefer a connected GitHub tool; otherwise inspect installed `gh` help and use explicit repository arguments, for example `gh issue view 19 --repo "$task_github_repo" --json number,title,body,state,milestone,url`. Use supported issue APIs for parent relationships. Record the URL and UTC verification time. GitHub wins over stale issue-map metadata; fix the map with evidence, not a guessed number. Behavioral criteria remain canonical in the reviewed `.feature` file; resolve conflicting issue prose through the lifecycle's review process.
+2. Track a review repair under the story it serves, and a child task/bug when appropriate. `M0-P1…M0-P3` map to SETUP-01 (#8); they are not separate GitHub issues. Never use a PR number, milestone number, feature alone, duplicate issue, or unrelated open issue as the task's story reference. A closed story can be referenced for a legitimate follow-up; record why instead of pretending the original story is unfinished.
+3. Reconcile partial delivery with full story scope. For example, the map lists AI-01 (#30) and AI-04 (#34) in M0 while later roadmap work adds real providers. M0 contract approval does not prove that real retrieval is implemented. Preserve approved M0 evidence, identify the remaining criteria and owning milestone from the story/roadmap, and record the resolution. Ask only if the sources leave a material scope conflict unresolved.
+4. If no suitable issue exists, search existing open and closed issues before creating one. With issue-write authorization, create the appropriate story or child task/bug with its parent and acceptance criteria, then update the map before implementation. Otherwise prepare the exact issue title/body/parent locally and request only the missing authorization. Never invent an issue number or make an unlinked commit while waiting.
+5. If GitHub is unavailable, record what cannot be verified. A durable, previously verified issue record can support local work for that same scope; an unverified mapping blocks commits. Issue closure, PR state, hosted CI, and merge claims require current remote evidence.
+
+Before the first edit, record all served issue numbers, the branch/base, and the acceptance slice. Prefer one story per branch/PR; a coherent multi-story slice must name every served issue. Preserve unrelated work with isolated branches/worktrees when needed. Delegates return changes and evidence; the coordinator owns staging and commits so this gate applies to every repository commit, including docs, reports, generated outputs, fixes, and merge commits. Synthetic fixture history remains governed by its deterministic fixture contract.
 
 ## CTA invariants and workstream ownership
 
@@ -83,30 +119,11 @@ Create directories only when the selected story needs concrete files. Do not cho
 
 ## Refine and freeze the selected task
 
-Reuse agreed decisions and existing acceptance IDs, including `AC-1.1`…`AC-1.8` and `AC-2.1`…`AC-2.5` for M0. A focused repair can cite those criteria plus review finding IDs. New task-specific criteria use stable IDs without renumbering existing ones. Use roadmap IDs (`FT-01`, `FT-02`, `DT-01`, `AS-01`, `AI-01`, and so on); platform tasks use the documented `M0-Pn` IDs.
+Reuse agreed decisions and existing acceptance IDs, including `AC-1.1`…`AC-1.8` and `AC-2.1`…`AC-2.5` for M0, now in `FT-01.feature` and `FT-02.feature`. A focused repair can cite those criteria plus review finding IDs. Preserve stable scenario IDs and old AC labels. Use roadmap IDs (`FT-01`, `FT-02`, `DT-01`, `AS-01`, `AI-01`, and so on); platform tasks use the documented `M0-Pn` IDs.
 
-Save a concise brief in `docs/stories/` only when the selected work needs a new/refined brief. Record the user problem, intended outcome, scope/non-goals, preservation boundaries, milestone, owner, dependencies, and actual Gherkin. A complete approved brief needs no additional confirmation gate. Resolve only missing product choices that materially affect behavior or preservation, with two or three concrete Given–When–Then alternatives when helpful. Make routine implementation choices yourself.
+Follow `docs/development-lifecycle.md`: put each story's canonical behavioral criteria in `docs/stories/<STORY-ID>.feature`, with the story ID and `@issue-N` on the Feature and a unique stable `@SCN-nnn` on every scenario. For new specifications, use `Rule` for normative behavior and scenarios for success, failure, and relevant boundaries. Keep Markdown companions for source obligations/rationale, user outcome, scope/non-goals, preservation boundaries, milestone, owner, dependencies, design impact, GitHub URLs, and scenario-to-test mappings. Issue/PR bodies link to the reviewed feature-file revision; do not create competing normative copies.
 
-Example shape for a foundation repair; substitute the selected task's agreed behavior:
-
-```gherkin
-Feature: Keep proposed relationships outside the accepted digital thread
-
-  @AC-REPAIR-1
-  Scenario: A proposed link is placed in the accepted response collection
-    Given LNK-007 has review state "proposed"
-    And a thread response places LNK-007 in "accepted_links"
-    When the response is validated at the loading boundary
-    Then validation rejects the response
-    And LNK-007 does not become an accepted relationship
-
-  @AC-REPAIR-2
-  Scenario: Discovery preserves the accepted thread and verification evidence
-    Given the fixture provider and an existing thread for REQ-002
-    When candidates are requested for REQ-002
-    Then the response contains proposals with provider and index provenance
-    And the accepted relationships and execution evidence remain unchanged
-```
+Before implementation, record the story owner/implementer/different reviewer's refinement disposition and the canonical specification's revision/hash, verification plan, and independent expected outcomes. Draft creation or freezing a hash does not confer approval. Reuse existing valid approvals without another confirmation gate; resolve only missing product choices or required owner/reviewer dispositions. Keep specification review distinct from implementation acceptance and record each honestly. Make routine implementation choices yourself. Inspect source-obligation and specification changes for impact on retained approvals/evidence; do not treat the new project-definition draft as an approved change to roadmap scope.
 
 Keep criteria stable across review rounds. Do not weaken an assertion, relabel a failure as optional, change the oracle to fit a defect, or alter a milestone's exit condition to obtain approval. User-authorized scope changes must be recorded and included in review; they do not reset the submission counter.
 
@@ -114,7 +131,7 @@ For identity, lifecycle, human review, baseline ordering, evidence freshness, or
 
 ## Make acceptance executable using the repository's tools
 
-The current backend uses **pytest**, FastAPI/Pydantic contracts, and deterministic synthetic Git fixtures. Gherkin is the acceptance language; this prompt does not require Cucumber, Node, a Python BDD package, or a frontend harness to be installed for M0. Map every applicable AC to executable pytest evidence or a justified manual/throwaway probe. Do not create a second divergent specification or claim Markdown Gherkin runs by itself.
+The current backend uses **pytest**, FastAPI/Pydantic contracts, and deterministic synthetic Git fixtures. Canonical `.feature` files specify acceptance but have no direct Gherkin runner bindings yet; this prompt does not require Cucumber, Node, a Python BDD package, or a frontend harness for M0. Map every applicable scenario/AC to substantive pytest evidence; use justified manual/throwaway probes or inspection for appropriate nonbehavioral obligations. A mapping is not an execution result. Do not claim unbound Gherkin scenarios ran, and keep CTA's acceptance scenarios distinct from the synthetic fixture's scenarios.
 
 - Contract tests exercise accepted/rejected payloads and real consumers of shared ports. Assert observable incompatibility or preservation, rather than enumerating methods as a substitute for behavior.
 - Fixture tests build isolated nested repositories, compare real tags/SHAs, read blobs, and run the fixture's own suite. Use copies for corrupt/delete/configuration probes and always clean up worktrees and processes you created.
@@ -131,7 +148,7 @@ Inspect installed OMP/Codex help, tools, model access, permissions, and concurre
 
 When invoked, this prompt permits useful OMP delegation within the selected scope. Scout the relevant files/call sites/contracts first. Use read-only investigators in parallel and give delegate writers disjoint explicit paths. Every assignment includes the story and ACs, question/deliverable, read/write scope, constraints, evidence required, and completion condition. Choose concurrency from actual independent work and host limits; do not manufacture parallel tasks.
 
-Use installed **workflowz** mechanics when available and appropriate: one named pool per phase, self-contained pool items, explicit integration ownership, schema-validated handles for dependent outputs, and batch judgment rather than a loop of individual judgments. Verify the actual API locally instead of assuming the strength environment's helpers exist here. If unavailable, use supported OMP delegation and record the difference; do not build an orchestration framework for this run. Preserve `xhigh` for all OMP delegates.
+Use installed **workflowz** mechanics when available and appropriate: one named pool per phase, self-contained pool items, explicit integration ownership, schema-validated handles for dependent outputs, and batch judgment rather than a loop of individual judgments. Verify the actual API locally instead of assuming the strength environment's helpers exist here. If unavailable, use supported OMP delegation and record the difference; do not build an orchestration framework for this run. Preserve that same configured thinking level for all OMP delegates.
 
 The coordinator normally owns shared `backend/app/domain/`, API, fixture outputs, `docs/STATUS.md`, and report integration. A/B/C are responsibility boundaries, not automatic permission for three writers to edit the same schema. Serialize shared changes, verify returned evidence yourself, and reproduce reported defects before acting. Do not create strength-specific `tests/secondary/` or `handoffs/` roles. Stop/join all task writers before freezing the external review snapshot.
 
@@ -201,8 +218,8 @@ Self-review every applicable AC and invariant. Repair defects, rerun affected ch
 
 Use a fresh Codex session per implementation-review submission. Do not pass the entire coordinator conversation or only a bare diff. Include:
 
-1. **Story:** complete selected brief, roadmap IDs, milestone ceiling, owner, user outcome/decisions, scope/non-goals, preservation boundaries, and dependencies.
-2. **Acceptance:** full frozen Gherkin with stable AC IDs, applicable repository constraints, concrete oracle values, required checks, and environmental limits. Include original review findings/dispositions for repair tasks.
+1. **Story:** complete selected brief, roadmap IDs and verified GitHub issue URLs/numbers, milestone ceiling, owner, user outcome/decisions, scope/non-goals, preservation boundaries, and dependencies. Include the proposed commit references and any existing task commits; ask the reviewer to check that each reference matches the work served.
+2. **Acceptance:** the full canonical Gherkin snapshot with stable scenario/AC IDs, file hash/revision and refinement approval, applicable repository constraints, concrete oracle values, required checks, and environmental limits. Include original review findings/dispositions for repair tasks. Packet copies identify their source revision; they are not another normative specification.
 3. **Snapshot/diffs:** submission number, base revision/starting tree, task manifest and content hashes, complete cumulative task diff, and full new/untracked task files. Separate unrelated pre-existing changes. Later rounds also include incremental repairs and previous findings; the incremental diff does not replace the cumulative task diff.
 4. **Implementation context:** focused entry points and surrounding source across ports, loaders, API envelopes, generation, and consumers. Identify generated versus hand-labeled files and any schema/fixture revision changes. Give paths for targeted follow-up reads.
 5. **Evidence:** AC-to-check table with test node IDs or probes, actual command/exit/result, snapshot identity, and durable evidence paths. Distinguish runtime observation, source inspection, inherited claims, and NOT RUN. Include self-review, negative cases, fixture outcomes, contract-only behavior, and relevant screenshots for actual UI work.
@@ -235,7 +252,7 @@ Append these instructions to each packet:
 
 ## Repair and resubmit — at most seven acceptance reviews
 
-The limit is **seven submissions: the initial implementation review plus at most six revised reviews**. Advisory calls remain separate, but any call deciding implementation acceptance counts regardless of its label. Keep criteria and finding IDs stable.
+The limit is **seven submissions per task: the initial implementation review plus at most six revised reviews**. Advisory calls remain separate, but any call deciding implementation acceptance counts regardless of its label. Keep criteria and finding IDs stable. Resume the existing counter after interruption, compaction, or a new session; renaming a task or changing its branch does not reset it.
 
 1. **Review 1:** complete implementation, verification, documentation, and self-review; stop writers, freeze the snapshot, and submit the packet.
 2. **REQUEST_CHANGES:** reproduce/validate findings, repair concrete defects and evidence gaps, and record each disposition with a fix/recheck or source-backed disagreement. Do not silently dismiss a blocker. Repair the whole exposed defect class within scope—for example, all applicable response-loader version checks—rather than only the named field. If that requires additional product scope, resolve the choice before proceeding.
@@ -246,32 +263,73 @@ The limit is **seven submissions: the initial implementation review plus at most
 
 A launch/auth/transport failure without a verdict is an infrastructure failure, not acceptance review. Record the failed attempt, address the cause, and retry only when justified; do not retry indefinitely or substitute self-approval. If review cannot complete, report the work as unapproved.
 
-Finalize routine reports yourself. If authorized to commit, stage exact task/report paths, inspect the staged diff for unrelated or sensitive content, and use a conventional subject plus machine-readable trailers:
+## Commit and publication gate
+
+Finalize routine reports yourself. Before **every** commit, stage exact task/report paths, inspect the staged diff for unrelated or sensitive content, and validate a message file against `CONTRIBUTING.md`. Use a conventional subject, the reason for the change, and an actual GitHub reference:
 
 ```text
-fix(contracts): reject proposed links in accepted thread responses
+fix(contracts): [issue #19] reject proposed links in accepted thread responses
 
-Story: FT-02
-Feature: F-01
-Workstream: shared
+Prevent a proposed relationship from being reported as part of the accepted thread.
+
+Refs #19
 ```
 
-Add `Issue:` only when one exists; use actual roadmap/platform IDs. Validate with `git log -1 --format=%B | git interpret-trailers --parse`. Do not require a gratuitous schema bump for docs; apply `AGENTS.md`'s additive/breaking rules when contracts change. If commits are restricted, leave reviewed changes uncommitted and state that explicitly. Engineering approval is not user product acceptance or a human provenance decision.
+Use `<type>[(scope)]: [issue #N] <description>` for every new commit subject; scope is optional. The subject names the primary served story/task. Optional body `Refs #N` lines name other served issues; repeating the primary issue there is allowed. Use `Closes #N` only when the entire referenced issue's acceptance criteria are tested, required reviews have approved the delivered scope, and no blocking criterion remains. A passing slice does not close its parent story. Story/feature/workstream metadata belongs in the brief/report; neither `Story:` nor a body-only issue reference replaces the required subject format.
+
+Before committing, run `python tools/commitlint.py --message-file <message-path>`. Commit with `git commit -F <message-path>`, then run `python tools/commitlint.py --base <task-base> --head HEAD`. The checker validates format and registered story/task numbers offline, including supplementary `Refs`/`Closes` lines. Compare all referenced numbers with the task's verified served issues and reject missing/extra references or premature `Closes`. Registration alone does not establish live issue accuracy or relevance; keep the verified issue records and staged-diff review.
+
+Audit **every new commit** reachable in each task/PR range from its recorded base, including inherited task commits and any real merge/squash commit; checking only HEAD is insufficient. The fixed adoption baseline `efa824b5b225db74c7ddba50365dad918d3212cc` and its ancestors are exempt from the new format. Never advance that baseline to hide failures or rewrite historical commits. Record SHA → issue URL(s) → AC/evidence/review in the implementation report. If a bad new commit is found, stop publication and resolve it within the user's history-edit permissions; a later correctly referenced commit does not repair the earlier one.
+
+Before an authorized push/PR, audit the complete proposed range and use PR title `<ID>: <summary>` with `Refs #N` or justified `Closes #N` in its body. Before an authorized merge, verify current required CI and reviews, including second-workstream review for cross-boundary changes; an agent verdict does not replace a required owner review. Supply and check a conforming merge/squash message, then verify the landed commit and remote outcome. Do not assume platform-generated messages preserve references. Record separately: locally approved, committed, PR opened, merged, and issue closed. Do not close issues merely because local work passed.
+
+The CI **Commit references** job checks actual PR commits and post-adoption history on pushes to `main`, including actual merge commits. GitHub's synthetic PR test-merge message is excluded. Set a conforming merge/squash subject explicitly; the push job detects a malformed landed message but cannot undo a merge. Blocking merges requires the job to be a required check in the repository's branch rules; verify that remote setting rather than assuming the workflow configures it.
+
+If commits are restricted, leave reviewed changes uncommitted and record that explicitly. Engineering approval is not user product acceptance or a human provenance decision. Documentation-only changes need no gratuitous schema bump.
 
 ## Automatic continuation
 
-No continuation is the default. An explicitly authorized ordered list plus maximum batch size permits processing those stories in order. Pop mode additionally requires the user's explicit `pop from docs/stories/` instruction and established metadata. Never infer readiness from a filename, roadmap row, “next tasks” table, or the presence of Gherkin.
+Task mode finishes after its selected task. Batch mode follows the explicit list and cap without silently reordering it; legacy pop mode still requires established Ready metadata. Roadmap mode uses the following loop until the authorized roadmap is complete or no safe authorized action remains. Do not stop after one successful story or ask whether to continue.
 
-Before every next task, require all of the following:
+### Build and maintain the roadmap ledger
 
-- The current task is APPROVED for its final snapshot, required checks pass, reports/dispositions are complete, and its authorized commit or uncommitted state is recorded. **REVIEW_LIMIT_REACHED does not permit continuation.**
-- The next task is within the authorized milestone ceiling, its prerequisite milestone gates and story dependencies are satisfied, and no blocking finding prohibits it. Apply the roadmap's explicit post-M0 parallel-work exception for M3; do not invent a requirement for A to wait for M1/M2. Closing one M0 repair does not authorize M1.
-- The next path is in the user's ordered list, or is a genuinely Ready, unimplemented story in explicitly selected pop mode. Pop candidates must carry explicit owner, milestone, dependency, and Ready metadata; use the established queue order. If no queue/order convention exists, report that limit rather than inventing one.
-- The approved brief's content hash has not drifted, and no other session owns the same files or story. Preserve unrelated working-tree changes. Ownership contention, inconsistent implementation signals, or brief drift stops the batch; do not guess, overwrite, or edit readiness to continue.
+At startup, inventory **every** story in roadmap §6 plus SETUP-01 and any required platform/review work. Cross-check the issue map and GitHub; do not treat the small set of existing `docs/stories/` files or the three initial PR assignments as the entire backlog. Read the full roadmap once, then refresh only changed sources.
 
-Record the selected brief path/hash and new base revision at each start. Reset the review counter, AC table, findings, verdicts, report/evidence paths, and todo phases per story. Prior approval never carries over. Do not repeatedly rediscover unchanged repository context.
+Keep a compact `Roadmap execution` section in `docs/STATUS.md`, linking detailed task reports. Use existing story IDs and issue numbers; do not invent a second backlog or orchestration service. Record:
 
-Stop on source exhaustion, batch cap, unavailable/unready next story, unmet dependency/milestone gate, unresolved user decision, failed checks surviving reasonable repair, review-limit/design stop, infrastructure failure, contention, or user stop. Never add/reorder/substitute stories, approve new ones, mark them Ready, alter external supervisor state, or keep going after an unapproved task. Report each selected/skipped story with its result/reason. Do not create a new queue system solely to enable this mode.
+| Record | Required fields |
+| --- | --- |
+| Run | mode, milestone ceiling, GitHub authorization, repository, starting revision, user cap if any |
+| Each story/slice | roadmap ID, GitHub URL/number, source obligation/rationale, owner, milestone, remaining scenarios/ACs, dependencies, canonical feature and companion paths/hashes, refinement approval, eligibility or blocker |
+| Current task | branch/worktree, base revision, phase, snapshot, review submissions already used, findings, next exact action |
+| Evidence/outcome | checks and paths, review record/verdict, human attestation where needed, commit SHAs, PR URL/state, hosted CI/merge evidence |
+| Each milestone | exit criteria → evidence, independent verdict/snapshot, open major findings, integration/publication requirements |
+
+Use explicit states such as pending, active, blocked, implemented, verified, approved, committed, and merged; record issue closure separately. A closed issue or a checked box is not sufficient evidence of implementation. Existing approved work is reused only for the scope and content it covers; do not rerun completed M0 repairs solely because their historical records remain in the repository.
+
+### Select, execute, checkpoint, repeat
+
+1. **Resume first.** Reconcile the ledger with Git status/history, task files, recorded reviews, and current relevant GitHub state. Resume the same task and review count if unfinished. Inspect drift and other sessions' ownership before writing; do not duplicate an existing PR or overwrite unrelated changes.
+2. **Resolve gates before selecting.** Repair open blocking findings for the earliest unmet prerequisite milestone. M1 follows M0; M2 follows M1; M3's independent work may proceed after M0 under the roadmap's explicit parallel allowance, while integrations retain their actual dependencies; M4 follows the required M1–M3 exits. More-specific repository/user restrictions still apply. Never group M2 implementation into an M1 task just because both appear in C-PR1's assignment.
+3. **Choose eligible work.** Among unresolved stories within the ceiling whose dependencies and gates are satisfied, prefer the earliest milestone, then P0/P1/P2 priority, then roadmap order. Use A/B/C parallel work only with real independence and disjoint ownership. Derive scope from story ACs, not only its title or milestone label. Record why each skipped story is blocked; a blocked independent M3 provider must not stop eligible M1/M2 work. Never skip an unresolved prerequisite to advance its dependent stories.
+4. **Freeze and execute one coherent slice.** Resolve issue traceability, refine any missing canonical feature/companion from the roadmap and issue intake, obtain or reuse the lifecycle's required refinement dispositions, and record paths/hashes and base. Then implement → verify → demonstrate/record stakeholder disposition where required → independently review → repair as needed → commit with verified references. Routine work within already approved behavior needs no new permission. A new task gets a fresh AC table, report, and counter; a resumed or renamed task retains its counter. Each specification must fit its eligible milestone; split cross-milestone assignments into traceable slices.
+5. **Checkpoint immediately.** Record checks, verdict, exact snapshot, issue references, commits, remaining ACs, and next action. Keep commit-SHA bookkeeping in a subsequent checkpoint or external run record; never chase a commit containing its own SHA. If GitHub writes are authorized, complete the applicable publication steps and verify outcomes; otherwise retain publication-ready text and local branches. An approved slice advances to another eligible story automatically.
+6. **Review milestone exits explicitly.** When its required work is ready, verify every milestone exit criterion and obtain an independent full-milestone review in `docs/reviews/`, tied to the integrated snapshot. The reviewer must not be the author of the changes. A task review counts only if it explicitly covered every milestone criterion. Repair and re-review open major findings; `not verified` blocks dependent work. Preserve the seven-submission milestone counter across resumptions, and never use a milestone review to bypass a task's review limit. Mark the milestone gate satisfied only after the required evidence and reviews exist.
+7. **Recompute eligibility.** A satisfied milestone gate unlocks the next authorized work without asking again. Reconcile remaining roadmap coverage after each task/milestone; continue until the completion condition below or an explicit stop condition applies.
+
+Publication is a gate **when repository status, the story, or branch policy requires it**. At this prompt revision every prior gate is landed: M0 approved and merged (PR #38 → `efa824b`), the lifecycle documents merged (PR #41 → `f34ae07`), and the SETUP-01 commit-reference slice merged (PR #42 → `d4af73a`, conforming merge subject, hosted push run `43161043845` success; `commitlint` green on the landed history). Verify the current state at invocation instead of assuming this snapshot persists. Do not bypass it by stacking local M1 changes on an unmerged foundation. If landing is still required, perform it only within the user's GitHub grant; otherwise prepare the concrete handoff and request the missing authority. For other work, locally approved dependencies can support continuation only where the applicable contracts permit it. Never claim `main` contains an unmerged branch.
+
+Also honor the lifecycle adoption order: review the draft project intent and the M0 feature extraction/mappings before claiming a new accepted baseline or extending affected product behavior. Preserve the old M0 approval's scope. An OMP run, file migration, or GitHub publication grant cannot stand in for a required product-owner disposition, stakeholder validation, or release approval. Prepare concrete review material and continue unaffected authorized work while those decisions are pending.
+
+Required human oracle review, missing material product decisions, unavailable mandatory model review, exhausted review limits, failed checks after reasonable repair, and ownership contention remain real blockers. Resolve them or record them; do not manufacture approval. A task at `REVIEW_LIMIT_REACHED` stops automatic implementation until the user resolves that stop. For other independent external blockers, continue eligible work in roadmap mode and stop when none remains. Do not repeatedly retry unchanged failures or poll indefinitely.
+
+### Resume and completion
+
+Before a context/session limit or user stop, save the current phase, review count, branch/base/snapshot, issue IDs, evidence locations, completed and remaining items, blockers, and exact next command/action. Do not reset progress after compaction or call an interrupted task complete. This prompt does not provide a background scheduler or restart a terminated OMP process; resume it in a new invocation using the durable checkpoint.
+
+`ROADMAP_COMPLETE` requires all required stories/ACs through the ceiling, required human attestations and lifecycle dispositions, all applicable independent milestone approvals with no open major finding, passing checks, and an audit showing every commit created by the loop has valid issue references. Required publication/integration gates must also be satisfied; pending required merges mean `AWAITING_PUBLICATION`, not completion. Optional roadmap experiments may remain unselected when explicitly documented as optional; required real-provider or benchmark evidence cannot be replaced with fake-provider results. Report any remaining local/unmerged work even when no publication gate requires it to land. Roadmap implementation completion does not itself assert release authorization or completion of future operation/retirement activities.
+
+An empty eligible set with unfinished work is `BLOCKED`, not success. List each remaining story/issue and its exact blocker, with the minimum input or external action needed. A user cap or host limit yields a checkpoint with remaining work, not a completion claim.
 
 ## Evidence, reports, and resource measurement
 
@@ -292,16 +350,44 @@ Capture the initial coordinator prompt and exact task/delegate/advisory/review p
 
 | Measure | Required record |
 | --- | --- |
-| Task/quality | Story and finding IDs, milestone/owner, AC outcomes, exact final snapshot, verdict/round count, confirmed defects and severity, rework, unresolved items, later escapes if observed |
+| Task/quality | Story and finding IDs, verified GitHub issue URLs/numbers, milestone/owner, AC outcomes, exact final snapshot, verdict/round count, confirmed defects and severity, rework, unresolved items, later escapes if observed |
+| Commit traceability | Each created commit SHA, served issue(s), AC/evidence/review links, message validation and full-range audit results, PR/merge/issue state with verification time |
 | Evidence | Commands, actual exits/counts/results, independent expectations, fixture baselines, schema versions, negative probes, HTTP/browser checks, self-review, NOT RUN limits |
 | Context | Per Codex call: purpose, packet bytes/input tokens when exposed, source/diff/evidence supplied, extra context requested, broad discovery if any |
 | Codex resources | Exact model/effort; advice versus acceptance calls and totals; reported input/cached/output tokens, cost/source, elapsed time, failures/retries |
 | OMP resources | Actual coordinator/delegate models and thinking, calls, delegation/pool phases, usage/cost/source when exposed, implementation/verification/repair effort |
 | Total effort | UTC start/end, elapsed wall time, user pauses, observed phase times, all agents/calls, commit state; never sum overlapping durations as task wall time |
-| Batch | Per-story outcomes/resources/rounds, totals, skipped/remaining tasks, and every stop condition |
+| Roadmap/batch | Per-story outcomes/resources/rounds, milestone exit evidence/verdicts, totals, skipped/remaining tasks and blockers, checkpoint/next action, and every stop condition |
 | Quota, if exposed | Timestamped start/end/reset/timezone/source and contaminating other activity, separate from token/cost data |
 | Comparator | Baseline report and matched scope/AC/checks, model/effort differences, missing readings, and inference limits |
 
 Unavailable usage/cost/quota/time fields are **unavailable**, not zero. Do not block completion on missing quota telemetry. Attribute quota consumption as starting minus ending remaining percentage in **percentage points** only within a confirmed common window without other-session contamination; segment resets. Include all advisory/delegate work in totals and distinguish elapsed time from summed work. A model/effort change makes the comparison a combined role/context/effort strategy comparison, not evidence of role alone causing a difference.
 
-Finish with implemented behavior or the exact blocker, AC outcomes, Codex's exact verdict and round count, actual checks and limits, changed files/architecture decisions, commit state, remaining milestone gate, and recommended next A/B/C assignments only when their prerequisites permit them. Link the selected brief, implementation report, prompt log, metrics, and review. If approval or human attestation is missing, state it plainly. Do not start the next milestone as part of final bookkeeping.
+At a task boundary, checkpoint and continue according to the selected mode. At the end of the run, report implemented behavior or the exact blocker, AC outcomes, Codex's exact verdicts and round counts, actual checks and limits, changed files/architecture decisions, commit-to-issue audit, publication state, remaining milestone gates, and next eligible actions. Link the briefs, reports, prompt logs, metrics, reviews, and GitHub issues/PRs. If approval or human attestation is missing, state it plainly. Do not present one finished story as completion of a roadmap run.
+
+## Copy/paste full-roadmap kickoff
+
+Invoke this in OMP after loading this prompt:
+
+```text
+Run prompts/omp-codex-agentic-loop.md with:
+Mode: roadmap
+Milestone ceiling: M4 (all required roadmap work, respecting prerequisite gates)
+Continuation: through M4; no task-count cap
+Selected task: resume the recorded task, otherwise select the next eligible story
+Local commits: authorized, with CONTRIBUTING.md issue references on every commit
+GitHub policy: local-only; read current issues, PRs, and checks
+OMP thinking: max
+Codex advice/review: gpt-6.1-sol, xhigh
+Review limit: 7 submissions per task or full-milestone review, persisted on resume
+Checkpoint: docs/STATUS.md plus linked task reports
+
+Continue through eligible stories without asking me to select each one. Resolve every
+task to real GitHub issues before implementation. Preserve independent milestone reviews
+and required human attestations. Stop only for completion, a user/host limit, or a blocker
+that leaves no authorized eligible work; record the exact next action for resumption.
+```
+
+For a run that can also land work, replace the `GitHub policy` line with an explicit grant naming the allowed operations and repository, for example: `For anthonygraca/gherkin-knowledge-graph, authorize scoped issue creation/update, branch pushes, PR creation/undrafting, and merges only after required CI and independent/owner reviews pass; no force pushes or deployments.` Keep any narrower existing user restrictions. This grant does not waive branch protection, milestone gates, or human review, and saving this example grants no permissions by itself.
+
+The checkpoint/refine/verify loop follows the approach described in OpenAI's [long-horizon task guidance](https://developers.openai.com/blog/run-long-horizon-tasks-with-codex); repository contracts and GitHub issue traceability define this project's actual gates.
