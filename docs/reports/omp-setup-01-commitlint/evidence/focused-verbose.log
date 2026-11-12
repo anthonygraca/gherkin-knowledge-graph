@@ -1,0 +1,50 @@
+$ uv run --offline --project backend pytest backend/tests/test_commitlint.py -v
+exit=0
+--- stdout ---
+============================= test session starts ==============================
+platform linux -- Python 3.12.16, pytest-8.4.2, pluggy-1.7.0 -- <task_repo>/backend/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: <task_repo>/backend
+configfile: pyproject.toml
+plugins: anyio-4.16.0
+collecting ... collected 28 items
+
+backend/tests/test_commitlint.py::test_accepts_issue_linked_messages[ci: [issue #8] enforce traceability] PASSED [  3%]
+backend/tests/test_commitlint.py::test_accepts_issue_linked_messages[fix(contracts): [issue #19] reject invalid proposals\n\nWhy this matters.\n\nRefs #8] PASSED [  7%]
+backend/tests/test_commitlint.py::test_accepts_issue_linked_messages[test(api/contracts): [issue #5] cover failure\n\nRefs #8, #19] PASSED [ 10%]
+backend/tests/test_commitlint.py::test_accepts_issue_linked_messages[docs: [issue #8] explain the convention\n\nCloses #5] PASSED [ 14%]
+backend/tests/test_commitlint.py::test_rejects_untraceable_messages[ci: enforce traceability\n\nRefs #8] PASSED [ 17%]
+backend/tests/test_commitlint.py::test_rejects_untraceable_messages[ci: [issue #0] invalid identifier] PASSED [ 21%]
+backend/tests/test_commitlint.py::test_rejects_untraceable_messages[ci: [issue #08] invalid identifier] PASSED [ 25%]
+backend/tests/test_commitlint.py::test_rejects_untraceable_messages[ci: [issue #N] placeholder] PASSED [ 28%]
+backend/tests/test_commitlint.py::test_rejects_untraceable_messages[ci: [issue #8] ] PASSED [ 32%]
+backend/tests/test_commitlint.py::test_rejects_untraceable_messages[ci(): [issue #8] empty scope] PASSED [ 35%]
+backend/tests/test_commitlint.py::test_rejects_untraceable_messages[unknown: [issue #8] unsupported type] PASSED [ 39%]
+backend/tests/test_commitlint.py::test_rejects_untraceable_messages[ci: [#8] wrong reference syntax] PASSED [ 42%]
+backend/tests/test_commitlint.py::test_rejects_untraceable_messages[ci: [issue #999] unregistered issue] PASSED [ 46%]
+backend/tests/test_commitlint.py::test_rejects_untraceable_messages[ci: [issue #8] valid subject\n\nRefs #999] PASSED [ 50%]
+backend/tests/test_commitlint.py::test_rejects_untraceable_messages[ci: [issue #8] valid subject\n\nRefs #8, #N] PASSED [ 53%]
+backend/tests/test_commitlint.py::test_rejects_untraceable_messages[ci: [issue #8] valid subject\n\nCloses #0] PASSED [ 57%]
+backend/tests/test_commitlint.py::test_rejects_untraceable_messages[fixup! ci: [issue #8] temporary commit] PASSED [ 60%]
+backend/tests/test_commitlint.py::test_rejects_untraceable_messages[Merge pull request #8 from example/branch] PASSED [ 64%]
+backend/tests/test_commitlint.py::test_rejects_untraceable_messages[] PASSED [ 67%]
+backend/tests/test_commitlint.py::test_issue_map_accepts_only_story_and_task_entries PASSED [ 71%]
+backend/tests/test_commitlint.py::test_grandfathers_legacy_history_but_checks_every_new_commit PASSED [ 75%]
+backend/tests/test_commitlint.py::test_pr_range_excludes_diverged_base_and_includes_all_branch_commits PASSED [ 78%]
+backend/tests/test_commitlint.py::test_real_merge_commits_must_follow_the_convention[Merge branch 'topic'-1] PASSED [ 82%]
+backend/tests/test_commitlint.py::test_real_merge_commits_must_follow_the_convention[chore(merge): [issue #8] integrate the change-0] PASSED [ 85%]
+backend/tests/test_commitlint.py::test_side_branch_failure_is_not_hidden_by_a_valid_merge PASSED [ 89%]
+backend/tests/test_commitlint.py::test_range_uses_issue_map_at_each_commit PASSED [ 92%]
+backend/tests/test_commitlint.py::test_message_file_can_be_checked_before_commit PASSED [ 96%]
+backend/tests/test_commitlint.py::test_missing_revisions_and_shallow_history_fail_closed PASSED [100%]
+
+=============================== warnings summary ===============================
+backend/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  <task_repo>/backend/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 28 passed, 1 warning in 0.45s =========================
+
+--- stderr ---
+

@@ -1,0 +1,15 @@
+codex doctor (trimmed to health-relevant lines; full output in the external archive)
+      warning threshold        5.0 GiB
+      failure threshold        1.0 GiB
+      default model provider   openai
+      rollout DB model providers openai=81
+  ✓ auth         auth is configured
+      auth storage mode        File
+      auth.json path (file backend/fallback) ~/.codex/auth.json
+      stored auth mode         chatgpt
+  ✓ websocket    connected (HTTP 101 Switching Protocols) · 15s timeout
+      model provider           openai
+      supports websockets      true
+      auth mode                chatgpt
+      reachability mode        ChatGPT auth
+21 ok · 1 notes · 0 warn · 0 fail ok

@@ -1,0 +1,7 @@
+$ python3 tools/commitlint.py --message-file /tmp/cta-omp-setup-01/commit-message-bad.txt
+exit=1
+--- stdout ---
+
+--- stderr ---
+commitlint: expected <type>[optional scope]: [issue #N] <description>; e.g. ci(traceability): [issue #8] lint commits
+

@@ -1,0 +1,7 @@
+$ uv run --offline --project backend ruff check .
+exit=0
+--- stdout ---
+All checks passed!
+
+--- stderr ---
+

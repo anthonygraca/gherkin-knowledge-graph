@@ -1,0 +1,4 @@
+# Committed run records (docs/reports/**) are archival evidence: their captured bytes are
+# committed as-is, the same rationale as the ruff exclusion for records in ruff.toml. Keep
+# diff whitespace checks from flagging (or tempting a rewrite of) those bytes.
+docs/reports/** whitespace=-trailing-space,-space-before-tab

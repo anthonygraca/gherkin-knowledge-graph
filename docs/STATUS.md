@@ -1,9 +1,11 @@
 # Status
 
 ```text
-Date:                2026-11-11
-Current branch:      main — at efa824b (PR #38 merged 2026-11-11); the M0 implementation, the
-                     R1–R7 repairs, and the independent re-review records are on main
+Date:                2026-11-12
+Current branch:      main — at f34ae07 (PR #41 merged 2026-11-11; the platform-generated merge
+                     message was then replaced by the owner with the conforming merge commit
+                     f34ae07, pushed 2026-11-12T00:07Z, CI run 43124897661 success). The M0 work,
+                     the lifecycle documents, and the research record are on main.
 Milestone:           M0 — implementation complete; exit gate SATISFIED by re-review round 2
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
                      docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
@@ -14,17 +16,42 @@ Independent review:  docs/reviews/M0-review.md — first review: "M0 not verifie
                      docs/reviews/M0-rereview-2.md — re-review round 2 (GPT-6.1 Sol, xhigh):
                      APPROVE at snapshot bca69cf (tree e55ff9f); R8 repaired/closed; no open
                      major finding; M0 exit criteria verified within scope
-Tests executed:      uv run --project backend pytest backend/tests -q  →  107 passed (offline;
-                     also 107 passed under an OS-level network denial)
-                     uv run --project backend python tools/fixturectl.py verify  →  exit 0
-                     uv run --project backend ruff check . && ruff format --check .  →  clean
+Active task:         SETUP-01 commit-reference enforcement — verified locally; mandatory
+                     independent review BLOCKED (Codex workspace out of credits, no verdict);
+                     slice uncommitted on branch ci/8-commit-reference-enforcement
+Tests executed:      M0 approved snapshot (bca69cf): 107 passed offline (also under an OS-level
+                     network denial); fixturectl verify exit 0; ruff clean.
+                     Current tree (main f34ae07 + the uncommitted SETUP-01 slice): 135 passed
+                     (same 135 under an OS-level network denial); fixturectl verify exit 0;
+                     ruff check/format clean (35 files); commitlint checks pass on real history.
 Current API/schema version: 0.1.0
 Tracker:             docs/traceability-issue-map.md (features → user stories → tasks)
-Run records:         docs/reports/omp-m0-rereview/ (report, prompt log, metrics, evidence,
-                     probes, packets; excluded from ruff scope — records, not sources)
+Run records:         docs/reports/omp-m0-rereview/ and docs/reports/omp-setup-01-commitlint/
+                     (reports, prompt logs, metrics, evidence, packets; excluded from ruff scope
+                     — records, not sources)
 Environment:         Python ≥3.11, uv, git ≥2.28; no GPU, LLM, vector store, Docker, or network
                      during tests
 ```
+
+## Current task — SETUP-01 commit-reference enforcement (BLOCKED on review)
+
+The previously uncommitted SETUP-01 follow-up slice (#8) — `tools/commitlint.py`,
+`backend/tests/test_commitlint.py`, the `Commit references` CI job, the `AGENTS.md`/`CONTRIBUTING.md`
+subject-convention updates, and `docs/stories/SETUP-01.feature`/`SETUP-01.md` — was resumed and
+**fully re-verified** on base `f34ae07`: focused 28 passed, full suite 135 passed (also under an
+OS-level network denial), `fixturectl verify` exit 0, ruff clean, `git diff --check` clean, and the
+checker passes on real history (`checked 3 commit(s)`) while still flagging the pre-rewrite tip
+`24810877f4d9`. The four file hashes recorded by the author still match.
+
+**No approval exists.** The mandatory independent Codex submission (`gpt-6.1-sol`, effort `xhigh`)
+failed **without a verdict** at `2026-11-12T00:26:39Z` — the workspace has no credits — so nothing
+was substituted and no self-approval was manufactured. The slice remains **uncommitted**; branch
+`ci/8-commit-reference-enforcement` carries only this checkpoint (the records folder plus this
+file). The review counter is untouched (0 of 7 submissions consumed).
+
+Next action: refill the Codex workspace credits (or explicitly authorize another reviewer), then
+rerun the recorded `codex exec` submission against the frozen packet. Full detail:
+[reports/omp-setup-01-commitlint/IMPLEMENTATION.md](reports/omp-setup-01-commitlint/IMPLEMENTATION.md).
 
 ## What exists
 
@@ -67,11 +94,12 @@ this session made no push.
 | R7 | minor | The review prompt's fixture-test command failed collection | Prompt now runs pytest from each worktree root and explains why | — (documentation; exercised manually) |
 | R8 | major (evidence gap) | Round 1 raised: no recorded human review of the hand-labeled oracle (`AGENTS.md` invariant 6) | Repository-owner attestation recorded (`docs/reviews/M0-oracle-human-review.md`), tied to the three files' sha256 values at `191c829`; final disposition in round 2 | — (human record, not an automated test) |
 
-**NOT VERIFIED** anywhere in this run (state honestly in any report; none of these establishes
+**NOT VERIFIED** in the M0 re-review run (state honestly in any report; none of these establishes
 an unmet M0 criterion):
 
-* hosted GitHub Actions execution — the merge to `main` triggered it; the hosted result is not
-  verified in this record (the same gate commands pass locally on Python 3.12.16);
+* hosted GitHub Actions execution — verified since: push runs `43062001235` (`efa824b`),
+  `43122387139` (`2481087`), and `43124897661` (`f34ae07`) completed successfully on 2026-11-11/12;
+  the new **Commit references** job has not run yet (workflow unlanded);
 * the first review's macOS / Git 2.54 environment — accepted limitation; the generator pins the
   object format and every identity/date/TZ input (R5);
 * `uv run --offline` under an OS-level network denial — the network-denied suite ran the venv
@@ -99,13 +127,13 @@ remains outstanding, so nothing here changes the M0 approval recorded above.
 | # | Task | Issue | Acceptance condition |
 | --- | --- | --- | --- |
 | 1 | **Re-review M0** — done: round 1 NEEDS_INPUT (R1–R7 repaired; ACs PASS; R8), owner attestation recorded, round 2 **APPROVE** at `bca69cf` (`docs/reviews/M0-rereview-1.md`, `M0-rereview-2.md`) | #18, #19 | Every R1–R7 finding reported `repaired` with command output; no open major finding — met |
-| 2 | **Land the work** — PR #38 is merged as `efa824b` (2026-11-11); the remaining team actions are closing #18/#19 and confirming the hosted CI result for the merge commit | #18, #19 | PR #38 merged — met; tracker closure of #18/#19 and the hosted-run confirmation outstanding |
-| 3 | Then start B-PR1 / C-PR1 / A-PR1 in parallel | #20, #21, #23 / #2, #26 / #30 | See `docs/stories/M0-foundation.md` for the per-stream acceptance conditions |
+| 2 | **Land the work** — PR #38 is merged as `efa824b` (2026-11-11) with a successful hosted CI push run (`43062001235`); the remaining tracker action is closing #18/#19 | #18, #19 | PR #38 merged — met; hosted CI confirmed; tracker closure of #18/#19 outstanding |
+| 3 | **Then start B-PR1 / C-PR1 / A-PR1 in parallel** — eligible now; not started in the 2026-11-12 session | #20, #21, #23 / #2, #26 / #30 | See `docs/stories/M0-foundation.md` for the per-stream acceptance conditions |
 
-Task 1 has passed. M1/M2 (B-PR1/C-PR1) and M3 (A) may start once the branch lands: a milestone
-closes only when an independent review has no open major finding (`AGENTS.md`, milestone
-definition of done) — satisfied at `bca69cf`. This session stopped at M0 and made no push; no
-M1 work has started.
+Task 1 has passed; the branch landed (PR #38 → `efa824b`; PR #41 → `f34ae07` after the owner's
+conforming merge-message rewrite). M1/M2 (B-PR1/C-PR1) and M3 (A) are eligible and **not started**.
+The 2026-11-12 resume session made no push; its one task — the SETUP-01 commit-reference slice — is
+blocked on the mandatory review above, with the slice deliberately left uncommitted.
 
 ## Verification commands (copy/paste)
 
