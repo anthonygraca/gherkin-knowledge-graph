@@ -152,5 +152,8 @@ this checkpoint is recorded in the session report and the archive, not inside th
 - `2026-11-12T05:01:28Z`–`05:01:56Z` — hosted checks on run `43158573099`:
   **Commit references — pass** (4 s) and **Offline contract, fixture, and API tests — pass** (11 s).
   The commit-reference job ran hosted for the first time and validated the PR head-vs-base range.
-- Not verified / owner actions: merge with a conforming subject, issue closure, the `edited`
-  retargeting path itself, required-status-check configuration.
+- **Landed:** PR #42 merged `2026-11-12T05:23:12Z` (merge commit `d4af73a`, conforming subject);
+  main push run `43161043845` — both jobs pass; `commitlint` green on the landed history
+  (9 commits).
+- Still open / owner actions: tracker closure of #18/#19 and #8, the `edited` retargeting path
+  itself, and required-status-check configuration.
