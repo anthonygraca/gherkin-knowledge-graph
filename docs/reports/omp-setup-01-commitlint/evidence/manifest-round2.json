@@ -1,0 +1,212 @@
+[
+  {
+    "status": " M",
+    "path": ".github/workflows/ci.yml",
+    "sha256": "3bc4fc40e752fd182b326fe25fd6b8b700531ec9fa5f660a844561db752bf924",
+    "role": "slice"
+  },
+  {
+    "status": " M",
+    "path": "AGENTS.md",
+    "sha256": "468d2d2bd4fe3cd4f473c8c3de406108147b68ea21061aea200134133c9cd8a6",
+    "role": "slice"
+  },
+  {
+    "status": " M",
+    "path": "CONTRIBUTING.md",
+    "sha256": "89b45205c979923102f81b95fa3a22b220529a2c037839860edc8a3b888aced6",
+    "role": "slice"
+  },
+  {
+    "status": " M",
+    "path": "README.md",
+    "sha256": "93b29debd0da44b249eb01d4acea34f9cc8d4f1cb5fbea77ff31dcba9ddfd419",
+    "role": "preserved"
+  },
+  {
+    "status": " M",
+    "path": "docs/STATUS.md",
+    "sha256": "8ed28ad3dacbf2cbe1820b43d2fd2a17792e37b56e522899977bb02ad10c30dd",
+    "role": "records"
+  },
+  {
+    "status": " M",
+    "path": "docs/reports/omp-setup-01-commitlint/IMPLEMENTATION.md",
+    "sha256": "b3fa79c9fcb682ce5318dc5be357afb9ace5abb205b60d2972832ca64dc7440f",
+    "role": "records"
+  },
+  {
+    "status": " M",
+    "path": "docs/reports/omp-setup-01-commitlint/METRICS.md",
+    "sha256": "77a9466f99d9cb40e4759560c5e2aecabdf664ee4f4ccb4ca800c30c38b0d065",
+    "role": "records"
+  },
+  {
+    "status": " M",
+    "path": "docs/reports/omp-setup-01-commitlint/PROMPT_LOG.md",
+    "sha256": "2b627c82d0df728e1809e730b64adf5715050710370c815d31d7cfe4c38d5149",
+    "role": "records"
+  },
+  {
+    "status": " M",
+    "path": "prompts/omp-codex-agentic-loop.md",
+    "sha256": "90dbf541fee77796e6f78dbd5250005d01060d4e298599e297ca5e218719ea1d",
+    "role": "preserved"
+  },
+  {
+    "status": "??",
+    "path": "backend/tests/test_commitlint.py",
+    "sha256": "12cb9504cde7fdfcd7a3dc394bd85978e03c7b58b46a7fabf0cc6a0c38431620",
+    "role": "slice"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/freeze2-commitlint-message.log",
+    "sha256": "1630d2eb2413f7ec84b7d9e91a48b4bed16cd441f82dd77dd7aed9f3aa8698a1",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/freeze2-commitlint.log",
+    "sha256": "a87ebb8891853de91edeec0a5af255dee506ac71acf9a40c10de1558ee59dd0a",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/freeze2-diff-check.log",
+    "sha256": "ba85614b577efe0d2fd81833ad581f4ba68f80ac2d835550fac976a8776b3026",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/freeze2-fixture-verify.log",
+    "sha256": "78f958ec7c280b98b4baab91868cc58b271d55642a095bbad5b21c2cfe2296a2",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/freeze2-ruff-check.log",
+    "sha256": "97483a17400c71949235e7cd23632f7602e6dea1c85b9fe8c5aef11e300b2ca8",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/freeze2-ruff-format.log",
+    "sha256": "9b4d3f1547ae2f04fe388907d3f42d20bbf23f969d59d19c208276fbdac1d9f1",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/freeze2-suite-full.log",
+    "sha256": "303d7628683cab2f2321b6e3d2aec2bca1ee9abf079424c419536e19852c044d",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/issue8-verified.log",
+    "sha256": "1a003afec5aa04c0a1aa39ce7bfe57f68ea29e93258fdf5dcfc8c59f8d557743",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/repair1-commitlint.log",
+    "sha256": "a87ebb8891853de91edeec0a5af255dee506ac71acf9a40c10de1558ee59dd0a",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/repair1-diff-check.log",
+    "sha256": "ba85614b577efe0d2fd81833ad581f4ba68f80ac2d835550fac976a8776b3026",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/repair1-fixture-verify.log",
+    "sha256": "78f958ec7c280b98b4baab91868cc58b271d55642a095bbad5b21c2cfe2296a2",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/repair1-r1-repro.log",
+    "sha256": "cd7a4ab98bc6a457a38642e88b3737ef959f31790dddfbb1f5e89fd8c35b3c3b",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/repair1-ruff-check.log",
+    "sha256": "97483a17400c71949235e7cd23632f7602e6dea1c85b9fe8c5aef11e300b2ca8",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/repair1-ruff-format.log",
+    "sha256": "9b4d3f1547ae2f04fe388907d3f42d20bbf23f969d59d19c208276fbdac1d9f1",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/repair1-suite-full.log",
+    "sha256": "97c416416e2821c6c49790e4a50dc95b807e6276adee12ee19e1f822e2c756de",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/repair1-yaml-check.log",
+    "sha256": "2f7f42664e3a82bfc28c4b903a39b8bc60e3a8466d28e19364e238b9dc7b5a7e",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/review-1b-stderr.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/evidence/review-1b-summary.json",
+    "sha256": "bf6dca2864511040fbc8a06ddb070d80523ea7b32c25159cf1fdb8233cd1f264",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/packets/review-1-addendum.md",
+    "sha256": "ea63f82b0700e9ab7c97821edffd307bb71b43d819adb6e6f428e285bf0b6f12",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reports/omp-setup-01-commitlint/probes/",
+    "sha256": "DIR",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/reviews/SETUP-01-review.md",
+    "sha256": "f32d18303eadf61bb039dfa32d80ea8447f5ed74c2b16ec26039e7032352bc62",
+    "role": "records"
+  },
+  {
+    "status": "??",
+    "path": "docs/stories/SETUP-01.feature",
+    "sha256": "db2c154567aa96c9492de684c8fccc0b63488ff750987b456a99a7fc97b9c70f",
+    "role": "slice"
+  },
+  {
+    "status": "??",
+    "path": "docs/stories/SETUP-01.md",
+    "sha256": "ea742d4b78265a4cc69a56e380fb3e5bab28c51efefd592091e95deb3eac0840",
+    "role": "slice"
+  },
+  {
+    "status": "??",
+    "path": "prompts/lifecycle-traceability-handoff.md",
+    "sha256": "7e54d0b1e6a16d45472e7195ed15ff36c28f8c5b99546a864d31527b2f8987e1",
+    "role": "preserved"
+  },
+  {
+    "status": "??",
+    "path": "tools/commitlint.py",
+    "sha256": "e39e523cba087db8ca97f9fbdc138bc476028b650ab00359aa15ffbe98714c29",
+    "role": "slice"
+  }
+]

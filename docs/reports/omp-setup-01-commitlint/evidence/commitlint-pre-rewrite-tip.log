@@ -1,0 +1,7 @@
+$ commitlint --head 2481087
+exit=1
+--- stdout ---
+
+--- stderr ---
+commitlint: 24810877f4d9: expected <type>[optional scope]: [issue #N] <description>; e.g. ci(traceability): [issue #8] lint commits
+

@@ -1,0 +1,11 @@
+$ unshare -rn -- python3 -c "import socket,sys; s=socket.socket(); s.settimeout(3)
+try:
+    s.connect(('1.1.1.1',80)); print('NETWORK REACHABLE - denial ineffective'); sys.exit(1)
+except OSError as e:
+    print('network denied:', e)"
+exit=0
+--- stdout ---
+network denied: [Errno 101] Network is unreachable
+
+--- stderr ---
+

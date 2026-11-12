@@ -1,0 +1,7 @@
+$ python3 tools/commitlint.py --message-file /tmp/cta-omp-setup-01/commit-message.txt
+exit=0
+--- stdout ---
+commitlint: checked 1 message(s)
+
+--- stderr ---
+

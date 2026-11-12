@@ -1,0 +1,9 @@
+$ git grep -n 'tools' -- backend/tests/conftest.py; git grep -n 'testpaths\|pythonpath' -- backend/pyproject.toml
+exit=0
+--- stdout ---
+backend/tests/conftest.py:25:TOOLS_DIR = REPO_ROOT / "tools"
+backend/tests/conftest.py:29:import fixturectl  # noqa: E402 — tools/ is added to sys.path above
+backend/pyproject.toml:27:testpaths = ["tests"]
+
+--- stderr ---
+

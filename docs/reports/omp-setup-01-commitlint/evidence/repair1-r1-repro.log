@@ -1,0 +1,13 @@
+$ python3 /tmp/cta-omp-setup-01/probes/r1_two_base_repro.py
+exit=0
+--- stdout ---
+head=2d5cfc796191 unlinked-ancestor=65daeff28857 baseline=a27b362853d2
+commitlint: checked 1 commit(s)
+base=unlinked (ancestor excluded) -> exit 0 (expect 0)
+base=baseline (ancestor applicable) -> exit 1 (expect 1)
+same head in both cases: 2d5cfc7961911c9026d3ea796eb23c67a4bfcee3
+R1 recheck: PASS
+
+--- stderr ---
+commitlint: 65daeff28857: expected <type>[optional scope]: [issue #N] <description>; e.g. ci(traceability): [issue #8] lint commits
+

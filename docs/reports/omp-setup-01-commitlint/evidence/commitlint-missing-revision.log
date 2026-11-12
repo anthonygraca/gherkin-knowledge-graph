@@ -1,0 +1,7 @@
+$ python3 tools/commitlint.py --head 248108773f4d990c0755a46c6d79a5d0f6d318f42
+exit=2
+--- stdout ---
+
+--- stderr ---
+commitlint: fatal: Needed a single revision
+

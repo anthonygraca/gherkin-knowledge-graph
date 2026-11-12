@@ -60,6 +60,7 @@ uv run --project backend python tools/fixturectl.py all      # regenerate fixtur
 uv run --project backend python tools/fixturectl.py verify   # fail if generated files are stale
 uv run --project backend ruff check .
 uv run --project backend ruff format --check .
+python tools/commitlint.py                                  # post-adoption commit references
 uv run --project backend uvicorn app.main:app --reload       # dev server (fixtures only)
 ```
 
@@ -68,23 +69,26 @@ uv run --project backend uvicorn app.main:app --reload       # dev server (fixtu
 Every commit MUST reference the work item it serves, using the repository convention:
 
 ```
-<type>(<scope>): <summary>
+<type>[(scope)]: [issue #N] <description>
 
 <why, not just what>
-
-Refs #<issue>
 ```
 
-* `Refs #<issue>` for partial work; `Closes #<issue>` only when the issue is genuinely complete
-  (its Gherkin acceptance criteria are tested). Reference every served item: `Refs #3, #4`.
+* The subject's `[issue #N]` is required; scope is optional, e.g.
+  `ci(traceability): [issue #8] enforce commit references` or `ci: [issue #8] lint commits`.
+* Optional body `Refs #N` lines identify additional served items, e.g. `Refs #3, #4`.
+  `Closes #N` is allowed only when the entire issue's criteria and required reviews are complete.
 * Types: `feat` `fix` `docs` `test` `refactor` `chore` `ci`.
 * Look up a roadmap id (`AS-02`, `FT-01`, …) in `docs/traceability-issue-map.md`. The roadmap id is
   the prefix of the issue title, so the map can always be rebuilt from the tracker.
-* A GitHub issue number is the reference of record. Do not add a parallel id scheme in the message:
-  `Refs #N` is what GitHub links on the issue timeline, and `Refs #(\d+)` is the machine-readable
-  form (it is not a `git interpret-trailers` key/value pair).
-* Pre-convention history (`ae859cd`, `204eb49`) is retro-attributed to SETUP-01 (#8) and must not
-  be rewritten.
+* A GitHub issue number is the reference of record. `tools/commitlint.py` checks the subject and
+  optional body references against story/task entries in the issue map at each checked commit.
+  It runs offline in CI; live issue accuracy and relevance remain review responsibilities.
+* The fixed adoption baseline `efa824b5b225db74c7ddba50365dad918d3212cc` and its ancestors are
+  exempt. Do not advance the baseline or rewrite history to satisfy the new format.
+  `ae859cd` and `204eb49` retain their historical SETUP-01 (#8) attribution.
+* Validate message files before committing and the full new range before publishing. Real merge
+  and squash commits follow the same format; GitHub's synthetic PR test merge is excluded.
 * Branches: `<type>/<issue>-<slug>`; PR title `<ID>: <summary>`; PR body `Closes #<issue>` or
   `Refs #<issue>`. Cross-boundary changes need a review from a second workstream.
 * `main` takes no direct commits once CI exists: work lands through a pull request.
@@ -124,7 +128,7 @@ Refs #<issue>
 4. `uv run --project backend pytest backend/tests` passes offline; `fixturectl.py verify` passes.
 5. `ruff check` and `ruff format --check` pass.
 6. Docs include how to invoke or demo the change; assumptions in freshness rules are stated.
-7. The commit message carries `Refs #<issue>` (see `CONTRIBUTING.md`).
+7. The commit subject carries `[issue #N]` and passes the commit-reference check (see `CONTRIBUTING.md`).
 
 ## Definition of done (per milestone)
 

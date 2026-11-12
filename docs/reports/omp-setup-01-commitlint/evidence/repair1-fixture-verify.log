@@ -1,0 +1,7 @@
+$ uv run --offline --project backend python tools/fixturectl.py verify
+exit=0
+--- stdout ---
+fixture generation is reproducible and committed files are current (banking-demo)
+
+--- stderr ---
+

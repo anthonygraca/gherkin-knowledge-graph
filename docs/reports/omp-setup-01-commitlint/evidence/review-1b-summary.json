@@ -1,0 +1,19 @@
+{
+  "session": "01a1cdd5-57e9-76a2-b48a-9a6dae4e4674",
+  "event_counts": {
+    "thread.started": 1,
+    "turn.started": 1,
+    "item.completed": 37,
+    "item.started": 31,
+    "turn.completed": 1
+  },
+  "usage": {
+    "input_tokens": 1354752,
+    "cached_input_tokens": 1254528,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 17233,
+    "reasoning_output_tokens": 11763
+  },
+  "raw_bytes": 600286,
+  "raw_sha256": "3b22116b4bab8002bec94dadd9ffafbbb6a43a2c37349867f19f81823da884a5"
+}

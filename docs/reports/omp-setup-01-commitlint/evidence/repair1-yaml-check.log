@@ -1,0 +1,8 @@
+$ python3 /tmp/cta-omp-setup-01/probes/yaml_check.py
+exit=0
+--- stdout ---
+triggers: {'push': {'branches': ['main']}, 'pull_request': {'types': ['opened', 'synchronize', 'reopened', 'edited']}}
+YAML structure OK: pull_request types include edited
+
+--- stderr ---
+

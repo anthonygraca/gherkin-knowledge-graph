@@ -1,0 +1,16 @@
+$ git status --porcelain=v1
+exit=0
+--- stdout ---
+ M .github/workflows/ci.yml
+ M AGENTS.md
+ M CONTRIBUTING.md
+ M README.md
+ M prompts/omp-codex-agentic-loop.md
+?? backend/tests/test_commitlint.py
+?? docs/stories/SETUP-01.feature
+?? docs/stories/SETUP-01.md
+?? prompts/lifecycle-traceability-handoff.md
+?? tools/commitlint.py
+
+--- stderr ---
+
