@@ -1,0 +1,151 @@
+{
+  "configuration": {
+    "executable_found": true,
+    "live_opt_in": true,
+    "live_tests_enabled": true,
+    "project_marker_present": true,
+    "project_root": "<snapshot>"
+  },
+  "generated_at": "2026-11-13T19:39:46.705765Z",
+  "lifecycle": {
+    "after": {
+      "daemon_pid": 1676339,
+      "index_bytes": 9535488,
+      "index_sha256": "sha256:59a34c514a0e0f6ab98510d777d3faa9a4cc7c574d1c9e7647b165eb3af57c3e"
+    },
+    "background_index_note": "ccc mcp starts its own asynchronous index update on session startup; refresh_index=false only suppresses the tool's explicit refresh. The effect is confined to the isolated state and the configured disposable snapshot.",
+    "before": {
+      "daemon_pid": 1676339,
+      "index_bytes": 9535488,
+      "index_sha256": "sha256:59a34c514a0e0f6ab98510d777d3faa9a4cc7c574d1c9e7647b165eb3af57c3e"
+    },
+    "daemon_restarted_by_session": false,
+    "daemon_started_by_session": false,
+    "index_changed_by_session": false
+  },
+  "limitations": [
+    "CocoIndex Code 0.2.43 does not report an index revision over MCP; index identity is reported as unavailable and an external index-file hash is recorded separately.",
+    "The MCP include patterns cover code and text files, not .feature scenario parsing.",
+    "A synthetic single-snapshot smoke is a capability observation, not retrieval quality.",
+    "ccc mcp schedules its own background index on startup and may start/restart a daemon; CTA confines this to an isolated COCOINDEX_CODE_DIR/RUNTIME_DIR pair."
+  ],
+  "missing_capabilities": [],
+  "observed": {
+    "embedding_model": "ollama/embeddinggemma-2:270m-q8_0-text",
+    "embedding_provider": "litellm",
+    "search": {
+      "hit_count": 3,
+      "hits": [
+        {
+          "content_bytes": 34,
+          "content_sha256": "sha256:3eb3fdab816e8f3c23a4d93390bb0bde7210041bb99ac09ad190bf78fc8e4b55",
+          "end_line": 1,
+          "language": "python",
+          "path": "src/__init__.py",
+          "score": 0.7128040949509113,
+          "snapshot_content_sha256": "sha256:d7c7b90e6c4dad8896490c21ce249ad3d40634d2db9c67ab7d7a6901457b7b3e",
+          "start_line": 1
+        },
+        {
+          "content_bytes": 990,
+          "content_sha256": "sha256:fe1c1a14de28930a4623f495975ee49c43b86147f986b5136144a259095258ca",
+          "end_line": 29,
+          "language": "python",
+          "path": "src/transfers.py",
+          "score": 0.704876378553962,
+          "snapshot_content_sha256": "sha256:9c094f5c0735dc48ce3a7b4b6c7eece6f8315b1e2b3dab3d2909afde13384823",
+          "start_line": 1
+        },
+        {
+          "content_bytes": 258,
+          "content_sha256": "sha256:3995b8088997692bf100dd63f4dc8a248c7f94828d21423c28b61b587ad7fd8a",
+          "end_line": 10,
+          "language": "python",
+          "path": "src/accounts.py",
+          "score": 0.6955020310656153,
+          "snapshot_content_sha256": "sha256:5969ffe835c069d958cc42a08051dcc34fa0dbf0ca3e780b4a171fb7b7b28251",
+          "start_line": 1
+        }
+      ],
+      "index_identity": null,
+      "languages": [
+        "python"
+      ],
+      "latency_ms": 886.4,
+      "limit": 3,
+      "paths": [
+        "src/*"
+      ],
+      "refresh_index": false,
+      "total_returned": 3
+    },
+    "server": {
+      "name": "cocoindex-code",
+      "protocol_version": "2024-11-05",
+      "version": "0.2.43"
+    },
+    "tool": {
+      "name": "search",
+      "properties": [
+        "languages",
+        "limit",
+        "offset",
+        "paths",
+        "query",
+        "refresh_index"
+      ],
+      "required": [
+        "query"
+      ]
+    }
+  },
+  "overall": "ok",
+  "probed": true,
+  "provenance": {
+    "adapter_file_hashes": {
+      "backend/app/discovery/cocoindex.py": "sha256:7de622c65af9ce676f40805644ecf7d0a0276d3d13d15fdb4aff7f38dc958bc2",
+      "backend/app/discovery/cocoindex_mcp.py": "sha256:0913d9e02abd42287ab7c33606755c58c0320be7af274882f737ed93200aec1e",
+      "tools/probe_cocoindex.py": "sha256:b994f7e3fc47a145364803032fc59f019b4ac810fd3d1cc3f04eb1df3b94f0af"
+    },
+    "adapter_revision": "a674fb910bb31b866dd7417e45842cfa26a0b265",
+    "index_snapshot": {
+      "bytes": 9535488,
+      "method": "sha256 of the project-local index file, computed outside the MCP contract",
+      "modified_at": "2026-11-13T17:27:54.702632Z",
+      "sha256": "sha256:59a34c514a0e0f6ab98510d777d3faa9a4cc7c574d1c9e7647b165eb3af57c3e"
+    },
+    "project_settings_sha256": "sha256:ce5c564679eb8edf515ac69e3ff54ccf7c94e6dbd5c14687169fabbde56a2771",
+    "snapshot_dirty": false,
+    "snapshot_revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3"
+  },
+  "schema_version": "1",
+  "steps": {
+    "ccc_doctor": {
+      "exit_code": 0,
+      "latency_ms": 357.0,
+      "status": "ok"
+    },
+    "ccc_status": {
+      "exit_code": 0,
+      "latency_ms": 241.1,
+      "status": "ok"
+    },
+    "ccc_version": {
+      "exit_code": 0,
+      "latency_ms": 222.0,
+      "status": "ok"
+    },
+    "mcp_capabilities": {
+      "detail": "cocoindex-code 0.2.43",
+      "status": "ok"
+    },
+    "ollama": {
+      "latency_ms": 52.2,
+      "status": "ok"
+    },
+    "search": {
+      "detail": "3 hit(s) verified against the snapshot",
+      "status": "ok"
+    }
+  }
+}

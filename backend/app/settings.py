@@ -36,6 +36,15 @@ ENV_EMBED_API_KEY = "CTA_EMBED_API_KEY"
 ENV_VECTOR_BACKEND = "CTA_VECTOR_BACKEND"
 ENV_AI_LIVE_TESTS = "CTA_AI_LIVE_TESTS"
 
+# CocoIndex Code (AI-06): an optional external code-search cache. Offline unless explicitly
+# configured and opted in; it is never a default discovery provider in PR 1.
+ENV_CCC_EXECUTABLE = "CTA_CCC_EXECUTABLE"
+ENV_CCC_PROJECT_ROOT = "CTA_CCC_PROJECT_ROOT"
+ENV_CCC_LIVE_OPT_IN = "CTA_CCC_LIVE_OPT_IN"
+ENV_CCC_LIVE_TESTS = "CTA_CCC_LIVE_TESTS"
+
+DEFAULT_CCC_EXECUTABLE = "ccc"
+
 ALLOWED_AI_MODES: tuple[str, ...] = ("fake", "live")
 #: PR 1 validates the selector but ships no vector index; PR 2 owns the in-memory index.
 ALLOWED_VECTOR_BACKENDS: tuple[str, ...] = ("memory",)
@@ -103,6 +112,13 @@ class Settings:
     vector_backend: str = DEFAULT_VECTOR_BACKEND
     ai_live_tests: bool = False
 
+    # CocoIndex Code capability (AI-06). The project root must be an initialized CocoIndex
+    # project; live opt-in is separate so merely configuring a path contacts nothing.
+    ccc_executable: str = DEFAULT_CCC_EXECUTABLE
+    ccc_project_root: Path | None = None
+    cocoindex_live_opt_in: bool = False
+    ccc_live_tests: bool = False
+
     def __post_init__(self) -> None:
         mode = self.ai_mode.strip().lower()
         vector_backend = self.vector_backend.strip().lower()
@@ -139,6 +155,26 @@ class Settings:
                 "embeddings are unavailable otherwise"
             )
 
+        executable = _clean(self.ccc_executable) or DEFAULT_CCC_EXECUTABLE
+        object.__setattr__(self, "ccc_executable", executable)
+        if self.ccc_project_root is not None:
+            root = self.ccc_project_root.expanduser().resolve()
+            object.__setattr__(self, "ccc_project_root", root)
+            if not root.is_dir():
+                raise SettingsError(f"{ENV_CCC_PROJECT_ROOT} is not a directory: {root}")
+            if root == Path.home().resolve():
+                raise SettingsError(f"{ENV_CCC_PROJECT_ROOT} must not be the user home directory")
+            if not (root / ".cocoindex_code" / "settings.yml").is_file():
+                raise SettingsError(
+                    f"{ENV_CCC_PROJECT_ROOT} is not an initialized CocoIndex project "
+                    "(missing .cocoindex_code/settings.yml); run 'ccc init' in the snapshot"
+                )
+        if self.cocoindex_live_opt_in and self.ccc_project_root is None:
+            raise SettingsError(
+                f"{ENV_CCC_LIVE_OPT_IN}=true requires {ENV_CCC_PROJECT_ROOT}; "
+                "the application will not guess a project to index"
+            )
+
     @property
     def llm_api_key_present(self) -> bool:
         """Whether a key is configured. The value itself is never reported."""
@@ -151,6 +187,11 @@ class Settings:
     @property
     def embeddings_configured(self) -> bool:
         return self.embed_base_url is not None and self.embed_model is not None
+
+    @property
+    def cocoindex_enabled(self) -> bool:
+        """Whether a live CocoIndex probe is both configured and explicitly opted in."""
+        return self.cocoindex_live_opt_in and self.ccc_project_root is not None
 
     @property
     def fixture_dir(self) -> Path:
@@ -186,6 +227,7 @@ def load_settings() -> Settings:
     repo_root = Path(os.environ.get(ENV_REPO_ROOT, default_repo_root())).resolve()
     fixtures_dir = Path(os.environ.get(ENV_FIXTURES_DIR, repo_root / "fixtures")).resolve()
     fixture_repo = os.environ.get(ENV_FIXTURE_REPO)
+    ccc_root = _clean(os.environ.get(ENV_CCC_PROJECT_ROOT))
     return Settings(
         repo_root=repo_root,
         fixtures_dir=fixtures_dir,
@@ -201,6 +243,10 @@ def load_settings() -> Settings:
         embed_api_key=_clean(os.environ.get(ENV_EMBED_API_KEY)),
         vector_backend=os.environ.get(ENV_VECTOR_BACKEND, DEFAULT_VECTOR_BACKEND),
         ai_live_tests=_env_flag(ENV_AI_LIVE_TESTS),
+        ccc_executable=_clean(os.environ.get(ENV_CCC_EXECUTABLE)) or DEFAULT_CCC_EXECUTABLE,
+        ccc_project_root=Path(ccc_root).expanduser() if ccc_root else None,
+        cocoindex_live_opt_in=_env_flag(ENV_CCC_LIVE_OPT_IN),
+        ccc_live_tests=_env_flag(ENV_CCC_LIVE_TESTS),
     )
 
 

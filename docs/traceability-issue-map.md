@@ -77,11 +77,19 @@ Retrieval has AI-01 in M0 and AI-02/AI-03 in M3. Stories whose slice has no mile
 | AI-03 | [#32](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/32) | F-08 | M3 | A | Revision-aware incremental embedding refresh |
 | AI-04 | [#34](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/34) | F-09 | M0 | A | Ranked candidate links labelled as proposals |
 | AI-05 | [#35](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/35) | F-09 | M3 | A | Labeled precision/recall and recall@k evaluation |
+| AI-06 | [#56](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/56) | F-08 | M3 | A | CocoIndex Code semantic code-search capability and integration contract (implementation-approach story; not in roadmap §6) |
 | CI-01 | [#36](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/36) | F-10 | M4 | shared | Assurance runs when a repository revision changes |
 | CI-02 | [#37](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/37) | F-10 | M4 | shared | New, unchanged, and resolved findings between baselines |
 
 `#33` is a closed duplicate of AI-03 (`#32`), created when a batch issue-creation call was
 interrupted after the request had already succeeded server-side.
+
+**AI-06 (#56)** was created on 2026-11-13 by the RAG mission as an implementation-approach story
+under F-08. It is not a roadmap §6 backlog story: it adopts CocoIndex Code for semantic *code*
+search and does not amend AI-01/AI-02/AI-03/AI-04/AI-05 criteria. Its canonical criteria live in
+[AI-06.feature](stories/AI-06.feature); the roadmap's M3 entry still describes the original local
+model/index approach. Promoting AI-06 into roadmap §6 is an owner disposition, not an inference
+from this map row. M3 has no GitHub milestone object yet, so the row names the slice in its body.
 
 ## Task issues
 

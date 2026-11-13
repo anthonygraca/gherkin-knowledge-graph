@@ -104,6 +104,25 @@ If the configuration is absent, the live path is `NOT RUN`, not passed. The adap
 timeouts, bounded retries (429/5xx/timeouts only, honoring a capped `Retry-After`), and sanitized
 error types. They cannot accept links, write evidence, or change assurance policy.
 
+## Optional CocoIndex Code code search (AI-06)
+
+CocoIndex Code is a separate, optional external search cache. It is not a CTA dependency, not a
+registered discovery provider in AI-06 PR 1, and not required by tests or CI. A live probe needs a
+pinned `ccc` executable, an initialized project snapshot, an embedding runtime, and explicit opt-in:
+
+```bash
+export CTA_CCC_PROJECT_ROOT=/path/to/isolated/snapshot
+export CTA_CCC_LIVE_OPT_IN=1
+uv run --project backend python tools/probe_cocoindex.py --live \
+  --query "withdraw whole dollar amounts" --limit 3 --path 'src/*' \
+  --report /tmp/cocoindex-report.json
+```
+
+Without `--live` the probe contacts nothing. Read
+[CocoIndex integration](cocoindex-integration.md) for installation, global settings, snapshot
+isolation, MCP framing, sanitized reports, and the "index identity is unavailable" limitation.
+The injected hits are non-authoritative: they cannot create links, review decisions, or evidence.
+
 ## Quality gates
 
 ```bash
