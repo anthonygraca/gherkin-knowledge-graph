@@ -5,6 +5,7 @@ description = "Continuous Traceability Assurance — domain contracts, mock serv
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115,<1",
+    "httpx>=0.27,<1",
     "pydantic>=2.9,<3",
     "pyyaml>=6,<7",
     "uvicorn>=0.30,<1",
