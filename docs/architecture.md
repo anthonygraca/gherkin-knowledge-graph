@@ -43,7 +43,7 @@ Two rules explain most of the layout:
 | `app/assurance/sample_findings.py` | Replay of reviewed sample findings for `GET /api/findings` | Mock service (full rule set in M2) |
 | `app/api/` | Routes, dependencies, RFC 9457 problem documents | Working |
 | `app/ingestion/` | Revision-pinned parsing: requirements/Gherkin (DT-01), source/test (DT-02), links (DT-03), evidence + thread assembly (DT-04) | Implemented |
-| `frontend/` | React/TypeScript dashboard | Absent by design; created in C-PR1 |
+| `frontend/` | React + TypeScript + Vite dashboard: baseline selector, findings summary, coverage, thread view; Vitest component tests | Implemented (AS-04) |
 
 ## Request flows
 

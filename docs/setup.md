@@ -5,6 +5,7 @@
 * Python 3.11 or newer (3.12 is what CI uses)
 * [uv](https://docs.astral.sh/uv/) for dependency and environment management
 * `git` 2.29 or newer (fixture generation creates real repositories, tags, and pins the object format)
+* Node.js 22 and npm (frontend build and component tests only)
 
 Not required: Docker, a GPU, a model server, a database server, network access during tests.
 The first `uv sync` downloads dependencies from a package index; everything after that runs
@@ -33,6 +34,23 @@ uv run --project backend python tools/fixturectl.py verify         # build+mater
 `verify` is the drift guard: it proves the committed generated files are exactly what the
 generator produces now. CI runs it. If it fails, regenerate with `all` and commit the result
 with your fixture edit.
+
+## Frontend
+
+Dependencies install from the registry once; build and tests run offline.
+
+```bash
+cd frontend
+npm ci            # install the locked dependency tree
+npm run build     # TypeScript build + Vite bundle
+npm test          # Vitest component tests against committed fixture responses
+npm run dev       # dashboard at http://127.0.0.1:5173
+```
+
+Start the backend first (`uv run --project backend uvicorn app.main:app --port 8000`) with built
+fixtures. Vite proxies `/health` and `/api` to the backend. The dashboard shows the reviewed
+fixture findings and the assembled thread for the selected baseline; it needs no model or external
+service.
 
 ## Quality gates
 

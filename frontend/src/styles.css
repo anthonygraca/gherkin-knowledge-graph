@@ -1,0 +1,182 @@
+:root {
+  color-scheme: light dark;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  line-height: 1.5;
+}
+
+body {
+  margin: 0;
+  background: Canvas;
+  color: CanvasText;
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.75rem;
+}
+
+.subtitle {
+  margin: 0 0 1rem;
+  opacity: 0.8;
+}
+
+.baseline-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.baseline-bar select {
+  padding: 0.35rem 0.5rem;
+}
+
+.commit,
+.source-note {
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+.source-note {
+  margin-left: auto;
+}
+
+section {
+  margin-top: 2rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  border-bottom: 1px solid color-mix(in srgb, CanvasText 20%, transparent);
+  padding-bottom: 0.35rem;
+}
+
+h3 {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.5rem 0 1rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid color-mix(in srgb, CanvasText 15%, transparent);
+  vertical-align: top;
+}
+
+th {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+code {
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.9em;
+}
+
+.counts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+}
+
+.counts li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid color-mix(in srgb, CanvasText 20%, transparent);
+  border-radius: 0.5rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.badge.good {
+  color: #1a7f37;
+}
+
+.badge.warn {
+  color: #9a6700;
+}
+
+.badge.bad {
+  color: #cf222e;
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge.good {
+    color: #3fb950;
+  }
+
+  .badge.warn {
+    color: #d29922;
+  }
+
+  .badge.bad {
+    color: #f85149;
+  }
+}
+
+tr.selected {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.link-button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.error {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #cf222e;
+  border-radius: 0.5rem;
+  color: #cf222e;
+}
+
+.empty,
+.loading {
+  opacity: 0.7;
+}
+
+.baseline-line,
+.baseline-chip {
+  font-size: 0.9rem;
+}
+
+.baseline-chip {
+  font-weight: normal;
+  opacity: 0.7;
+}
