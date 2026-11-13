@@ -68,6 +68,14 @@ class FindingsResponse(_FrozenModel):
     findings: list[AssuranceFinding]
 
 
+class ArtifactListResponse(_FrozenModel):
+    """Artifact inventory at one baseline (additive in schema 0.2.0)."""
+
+    schema_version: str
+    baseline: str
+    artifacts: list[Artifact]
+
+
 class DiscoveryRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

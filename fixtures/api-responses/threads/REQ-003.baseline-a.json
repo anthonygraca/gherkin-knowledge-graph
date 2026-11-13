@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "root_id": "REQ-003",
   "baseline": "baseline-a",
   "artifacts": [
@@ -9,7 +9,7 @@
       "title": "src/transfers.py",
       "source_uri": "fixture://banking-demo/src/transfers.py",
       "repository": "banking-demo",
-      "revision": "67109fac965377629c9ab5835541aa64461db785",
+      "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
       "content_hash": "sha256:9c094f5c0735dc48ce3a7b4b6c7eece6f8315b1e2b3dab3d2909afde13384823",
       "locator": "src/transfers.py",
       "metadata": {}
@@ -20,7 +20,7 @@
       "title": "Daily transfer limit boundary semantics",
       "source_uri": "fixture://banking-demo/requirements/REQ-003.md",
       "repository": "banking-demo",
-      "revision": "67109fac965377629c9ab5835541aa64461db785",
+      "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
       "content_hash": "sha256:41f42ab0204997eb59cd3ac979ed21f89655af3ecca49c0a261a7b7b4e32e73a",
       "locator": "requirements/REQ-003.md",
       "metadata": {
@@ -33,7 +33,7 @@
       "title": "Transfer of exactly the daily limit is permitted",
       "source_uri": "fixture://banking-demo/features/transfers.feature",
       "repository": "banking-demo",
-      "revision": "67109fac965377629c9ab5835541aa64461db785",
+      "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
       "content_hash": "sha256:5e3ba8632d9388e6d62e7ade2de74031a8e72dd51b4227e133c8f52744bce7eb",
       "locator": "features/transfers.feature#SCN-003",
       "metadata": {}
@@ -44,7 +44,7 @@
       "title": "tests/test_transfers.py",
       "source_uri": "fixture://banking-demo/tests/test_transfers.py",
       "repository": "banking-demo",
-      "revision": "67109fac965377629c9ab5835541aa64461db785",
+      "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
       "content_hash": "sha256:dcc6a549337bdb279ccbb44c90695fc4097a57bd6cfbae32cc095ad1785a172c",
       "locator": "tests/test_transfers.py",
       "metadata": {}
@@ -102,7 +102,7 @@
       "test_id": "TEST-002",
       "scenario_id": "SCN-003",
       "result": "passed",
-      "tested_commit": "81efe21a8ffd25243cb67485ede76d3be3fd7d24",
+      "tested_commit": "903977de5836fd45fa6e468d33560de2fb1d6eb1",
       "executed_at": "2026-10-01T09:12:40Z",
       "run_uri": "ci://banking-demo/runs/1001"
     }

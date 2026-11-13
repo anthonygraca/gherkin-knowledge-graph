@@ -31,7 +31,7 @@ import fixturectl  # noqa: E402 — tools/ is added to sys.path above
 from app.domain.oracle import BaselinesManifest, FixtureSnapshot  # noqa: E402
 from app.main import create_app  # noqa: E402
 from app.persistence.fixtures import load_model  # noqa: E402
-from app.persistence.store import FixtureStore  # noqa: E402
+from app.persistence.ingested import IngestedStore  # noqa: E402
 from app.settings import Settings  # noqa: E402
 
 FIXTURE_NAME = "banking-demo"
@@ -108,8 +108,12 @@ class BuiltFixture:
 
 
 @pytest.fixture(scope="session")
-def fixture_settings() -> Settings:
-    return Settings(repo_root=REPO_ROOT, fixtures_dir=REPO_ROOT / "fixtures")
+def fixture_settings(built_fixture: BuiltFixture) -> Settings:
+    return Settings(
+        repo_root=REPO_ROOT,
+        fixtures_dir=REPO_ROOT / "fixtures",
+        fixture_repo_path=built_fixture.repo,
+    )
 
 
 @pytest.fixture(scope="session")
@@ -130,8 +134,8 @@ def built_fixture(tmp_path_factory: pytest.TempPathFactory) -> BuiltFixture:
 
 
 @pytest.fixture(scope="session")
-def store(fixture_settings: Settings) -> FixtureStore:
-    return FixtureStore.from_settings(fixture_settings)
+def store(fixture_settings: Settings) -> IngestedStore:
+    return IngestedStore.from_settings(fixture_settings)
 
 
 @pytest.fixture(scope="session")

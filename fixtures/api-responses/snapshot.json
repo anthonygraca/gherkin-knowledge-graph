@@ -1,11 +1,11 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "fixture": "banking-demo",
   "generated_by": "tools/fixturectl.py",
   "baselines": [
     {
       "baseline": "baseline-a",
-      "commit": "67109fac965377629c9ab5835541aa64461db785",
+      "commit": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
       "artifacts": [
         {
           "artifact_id": "SCN-002",
@@ -13,7 +13,7 @@
           "title": "Transfer above the daily limit is rejected",
           "source_uri": "fixture://banking-demo/features/transfers.feature",
           "repository": "banking-demo",
-          "revision": "67109fac965377629c9ab5835541aa64461db785",
+          "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
           "content_hash": "sha256:5e3ba8632d9388e6d62e7ade2de74031a8e72dd51b4227e133c8f52744bce7eb",
           "locator": "features/transfers.feature#SCN-002",
           "metadata": {}
@@ -24,7 +24,7 @@
           "title": "Transfer of exactly the daily limit is permitted",
           "source_uri": "fixture://banking-demo/features/transfers.feature",
           "repository": "banking-demo",
-          "revision": "67109fac965377629c9ab5835541aa64461db785",
+          "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
           "content_hash": "sha256:5e3ba8632d9388e6d62e7ade2de74031a8e72dd51b4227e133c8f52744bce7eb",
           "locator": "features/transfers.feature#SCN-003",
           "metadata": {}
@@ -35,7 +35,7 @@
           "title": "Successful instant withdrawal",
           "source_uri": "fixture://banking-demo/features/withdrawals.feature",
           "repository": "banking-demo",
-          "revision": "67109fac965377629c9ab5835541aa64461db785",
+          "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
           "content_hash": "sha256:f0aa5fd8142558086324c19b2216375b9d6ef4445067791e134d37fee34eb9ad",
           "locator": "features/withdrawals.feature#SCN-001",
           "metadata": {}
@@ -46,7 +46,7 @@
           "title": "Instant withdrawal availability",
           "source_uri": "fixture://banking-demo/requirements/REQ-001.md",
           "repository": "banking-demo",
-          "revision": "67109fac965377629c9ab5835541aa64461db785",
+          "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
           "content_hash": "sha256:7f97fd8702c4b6456f6d3e57db82b78ede9103967d9fb29cbeb02843d0fd0b95",
           "locator": "requirements/REQ-001.md",
           "metadata": {
@@ -59,7 +59,7 @@
           "title": "Daily transfer limit enforcement",
           "source_uri": "fixture://banking-demo/requirements/REQ-002.md",
           "repository": "banking-demo",
-          "revision": "67109fac965377629c9ab5835541aa64461db785",
+          "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
           "content_hash": "sha256:d2a710e2da2b3d30397976a9b36430cbb42acca2e55bd325bb0481711df4468b",
           "locator": "requirements/REQ-002.md",
           "metadata": {
@@ -72,7 +72,7 @@
           "title": "Daily transfer limit boundary semantics",
           "source_uri": "fixture://banking-demo/requirements/REQ-003.md",
           "repository": "banking-demo",
-          "revision": "67109fac965377629c9ab5835541aa64461db785",
+          "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
           "content_hash": "sha256:41f42ab0204997eb59cd3ac979ed21f89655af3ecca49c0a261a7b7b4e32e73a",
           "locator": "requirements/REQ-003.md",
           "metadata": {
@@ -85,7 +85,7 @@
           "title": "src/accounts.py",
           "source_uri": "fixture://banking-demo/src/accounts.py",
           "repository": "banking-demo",
-          "revision": "67109fac965377629c9ab5835541aa64461db785",
+          "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
           "content_hash": "sha256:5969ffe835c069d958cc42a08051dcc34fa0dbf0ca3e780b4a171fb7b7b28251",
           "locator": "src/accounts.py",
           "metadata": {}
@@ -96,7 +96,7 @@
           "title": "src/transfers.py",
           "source_uri": "fixture://banking-demo/src/transfers.py",
           "repository": "banking-demo",
-          "revision": "67109fac965377629c9ab5835541aa64461db785",
+          "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
           "content_hash": "sha256:9c094f5c0735dc48ce3a7b4b6c7eece6f8315b1e2b3dab3d2909afde13384823",
           "locator": "src/transfers.py",
           "metadata": {}
@@ -107,7 +107,7 @@
           "title": "tests/test_accounts.py",
           "source_uri": "fixture://banking-demo/tests/test_accounts.py",
           "repository": "banking-demo",
-          "revision": "67109fac965377629c9ab5835541aa64461db785",
+          "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
           "content_hash": "sha256:b42df9febafa4a5e72ef581d833f9f329568024b5e96613c028de4747f164b92",
           "locator": "tests/test_accounts.py",
           "metadata": {}
@@ -118,7 +118,7 @@
           "title": "tests/test_transfers.py",
           "source_uri": "fixture://banking-demo/tests/test_transfers.py",
           "repository": "banking-demo",
-          "revision": "67109fac965377629c9ab5835541aa64461db785",
+          "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
           "content_hash": "sha256:dcc6a549337bdb279ccbb44c90695fc4097a57bd6cfbae32cc095ad1785a172c",
           "locator": "tests/test_transfers.py",
           "metadata": {}
@@ -240,7 +240,7 @@
           "test_id": "TEST-001",
           "scenario_id": "SCN-001",
           "result": "passed",
-          "tested_commit": "81efe21a8ffd25243cb67485ede76d3be3fd7d24",
+          "tested_commit": "903977de5836fd45fa6e468d33560de2fb1d6eb1",
           "executed_at": "2026-10-01T09:12:00Z",
           "run_uri": "ci://banking-demo/runs/1001"
         },
@@ -249,7 +249,7 @@
           "test_id": "TEST-002",
           "scenario_id": "SCN-003",
           "result": "passed",
-          "tested_commit": "81efe21a8ffd25243cb67485ede76d3be3fd7d24",
+          "tested_commit": "903977de5836fd45fa6e468d33560de2fb1d6eb1",
           "executed_at": "2026-10-01T09:12:40Z",
           "run_uri": "ci://banking-demo/runs/1001"
         }
@@ -257,7 +257,7 @@
     },
     {
       "baseline": "baseline-b",
-      "commit": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+      "commit": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
       "artifacts": [
         {
           "artifact_id": "SCN-002",
@@ -265,7 +265,7 @@
           "title": "Transfer above the daily limit is rejected",
           "source_uri": "fixture://banking-demo/features/transfers.feature",
           "repository": "banking-demo",
-          "revision": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+          "revision": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
           "content_hash": "sha256:5e3ba8632d9388e6d62e7ade2de74031a8e72dd51b4227e133c8f52744bce7eb",
           "locator": "features/transfers.feature#SCN-002",
           "metadata": {}
@@ -276,7 +276,7 @@
           "title": "Transfer of exactly the daily limit is permitted",
           "source_uri": "fixture://banking-demo/features/transfers.feature",
           "repository": "banking-demo",
-          "revision": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+          "revision": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
           "content_hash": "sha256:5e3ba8632d9388e6d62e7ade2de74031a8e72dd51b4227e133c8f52744bce7eb",
           "locator": "features/transfers.feature#SCN-003",
           "metadata": {}
@@ -287,7 +287,7 @@
           "title": "Successful instant withdrawal",
           "source_uri": "fixture://banking-demo/features/withdrawals.feature",
           "repository": "banking-demo",
-          "revision": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+          "revision": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
           "content_hash": "sha256:f0aa5fd8142558086324c19b2216375b9d6ef4445067791e134d37fee34eb9ad",
           "locator": "features/withdrawals.feature#SCN-001",
           "metadata": {}
@@ -298,7 +298,7 @@
           "title": "Instant withdrawal availability",
           "source_uri": "fixture://banking-demo/requirements/REQ-001.md",
           "repository": "banking-demo",
-          "revision": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+          "revision": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
           "content_hash": "sha256:7f97fd8702c4b6456f6d3e57db82b78ede9103967d9fb29cbeb02843d0fd0b95",
           "locator": "requirements/REQ-001.md",
           "metadata": {
@@ -311,7 +311,7 @@
           "title": "Daily transfer limit enforcement",
           "source_uri": "fixture://banking-demo/requirements/REQ-002.md",
           "repository": "banking-demo",
-          "revision": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+          "revision": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
           "content_hash": "sha256:d2a710e2da2b3d30397976a9b36430cbb42acca2e55bd325bb0481711df4468b",
           "locator": "requirements/REQ-002.md",
           "metadata": {
@@ -324,7 +324,7 @@
           "title": "Daily transfer limit boundary semantics",
           "source_uri": "fixture://banking-demo/requirements/REQ-003.md",
           "repository": "banking-demo",
-          "revision": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+          "revision": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
           "content_hash": "sha256:41f42ab0204997eb59cd3ac979ed21f89655af3ecca49c0a261a7b7b4e32e73a",
           "locator": "requirements/REQ-003.md",
           "metadata": {
@@ -337,7 +337,7 @@
           "title": "src/accounts.py",
           "source_uri": "fixture://banking-demo/src/accounts.py",
           "repository": "banking-demo",
-          "revision": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+          "revision": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
           "content_hash": "sha256:0baefee8f4dc182521504365fdf9b698586eea5163ca2c9ea82e2253efe0f993",
           "locator": "src/accounts.py",
           "metadata": {}
@@ -348,7 +348,7 @@
           "title": "src/transfers.py",
           "source_uri": "fixture://banking-demo/src/transfers.py",
           "repository": "banking-demo",
-          "revision": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+          "revision": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
           "content_hash": "sha256:9c094f5c0735dc48ce3a7b4b6c7eece6f8315b1e2b3dab3d2909afde13384823",
           "locator": "src/transfers.py",
           "metadata": {}
@@ -359,7 +359,7 @@
           "title": "tests/test_accounts.py",
           "source_uri": "fixture://banking-demo/tests/test_accounts.py",
           "repository": "banking-demo",
-          "revision": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+          "revision": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
           "content_hash": "sha256:b42df9febafa4a5e72ef581d833f9f329568024b5e96613c028de4747f164b92",
           "locator": "tests/test_accounts.py",
           "metadata": {}
@@ -370,7 +370,7 @@
           "title": "tests/test_transfers.py",
           "source_uri": "fixture://banking-demo/tests/test_transfers.py",
           "repository": "banking-demo",
-          "revision": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+          "revision": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
           "content_hash": "sha256:1410b1a2f50c290c8116fd7944c9620698729c8fc24ce64ffcdcf7d463d555d7",
           "locator": "tests/test_transfers.py",
           "metadata": {}
@@ -492,7 +492,7 @@
           "test_id": "TEST-001",
           "scenario_id": "SCN-001",
           "result": "passed",
-          "tested_commit": "81efe21a8ffd25243cb67485ede76d3be3fd7d24",
+          "tested_commit": "903977de5836fd45fa6e468d33560de2fb1d6eb1",
           "executed_at": "2026-10-01T09:12:00Z",
           "run_uri": "ci://banking-demo/runs/1001"
         },
@@ -501,7 +501,7 @@
           "test_id": "TEST-002",
           "scenario_id": "SCN-003",
           "result": "passed",
-          "tested_commit": "81efe21a8ffd25243cb67485ede76d3be3fd7d24",
+          "tested_commit": "903977de5836fd45fa6e468d33560de2fb1d6eb1",
           "executed_at": "2026-10-01T09:12:40Z",
           "run_uri": "ci://banking-demo/runs/1001"
         },
@@ -510,7 +510,7 @@
           "test_id": "TEST-002",
           "scenario_id": "SCN-003",
           "result": "failed",
-          "tested_commit": "812256f7e959231a53ae1827a126e42a987fa4c2",
+          "tested_commit": "f1a4600ed3a896388081fafbfe660df6c5c42f73",
           "executed_at": "2026-10-15T14:05:00Z",
           "run_uri": "ci://banking-demo/runs/1002"
         }

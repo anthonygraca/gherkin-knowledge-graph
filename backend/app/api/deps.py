@@ -13,7 +13,7 @@ from fastapi import Depends, Request
 from app.assurance.sample_findings import SampleFindingsSource
 from app.discovery.registry import ProviderRegistry
 from app.domain.ports import ArtifactRepository
-from app.persistence.store import FixtureStore
+from app.persistence.ingested import IngestedStore
 from app.settings import Settings
 
 
@@ -26,8 +26,8 @@ def provide_repository(request: Request) -> ArtifactRepository:
     return request.app.state.store
 
 
-def provide_store(request: Request) -> FixtureStore:
-    """The concrete M0 store, for the fixture-only surfaces (thread replay, baseline commit map)."""
+def provide_store(request: Request) -> IngestedStore:
+    """The concrete store, for ingestion and fixture-facing helpers."""
     return request.app.state.store
 
 
@@ -41,6 +41,6 @@ def provide_providers(request: Request) -> ProviderRegistry:
 
 SettingsDep = Annotated[Settings, Depends(provide_settings)]
 RepositoryDep = Annotated[ArtifactRepository, Depends(provide_repository)]
-StoreDep = Annotated[FixtureStore, Depends(provide_store)]
+StoreDep = Annotated[IngestedStore, Depends(provide_store)]
 FindingsDep = Annotated[SampleFindingsSource, Depends(provide_findings_source)]
 ProvidersDep = Annotated[ProviderRegistry, Depends(provide_providers)]

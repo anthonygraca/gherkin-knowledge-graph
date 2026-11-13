@@ -21,7 +21,7 @@ from app.domain.oracle import (
 )
 from app.domain.policy import RULE_DEFAULT_SEVERITY, RULE_FINDING_TYPE
 from app.persistence.fixtures import load_model
-from app.persistence.store import FixtureStore
+from app.persistence.ingested import IngestedStore
 from app.settings import Settings
 
 BASELINES = ("baseline-a", "baseline-b")
@@ -242,7 +242,7 @@ def test_case_5_failure_is_distinct_from_staleness(
 
 
 def test_change_summary_matches_content_hash_comparison(
-    store: FixtureStore, fixture_settings: Settings
+    store: IngestedStore, fixture_settings: Settings
 ) -> None:
     parsed = oracle(fixture_settings, "baseline-b")
     assert parsed.change_summary is not None

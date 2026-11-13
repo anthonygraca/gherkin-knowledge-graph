@@ -6,14 +6,17 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.domain.api import (
+    ArtifactListResponse,
     DiscoveryResponse,
     FindingsResponse,
     HealthResponse,
+    IngestionResponse,
     ProblemDetails,
     ThreadResponse,
 )
 from app.domain.models import Artifact, finding_fingerprint
 from app.domain.oracle import BaselinesManifest, ExpectedFindingsFile, FixtureSnapshot
+from app.main import create_app
 from app.persistence.fixtures import load_model
 from app.settings import Settings
 from app.version import SCHEMA_VERSION
@@ -22,6 +25,7 @@ BASELINES = ("baseline-a", "baseline-b")
 
 CONTRACTED_PATHS = {
     "/health",
+    "/api/artifacts",
     "/api/artifacts/{artifact_id}",
     "/api/threads/{artifact_id}",
     "/api/findings",
@@ -279,13 +283,137 @@ def test_discovery_validates_its_payload(client: TestClient) -> None:
     assert client.post("/api/discovery", json={}).status_code == 422
 
 
+# ---------------------------------------------------------------------------------- artifacts
+
+
+def test_artifact_inventory_lists_and_filters(
+    client: TestClient, committed_manifest: BaselinesManifest
+) -> None:
+    response = client.get("/api/artifacts", params={"baseline": "baseline-a"})
+    assert response.status_code == 200
+    body = ArtifactListResponse.model_validate(response.json())
+    assert body.baseline == "baseline-a"
+    assert body.schema_version == SCHEMA_VERSION
+    assert len(body.artifacts) == 10
+    assert [item.artifact_id for item in body.artifacts] == sorted(
+        item.artifact_id for item in body.artifacts
+    )
+    assert {item.artifact_type.value for item in body.artifacts} == {
+        "requirement",
+        "scenario",
+        "source",
+        "test",
+    }
+
+    filtered = client.get(
+        "/api/artifacts", params={"baseline": "baseline-a", "artifact_type": "requirement"}
+    )
+    assert [
+        item.artifact_id for item in ArtifactListResponse.model_validate(filtered.json()).artifacts
+    ] == ["REQ-001", "REQ-002", "REQ-003"]
+
+    by_sha = client.get(
+        "/api/artifacts", params={"baseline": committed_manifest.tags["baseline-a"]}
+    )
+    assert by_sha.json() == response.json()
+
+    unknown = client.get("/api/artifacts", params={"baseline": "baseline-z"})
+    assert unknown.status_code == 404
+    assert unknown.json()["code"] == "baseline-not-found"
+
+
+# ---------------------------------------------------------------------------------- ingestion
+
+
+def test_ingestion_run_reports_counts(
+    client: TestClient, committed_manifest: BaselinesManifest
+) -> None:
+    response = client.post("/api/ingestion/run", json={"repository": "banking-demo"})
+    assert response.status_code == 200
+    body = IngestionResponse.model_validate(response.json())
+    assert body.baseline == "baseline-b"
+    assert body.run_id == f"ing-{committed_manifest.tags['baseline-b'][:12]}"
+    assert (
+        body.artifact_count,
+        body.accepted_link_count,
+        body.proposed_link_count,
+        body.evidence_count,
+    ) == (10, 6, 1, 3)
+
+    at_a = client.post(
+        "/api/ingestion/run", json={"repository": "banking-demo", "revision": "baseline-a"}
+    )
+    assert at_a.status_code == 200
+    body_a = IngestionResponse.model_validate(at_a.json())
+    assert body_a.baseline == "baseline-a"
+    assert body_a.run_id == f"ing-{committed_manifest.tags['baseline-a'][:12]}"
+    assert (
+        body_a.artifact_count,
+        body_a.accepted_link_count,
+        body_a.proposed_link_count,
+        body_a.evidence_count,
+    ) == (10, 6, 1, 2)
+
+    unknown_repository = client.post("/api/ingestion/run", json={"repository": "other"})
+    assert unknown_repository.status_code == 400
+    assert unknown_repository.json()["code"] == "invalid-request"
+
+    unknown_revision = client.post(
+        "/api/ingestion/run", json={"repository": "banking-demo", "revision": "no-such-rev"}
+    )
+    assert unknown_revision.status_code == 404
+    assert unknown_revision.json()["code"] == "baseline-not-found"
+
+
+def test_ingestion_with_a_missing_repo_is_fixture_data_missing(
+    fixture_settings: Settings, tmp_path
+) -> None:
+    app = TestClient(
+        create_app(
+            Settings(
+                repo_root=fixture_settings.repo_root,
+                fixtures_dir=fixture_settings.fixtures_dir,
+                fixture_repo_path=tmp_path / "absent",
+            )
+        )
+    )
+    response = app.post("/api/ingestion/run", json={"repository": "banking-demo"})
+    assert response.status_code == 500
+    assert response.json()["code"] == "fixture-data-missing"
+    assert "fixturectl.py build" in response.json()["detail"]
+
+
+def test_thread_by_tag_and_sha_are_identical(
+    client: TestClient, committed_manifest: BaselinesManifest
+) -> None:
+    by_tag = client.get("/api/threads/REQ-001", params={"baseline": "baseline-b"})
+    by_sha = client.get(
+        "/api/threads/REQ-001", params={"baseline": committed_manifest.tags["baseline-b"]}
+    )
+    assert by_tag.status_code == by_sha.status_code == 200
+    assert by_tag.json() == by_sha.json()
+
+
+def test_thread_matches_the_committed_example(
+    client: TestClient, fixture_settings: Settings
+) -> None:
+    for baseline in BASELINES:
+        for artifact_id in ("REQ-001", "REQ-002", "REQ-003"):
+            expected = load_model(
+                fixture_settings.api_responses_dir / "threads" / f"{artifact_id}.{baseline}.json",
+                ThreadResponse,
+            )
+            response = client.get(f"/api/threads/{artifact_id}", params={"baseline": baseline})
+            assert response.status_code == 200
+            assert ThreadResponse.model_validate(response.json()) == expected
+
+
 # ------------------------------------------------------------------- contract-only endpoints
 
 
 @pytest.mark.parametrize(
     ("path", "payload", "story"),
     [
-        ("/api/ingestion/run", {"repository": "banking-demo"}, "B-PR1"),
         ("/api/links/LNK-007/review", {"decision": "accept", "reviewer_id": "rv-ana"}, "AS-06"),
         ("/api/assurance/evaluate", {"baseline": "baseline-a"}, "AS-01"),
     ],
@@ -302,7 +430,7 @@ def test_contract_only_endpoints_are_honest(
     assert problem.milestone
 
 
-def test_contract_only_endpoints_still_validate_their_payloads(client: TestClient) -> None:
+def test_endpoints_still_validate_their_payloads(client: TestClient) -> None:
     assert client.post("/api/ingestion/run", json={}).status_code == 422
     assert (
         client.post(

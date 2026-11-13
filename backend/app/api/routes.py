@@ -2,7 +2,8 @@
 
 Endpoints are grouped by intent, which is also the honesty axis of the system:
 
-* **reads** — real implementations over the fixture-backed store (M0).
+* **reads** — real implementations over the ingested fixture repository.
+* **ingestion** — parses the configured repository at a revision.
 * **discovery** — real implementation, fixture provider; returns proposals only.
 * **contract-only** — the shape is frozen and documented, the implementation belongs to a
   later milestone; the response is 501 with the owning story, never fake success.
@@ -16,6 +17,7 @@ from fastapi import APIRouter, Path, Query
 
 from app.api.deps import FindingsDep, ProvidersDep, RepositoryDep, SettingsDep, StoreDep
 from app.domain.api import (
+    ArtifactListResponse,
     DiscoveryRequest,
     DiscoveryResponse,
     EvaluateRequest,
@@ -27,6 +29,7 @@ from app.domain.api import (
     ReviewRequest,
     ThreadResponse,
 )
+from app.domain.enums import ArtifactType
 from app.domain.errors import FeatureNotImplemented
 from app.domain.models import ARTIFACT_ID_PATTERN, LINK_ID_PATTERN, Artifact, TraceLink
 from app.version import PACKAGE_VERSION, SCHEMA_VERSION
@@ -47,7 +50,7 @@ _PROBLEM_404: dict[str, object] = {
 }
 _PROBLEM_501: dict[str, object] = {
     "model": ProblemDetails,
-    "description": "Contract-only endpoint in M0; the problem document names the owning story.",
+    "description": "Contract-only endpoint; the problem document names the owning story.",
 }
 
 
@@ -67,6 +70,31 @@ def get_health(settings: SettingsDep, store: StoreDep, providers: ProvidersDep) 
         baselines=store.baselines(),
         baseline_commits=store.baseline_commits(),
         discovery_providers=providers.registered,
+    )
+
+
+@router.get(
+    "/api/artifacts",
+    response_model=ArtifactListResponse,
+    tags=["reads"],
+    responses={404: _PROBLEM_404},
+    summary="Artifact inventory for a baseline",
+)
+def list_artifacts(
+    repository: RepositoryDep,
+    baseline: Annotated[str | None, BASELINE_QUERY] = None,
+    artifact_type: Annotated[
+        ArtifactType | None, Query(description="Restrict to one artifact type.")
+    ] = None,
+) -> ArtifactListResponse:
+    canonical = repository.resolve_baseline(baseline)
+    artifacts = repository.list_artifacts(canonical)
+    if artifact_type is not None:
+        artifacts = [artifact for artifact in artifacts if artifact.artifact_type is artifact_type]
+    return ArtifactListResponse(
+        schema_version=SCHEMA_VERSION,
+        baseline=canonical,
+        artifacts=sorted(artifacts, key=lambda artifact: artifact.artifact_id),
     )
 
 
@@ -97,7 +125,7 @@ def get_thread(
     store: StoreDep,
     baseline: Annotated[str | None, BASELINE_QUERY] = None,
 ) -> ThreadResponse:
-    """Fixture-only replay of a precomputed thread; DT-04 (#23) replaces it with assembled data."""
+    """Assembled from the ingested revision; proposals and evidence stay separate arrays."""
     return store.thread(artifact_id, baseline=baseline)
 
 
@@ -108,10 +136,11 @@ def get_thread(
     responses={404: _PROBLEM_404},
     summary="Assurance findings for a baseline",
     description=(
-        "M0 replays the reviewed sample findings committed under `fixtures/api-responses/`, "
-        "which are generated from the hand-labeled oracle in `fixtures/banking-demo/expected/`. "
-        "Deterministic rule evaluation (AS-01…AS-03) replaces the replay in M1 and is tested "
-        "against the same oracle files."
+        "M1 replays the reviewed sample findings committed under `fixtures/api-responses/`, "
+        "generated from the hand-labeled oracle in `fixtures/banking-demo/expected/`. "
+        "`POST /api/assurance/evaluate` is contract-only in this snapshot (501; AS-01…AS-03). "
+        "`GET` keeps the reviewed sample until the rule set is implemented, so M2 findings are not "
+        "silently dropped."
     ),
 )
 def get_findings(
@@ -154,18 +183,20 @@ def post_discovery(
 @router.post(
     "/api/ingestion/run",
     response_model=IngestionResponse,
-    tags=["contract-only"],
-    responses={501: _PROBLEM_501, 422: {"model": ProblemDetails}},
-    summary="Ingest a repository revision (contract only in M0)",
+    tags=["ingestion"],
+    responses={400: _PROBLEM_400, 404: _PROBLEM_404, 422: {"model": ProblemDetails}},
+    summary="Ingest the configured repository at a revision",
 )
-def post_ingestion_run(payload: IngestionRequest) -> IngestionResponse:
-    raise FeatureNotImplemented(
-        story="DT-01, DT-02, DT-04 (B-PR1)",
-        milestone="M1",
-        detail=(
-            "Repository ingestion and revision-aware persistence are implemented in B-PR1. "
-            "Until then, reads are served from fixtures/api-responses/snapshot.json."
-        ),
+def post_ingestion_run(payload: IngestionRequest, store: StoreDep) -> IngestionResponse:
+    revision = store.ingest(payload.repository, payload.revision)
+    return IngestionResponse(
+        run_id=f"ing-{revision.commit[:12]}",
+        repository=payload.repository,
+        baseline=store.label_of(revision.commit),
+        artifact_count=len(revision.artifacts),
+        accepted_link_count=len(revision.accepted_links),
+        proposed_link_count=len(revision.proposed_links),
+        evidence_count=len(revision.evidence),
     )
 
 

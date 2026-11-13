@@ -18,14 +18,40 @@ with a tag and with that tag's SHA returns identical bodies. Version-pinning fie
 {
   "status": "ok",
   "package_version": "0.1.0",
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "fixture": "banking-demo",
   "baselines": ["baseline-a", "baseline-b"],
   "baseline_commits": {
-    "baseline-a": "67109fac965377629c9ab5835541aa64461db785",
-    "baseline-b": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54"
+    "baseline-a": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
+    "baseline-b": "156ad72b01b361970cc22229e7a2b17f9d6bcb85"
   },
   "discovery_providers": ["fake"]
+}
+```
+
+### `GET /api/artifacts?baseline=…&artifact_type=…`
+
+The artifact inventory at one baseline, sorted by `artifact_id`. `artifact_type` is optional
+(`requirement`, `scenario`, `source`, `test`). Added in schema 0.2.0; it lets the dashboard derive
+coverage without hard-coded identities.
+
+```json
+{
+  "schema_version": "0.2.0",
+  "baseline": "baseline-a",
+  "artifacts": [
+    {
+      "artifact_id": "REQ-001",
+      "artifact_type": "requirement",
+      "title": "Instant withdrawal availability",
+      "source_uri": "fixture://banking-demo/requirements/REQ-001.md",
+      "repository": "banking-demo",
+      "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
+      "content_hash": "sha256:…",
+      "locator": "requirements/REQ-001.md",
+      "metadata": { "status": "active" }
+    }
+  ]
 }
 ```
 
@@ -41,7 +67,7 @@ a malformed id is a 422, an unknown but well-formed id is a 404.
   "title": "Instant withdrawal availability",
   "source_uri": "fixture://banking-demo/requirements/REQ-001.md",
   "repository": "banking-demo",
-  "revision": "67109fac965377629c9ab5835541aa64461db785",
+  "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
   "content_hash": "sha256:7f97fd8702c4b6456f6d3e57db82b78ede9103967d9fb29cbeb02843d0fd0b95",
   "locator": "requirements/REQ-001.md",
   "metadata": { "status": "active" }
@@ -50,12 +76,14 @@ a malformed id is a 422, an unknown but well-formed id is a 404.
 
 ### `GET /api/threads/{artifact_id}?baseline=…`
 
-The digital thread for one artifact: reachable artifacts, accepted links, proposals kept in a
-separate array, and evidence for the scenarios and tests in the thread.
+The digital thread for one requirement, assembled from the ingested revision: reachable artifacts,
+accepted links, proposals kept in a separate array, and evidence for the scenarios and tests in the
+thread. The response is identical whether the request names the baseline tag or its commit SHA, and
+it does not read the generated example files.
 
 ```json
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "root_id": "REQ-002",
   "baseline": "baseline-a",
   "artifacts": [
@@ -65,7 +93,7 @@ separate array, and evidence for the scenarios and tests in the thread.
       "title": "Daily transfer limit enforcement",
       "source_uri": "fixture://banking-demo/requirements/REQ-002.md",
       "repository": "banking-demo",
-      "revision": "67109fac965377629c9ab5835541aa64461db785",
+      "revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
       "content_hash": "sha256:…",
       "locator": "requirements/REQ-002.md",
       "metadata": { "status": "active" }
@@ -88,19 +116,19 @@ separate array, and evidence for the scenarios and tests in the thread.
 }
 ```
 
-404 `artifact-not-found` for an unknown id; 404 `thread-not-found` when the artifact exists but no
-thread is materialized for it (M0 materializes requirement roots; general thread assembly is
-DT-04/B-PR1).
+404 `artifact-not-found` for an unknown id; 404 `thread-not-found` when the artifact exists but is
+not a requirement root (M1 assembles requirement threads; other roots are a documented 404).
 
 ### `GET /api/findings?baseline=…`
 
-Findings for one baseline, ordered as in the oracle. **M0 replays reviewed sample findings**
-generated from `fixtures/banking-demo/expected/baseline-*.json`; deterministic rule evaluation
-arrives with AS-01…AS-03 (C-PR1) and is tested against the same oracle.
+Findings for one baseline, ordered as in the oracle. **M1 replays reviewed sample findings**
+generated from `fixtures/banking-demo/expected/baseline-*.json`; `POST /api/assurance/evaluate` is
+contract-only in this snapshot (501; AS-01…AS-03). The replay remains until the rule set is
+implemented, so M2 findings are not silently dropped from this response.
 
 ```json
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "baseline": "baseline-b",
   "findings": [
     {
@@ -109,19 +137,52 @@ arrives with AS-01…AS-03 (C-PR1) and is tested against the same oracle.
       "status": "open",
       "severity": "medium",
       "artifact_ids": ["CODE-001", "REQ-001", "SCN-001"],
-      "evaluated_baseline": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+      "evaluated_baseline": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
       "evidence_ids": ["EV-001"],
       "explanation": "SCN-001 verification passed at baseline-a (EV-001). CODE-001 changed at baseline-b and no later evidence for SCN-001 exists, so reverification is required. This is not a verification failure.",
       "rule_id": "RULE-REVERIFICATION-REQUIRED",
       "artifact_revisions": {
-        "CODE-001": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
-        "REQ-001": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
-        "SCN-001": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54"
+        "CODE-001": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
+        "REQ-001": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
+        "SCN-001": "156ad72b01b361970cc22229e7a2b17f9d6bcb85"
       }
     }
   ]
 }
 ```
+
+## Ingestion
+
+### `POST /api/ingestion/run`
+
+Ingests the configured fixture repository (`CTA_FIXTURE`, default `banking-demo`) at a revision.
+`revision` may be a tag, branch, or SHA; omitted means the repository's current `HEAD`. The run id
+is derived from the resolved commit, so repeating a run is deterministic.
+
+Request:
+
+```json
+{ "repository": "banking-demo", "revision": "baseline-a" }
+```
+
+Response:
+
+```json
+{
+  "run_id": "ing-0f8607b29d1c",
+  "repository": "banking-demo",
+  "baseline": "baseline-a",
+  "artifact_count": 10,
+  "accepted_link_count": 6,
+  "proposed_link_count": 1,
+  "evidence_count": 2
+}
+```
+
+Errors: unknown repository → 400 `invalid-request` naming the configured repository; unresolvable
+revision → 404 `baseline-not-found`; malformed repository content → 500 `fixture-data-invalid`; a
+missing built repository → 500 `fixture-data-missing` with the build instruction. A revision that is
+not a named baseline is ingestable; `baseline` then reports the SHA.
 
 ## Discovery
 
@@ -140,7 +201,7 @@ Response (abridged; `fixtures/api-responses/discovery.SCN-001.json` is the full 
 
 ```json
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "artifact_id": "SCN-001",
   "provider": "fake",
   "model_version": "fake-fixture-v1",
@@ -166,14 +227,13 @@ link or evidence record is created or modified; a known artifact with no proposa
 empty list; unknown artifact → 404 `artifact-not-found`; unknown provider → 400
 `provider-not-registered`.
 
-## Contract-only endpoints (501 in M0)
+## Contract-only endpoints (501)
 
 Each returns a problem document naming the owning story and milestone, and each validates its body
 first, so the contract is real even though the behaviour is not implemented:
 
 | Endpoint | Body | Owning work |
 | --- | --- | --- |
-| `POST /api/ingestion/run` | `{ "repository": "banking-demo", "revision": null }` | DT-01, DT-02, DT-04 (B-PR1, M1) |
 | `POST /api/links/{link_id}/review` | `{ "decision": "accept" \| "reject", "reviewer_id": "rv-ana", "reason": null }` | AS-06 (C, M1/M2) |
 | `POST /api/assurance/evaluate` | `{ "baseline": "baseline-a", "policy": null }` | AS-01…AS-03 (C-PR1, M1/M2) |
 

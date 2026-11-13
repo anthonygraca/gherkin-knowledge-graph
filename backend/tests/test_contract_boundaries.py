@@ -22,8 +22,9 @@ from app.domain.oracle import CandidateIndexFile
 from app.domain.ports import ArtifactRepository
 from app.main import create_app
 from app.persistence.fixtures import load_model
-from app.persistence.store import FixtureStore
+from app.persistence.ingested import IngestedStore
 from app.settings import Settings
+from app.version import SCHEMA_VERSION
 
 
 def fixture_copy(fixture_settings: Settings, tmp_path: Path) -> Path:
@@ -36,7 +37,13 @@ def fixture_copy(fixture_settings: Settings, tmp_path: Path) -> Path:
 
 def app_over(fixture_settings: Settings, fixtures: Path) -> TestClient:
     return TestClient(
-        create_app(Settings(repo_root=fixture_settings.repo_root, fixtures_dir=fixtures))
+        create_app(
+            Settings(
+                repo_root=fixture_settings.repo_root,
+                fixtures_dir=fixtures,
+                fixture_repo_path=fixture_settings.fixture_repo_path,
+            )
+        )
     )
 
 
@@ -44,12 +51,12 @@ def app_over(fixture_settings: Settings, fixtures: Path) -> TestClient:
 
 
 def test_store_satisfies_the_artifact_repository_port(fixture_settings: Settings) -> None:
-    assert isinstance(FixtureStore.from_settings(fixture_settings), ArtifactRepository)
+    assert isinstance(IngestedStore.from_settings(fixture_settings), ArtifactRepository)
 
 
 def test_consumer_can_read_everything_through_the_port_alone(fixture_settings: Settings) -> None:
     """R1's acceptance condition: one constructor path, port methods only, real data returned."""
-    repository: ArtifactRepository = FixtureStore.from_settings(fixture_settings)
+    repository: ArtifactRepository = IngestedStore.from_settings(fixture_settings)
 
     assert repository.baselines() == ["baseline-a", "baseline-b"]
     assert repository.resolve_baseline("baseline-a") == "baseline-a"
@@ -85,7 +92,7 @@ def test_consumer_can_read_everything_through_the_port_alone(fixture_settings: S
 def test_port_reads_raise_documented_errors(fixture_settings: Settings) -> None:
     from app.domain.errors import ArtifactNotFound, BaselineNotFound
 
-    repository: ArtifactRepository = FixtureStore.from_settings(fixture_settings)
+    repository: ArtifactRepository = IngestedStore.from_settings(fixture_settings)
     with pytest.raises(ArtifactNotFound):
         repository.get_artifact("REQ-999", baseline="baseline-a")
     with pytest.raises(BaselineNotFound):
@@ -113,21 +120,22 @@ def test_thread_response_rejects_an_accepted_link_inside_proposals(client: TestC
     assert "proposed_links" in str(failure.value)
 
 
-def test_loader_rejects_a_mispartitioned_thread_file(
-    fixture_settings: Settings, tmp_path: Path
-) -> None:
+def test_thread_is_served_without_example_files(fixture_settings: Settings, tmp_path: Path) -> None:
     fixtures = fixture_copy(fixture_settings, tmp_path)
-    path = fixtures / "api-responses" / "threads" / "REQ-002.baseline-a.json"
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    payload["accepted_links"] = payload.pop("proposed_links")
-    payload["proposed_links"] = []
-    path.write_text(json.dumps(payload), encoding="utf-8")
+    shutil.rmtree(fixtures / "api-responses" / "threads")
 
     response = app_over(fixture_settings, fixtures).get(
-        "/api/threads/REQ-002", params={"baseline": "baseline-a"}
+        "/api/threads/REQ-001", params={"baseline": "baseline-b"}
     )
-    assert response.status_code == 500
-    assert response.json()["code"] == "fixture-data-invalid"
+    assert response.status_code == 200
+    body = ThreadResponse.model_validate(response.json())
+    assert [artifact.artifact_id for artifact in body.artifacts] == [
+        "CODE-001",
+        "REQ-001",
+        "SCN-001",
+        "TEST-001",
+    ]
+    assert body.schema_version == SCHEMA_VERSION
 
 
 # ------------------------------------------------- R4: unsupported contract versions
@@ -136,7 +144,6 @@ def test_loader_rejects_a_mispartitioned_thread_file(
 @pytest.mark.parametrize(
     ("relative_path", "url"),
     [
-        ("threads/REQ-001.baseline-a.json", "/api/threads/REQ-001?baseline=baseline-a"),
         ("findings.baseline-a.json", "/api/findings?baseline=baseline-a"),
     ],
 )
@@ -156,17 +163,8 @@ def test_served_responses_reject_an_unsupported_schema_version(
     assert "999.0.0" in problem["detail"]
 
 
-def test_snapshot_and_index_versions_are_enforced(
-    fixture_settings: Settings, tmp_path: Path
-) -> None:
-    fixtures = fixture_copy(fixture_settings, tmp_path)
-    snapshot_path = fixtures / "api-responses" / "snapshot.json"
-    snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
-    snapshot["schema_version"] = "999.0.0"
-    snapshot_path.write_text(json.dumps(snapshot), encoding="utf-8")
-    with pytest.raises(FixtureDataInvalid):
-        create_app(Settings(repo_root=fixture_settings.repo_root, fixtures_dir=fixtures))
-
+def test_candidate_index_version_is_enforced(fixture_settings: Settings) -> None:
+    """The snapshot is a test oracle now; the served app reads git and the baselines manifest."""
     index = load_model(fixture_settings.candidate_index_path, CandidateIndexFile)
     with pytest.raises(FixtureDataInvalid):
         FakeCandidateDiscovery(index.model_copy(update={"schema_version": "999.0.0"}))
