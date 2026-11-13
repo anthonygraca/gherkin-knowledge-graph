@@ -16,6 +16,7 @@ DEFAULT_FIXTURE = "banking-demo"
 ENV_REPO_ROOT = "CTA_REPO_ROOT"
 ENV_FIXTURES_DIR = "CTA_FIXTURES_DIR"
 ENV_FIXTURE = "CTA_FIXTURE"
+ENV_FIXTURE_REPO = "CTA_FIXTURE_REPO"
 ENV_DISCOVERY_PROVIDER = "CTA_DISCOVERY_PROVIDER"
 
 
@@ -30,10 +31,16 @@ class Settings:
     fixtures_dir: Path
     fixture: str = DEFAULT_FIXTURE
     discovery_provider: str = "fake"
+    fixture_repo_path: Path | None = None
 
     @property
     def fixture_dir(self) -> Path:
         return self.fixtures_dir / self.fixture
+
+    @property
+    def fixture_repo(self) -> Path:
+        """Nested Git repository ingested for reads; built by ``fixturectl build``."""
+        return self.fixture_repo_path or (self.fixture_dir / ".build" / "repo")
 
     @property
     def expected_dir(self) -> Path:
@@ -59,9 +66,11 @@ class Settings:
 def load_settings() -> Settings:
     repo_root = Path(os.environ.get(ENV_REPO_ROOT, default_repo_root())).resolve()
     fixtures_dir = Path(os.environ.get(ENV_FIXTURES_DIR, repo_root / "fixtures")).resolve()
+    fixture_repo = os.environ.get(ENV_FIXTURE_REPO)
     return Settings(
         repo_root=repo_root,
         fixtures_dir=fixtures_dir,
         fixture=os.environ.get(ENV_FIXTURE, DEFAULT_FIXTURE),
         discovery_provider=os.environ.get(ENV_DISCOVERY_PROVIDER, "fake"),
+        fixture_repo_path=Path(fixture_repo).resolve() if fixture_repo else None,
     )

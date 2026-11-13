@@ -37,20 +37,24 @@ Two rules explain most of the layout:
 | `app/domain/ports.py` | `ArtifactRepository`, `CandidateDiscovery`, `AssuranceEvaluator`, `ReviewService` | Contract (projects the interfaces for M1+) |
 | `app/domain/oracle.py` | Schemas of fixture inputs and generated snapshot | Contract |
 | `app/domain/policy.py` | Rule → finding type and severity policy | Contract |
-| `app/persistence/` | `FixtureStore`: reads `snapshot.json` and precomputed thread responses | Mock service |
+| `app/persistence/` | `IngestedStore`: ingests a revision and caches artifacts, links, evidence, and assembled threads | Working implementation (in-process) |
 | `app/discovery/fake.py` | Fixture-backed candidate provider | Working implementation (deliberately fake) |
-| `app/assurance/sample_findings.py` | Replay of reviewed sample findings | Mock service (rule engine arrives in C-PR1) |
+| `app/assurance/sample_findings.py` | Replay of reviewed sample findings | Mock service (rule engine arrives with AS-01) |
 | `app/api/` | Routes, dependencies, RFC 9457 problem documents | Working |
-| `app/ingestion/` | Revision-pinned parsing: requirement/Gherkin artifacts (DT-01), source/test annotations (DT-02), links (DT-03), store cutover (DT-04) | Requirements, scenarios, source, test, and links implemented; store cutover remains |
+| `app/ingestion/` | Revision-pinned parsing: requirements/Gherkin (DT-01), source/test (DT-02), links (DT-03), evidence + thread assembly (DT-04) | Implemented |
 | `frontend/` | React/TypeScript dashboard | Absent by design; created in C-PR1 |
 
 ## Request flows
 
-**Read a thread.** `GET /api/threads/{id}?baseline=…` → the baseline expression is resolved to a
-canonical baseline (`FixtureStore.resolve_baseline`) → the precomputed thread response for that
-baseline is loaded and validated against `ThreadResponse` → returned. Accepted links, proposals,
-and evidence are separate arrays, so a caller that walks only `accepted_links` cannot be misled by
-a proposal.
+**Read a thread.** `GET /api/threads/{id}?baseline=…` → the baseline expression resolves to a
+canonical name and commit (`IngestedStore.resolve_baseline`) → the revision is ingested once and
+cached → `assemble_thread` walks accepted links from the requirement root, then returns artifacts,
+accepted links, proposals, and evidence as separate arrays. No precomputed thread file is read.
+
+**Ingest a revision.** `POST /api/ingestion/run` → the configured repository is checked (400 for
+another name) → the expression resolves to a commit (404 if unknown) → artifacts, links, and
+evidence are parsed and validated → counts and a deterministic run id are returned. The cached
+revision then serves reads.
 
 **Propose candidates.** `POST /api/discovery` → source artifact existence is checked (404
 otherwise) → `ProviderRegistry.get(name)` returns the provider (400 for an unknown name) →
@@ -72,7 +76,7 @@ writes the responses. `verify` does all of that into a temporary directory and d
 | Fixture tests passing/failing as labeled | Real: the suite runs the fixture's own tests at both tags. |
 | Findings | **Not computed.** Reviewed sample responses generated from the hand-labeled oracle. |
 | Retrieval quality | **Not measured.** Candidate scores are fixture labels, never model output. |
-| Ingestion from a real repository | Requirements and Gherkin scenarios are parsed from the nested fixture repository at a pinned revision (DT-01). Source/test artifacts, links, and the API cutover land in DT-02…DT-04; `POST /api/ingestion/run` still returns 501 until DT-04. |
+| Ingestion from a real repository | Requirements, scenarios, source, test, link, and evidence declarations are parsed from the nested fixture repository at a pinned revision; threads are assembled from that data (`POST /api/ingestion/run` reports counts). General non-fixture repositories remain a later capability. |
 | Link review and audit history | Not implemented; `POST /api/links/{id}/review` returns 501 naming AS-06. |
 
 This is why the `contract-only` endpoints return 501 instead of plausible-looking data: the

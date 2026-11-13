@@ -36,8 +36,10 @@ CI commits metadata after a verified revision.
   written against another version (`fixture-data-invalid`, 500). Serving mixed contract versions is
   a defect, not a compatibility mode.
 * `ArtifactRepository` is the consumer-facing read contract: `baselines`, `resolve_baseline`,
-  `get_artifact`, `list_artifacts`, `list_links`, `list_evidence`, `changed_artifacts`. The M0
-  mock satisfies it, and a test reads the whole thread through the port alone.
+  `commit_of`, `get_artifact`, `list_artifacts`, `list_links`, `list_evidence`,
+  `changed_artifacts`. `resolve_baseline` is the display identity (tag when known); `commit_of`
+  returns the resolved SHA that evidence and findings are pinned to. The M0 mock satisfied the
+  port; the M1 store implements it over ingested Git data and passes the same contract tests.
 
 ## Relations
 

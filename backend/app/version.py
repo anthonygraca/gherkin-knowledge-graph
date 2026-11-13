@@ -9,4 +9,4 @@ PACKAGE_VERSION = "0.1.0"
 #:   MAJOR — breaking: removed/renamed field, changed field meaning, changed relation
 #:           direction, changed fingerprint inputs.
 #: Fixture files carry the value they were generated against; loaders reject mismatches.
-SCHEMA_VERSION = "0.1.0"
+SCHEMA_VERSION = "0.2.0"

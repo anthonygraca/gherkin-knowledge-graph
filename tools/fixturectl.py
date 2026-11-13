@@ -37,27 +37,22 @@ from typing import TypeVar
 from pydantic import BaseModel
 
 from app.discovery.fake import FakeCandidateDiscovery, compute_index_revision
-from app.domain.api import DiscoveryResponse, ThreadResponse
-from app.domain.enums import ArtifactType, ReviewState
-from app.domain.models import (
-    AssuranceFinding,
-    TraceLink,
-    VerificationEvidence,
-    make_finding,
-)
+from app.domain.api import DiscoveryResponse
+from app.domain.enums import ArtifactType
+from app.domain.models import AssuranceFinding, make_finding
 from app.domain.oracle import (
     BaselineCommit,
     BaselinesManifest,
     BaselineSnapshot,
     CandidateIndexFile,
     ExpectedFindingsFile,
-    FixtureEvidenceFile,
     FixtureHistory,
-    FixtureLinkFile,
     FixtureSnapshot,
     MaterializedFindings,
 )
-from app.ingestion import GitRepository, IngestionError
+from app.ingestion import GitRepository, IngestionError, assemble_thread
+from app.ingestion.evidence import load_evidence as ingest_evidence
+from app.ingestion.links import load_links as ingest_links
 from app.ingestion.scan import scan_artifacts as scan_revision_artifacts
 from app.persistence.fixtures import load_model
 from app.version import SCHEMA_VERSION
@@ -71,10 +66,6 @@ EXPECTED_DIR = FIXTURE_DIR / "expected"
 API_DIR = REPO_ROOT / "fixtures" / "api-responses"
 
 GENERATED_BY = "tools/fixturectl.py"
-
-EVIDENCE_PATH = "evidence/verification-runs.json"
-ACCEPTED_LINKS_PATH = "evidence/accepted-links.json"
-PROPOSED_LINKS_PATH = "evidence/proposed-links.json"
 
 GIT_IDENTITY = {
     "GIT_AUTHOR_NAME": "CTA Fixture Bot",
@@ -240,45 +231,6 @@ def build_repo(fixture_dir: Path, dest: Path) -> BaselinesManifest:
 # ----------------------------------------------------------------------------------------
 
 
-def load_evidence(repo: Path, commit: str) -> list[VerificationEvidence]:
-    listed = git(["ls-tree", "-r", "--name-only", commit], cwd=repo).splitlines()
-    if EVIDENCE_PATH not in listed:
-        return []
-    payload = json.loads(git_blob(repo, commit, EVIDENCE_PATH).decode("utf-8"))
-    try:
-        parsed = FixtureEvidenceFile.model_validate(payload)
-    except Exception as exc:
-        raise FixtureToolError(
-            f"{commit}:{EVIDENCE_PATH} does not satisfy FixtureEvidenceFile:\n{exc}"
-        ) from exc
-    return list(parsed.runs)
-
-
-def load_links(repo: Path, commit: str) -> tuple[list[TraceLink], list[TraceLink]]:
-    listed = git(["ls-tree", "-r", "--name-only", commit], cwd=repo).splitlines()
-
-    def read(path: str, expected_state: ReviewState) -> list[TraceLink]:
-        if path not in listed:
-            return []
-        payload = json.loads(git_blob(repo, commit, path).decode("utf-8"))
-        try:
-            parsed = FixtureLinkFile.model_validate(payload)
-        except Exception as exc:
-            raise FixtureToolError(
-                f"{commit}:{path} does not satisfy FixtureLinkFile:\n{exc}"
-            ) from exc
-        if parsed.review_state != expected_state:
-            raise FixtureToolError(
-                f"{commit}:{path} declares review_state={parsed.review_state} "
-                f"but should be {expected_state}"
-            )
-        return list(parsed.links)
-
-    accepted = read(ACCEPTED_LINKS_PATH, ReviewState.ACCEPTED)
-    proposed = read(PROPOSED_LINKS_PATH, ReviewState.PROPOSED)
-    return accepted, proposed
-
-
 # ----------------------------------------------------------------------------------------
 # Snapshot, findings, threads
 # ----------------------------------------------------------------------------------------
@@ -286,18 +238,19 @@ def load_links(repo: Path, commit: str) -> tuple[list[TraceLink], list[TraceLink
 
 def build_snapshot(manifest: BaselinesManifest, repo: Path) -> FixtureSnapshot:
     baselines: list[BaselineSnapshot] = []
+    repository = GitRepository(repo)
     for tag, commit in manifest.tags.items():
-        accepted, proposed = load_links(repo, commit)
+        artifacts = scan_revision_artifacts(repository, commit, repository_name=manifest.fixture)
+        by_id = {artifact.artifact_id: artifact for artifact in artifacts}
+        accepted, proposed = ingest_links(repository, commit, artifacts=by_id)
         baselines.append(
             BaselineSnapshot(
                 baseline=tag,
                 commit=commit,
-                artifacts=scan_revision_artifacts(
-                    GitRepository(repo), commit, repository_name=manifest.fixture
-                ),
+                artifacts=artifacts,
                 accepted_links=accepted,
                 proposed_links=proposed,
-                evidence=load_evidence(repo, commit),
+                evidence=ingest_evidence(repository, commit, artifacts=by_id),
             )
         )
     return FixtureSnapshot(
@@ -343,56 +296,6 @@ def stamp_findings(
             )
         )
     return findings
-
-
-def build_thread(baseline: BaselineSnapshot, root_id: str) -> ThreadResponse:
-    accepted_by_source: dict[str, list[TraceLink]] = {}
-    for link in baseline.accepted_links:
-        accepted_by_source.setdefault(link.source_id, []).append(link)
-
-    visited = {root_id}
-    frontier = [root_id]
-    while frontier:
-        following: list[str] = []
-        for artifact_id in frontier:
-            for link in accepted_by_source.get(artifact_id, []):
-                if link.target_id not in visited:
-                    visited.add(link.target_id)
-                    following.append(link.target_id)
-        frontier = following
-
-    return ThreadResponse(
-        schema_version=SCHEMA_VERSION,
-        root_id=root_id,
-        baseline=baseline.baseline,
-        artifacts=sorted(
-            (a for a in baseline.artifacts if a.artifact_id in visited), key=lambda a: a.artifact_id
-        ),
-        accepted_links=sorted(
-            (
-                link
-                for link in baseline.accepted_links
-                if link.source_id in visited and link.target_id in visited
-            ),
-            key=lambda link: link.link_id,
-        ),
-        proposed_links=sorted(
-            (
-                link
-                for link in baseline.proposed_links
-                if link.source_id in visited or link.target_id in visited
-            ),
-            key=lambda link: link.link_id,
-        ),
-        evidence=sorted(
-            (
-                item
-                for item in baseline.evidence
-                if item.scenario_id in visited or item.test_id in visited
-            ),
-            key=lambda item: item.evidence_id,
-        ),
-    )
 
 
 # ----------------------------------------------------------------------------------------
@@ -449,7 +352,15 @@ def materialize(
             if artifact.artifact_type is not ArtifactType.REQUIREMENT:
                 continue
             thread_path = api_dir / "threads" / f"{artifact.artifact_id}.{baseline.baseline}.json"
-            if write_json(thread_path, build_thread(baseline, artifact.artifact_id)):
+            thread = assemble_thread(
+                root_id=artifact.artifact_id,
+                baseline=baseline.baseline,
+                artifacts=baseline.artifacts,
+                accepted_links=baseline.accepted_links,
+                proposed_links=baseline.proposed_links,
+                evidence=baseline.evidence,
+            )
+            if write_json(thread_path, thread):
                 written.append(thread_path)
 
     provider = FakeCandidateDiscovery.from_fixture(expected_dir / "candidate-links.json")

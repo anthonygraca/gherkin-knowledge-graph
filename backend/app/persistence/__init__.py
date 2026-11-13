@@ -1,6 +1,6 @@
-"""Fixture-backed persistence (M0 mock services)."""
+"""Fixture-backed persistence and the ingested repository store."""
 
 from app.persistence.fixtures import load_json, load_model
-from app.persistence.store import FixtureStore
+from app.persistence.ingested import IngestedStore
 
-__all__ = ["FixtureStore", "load_json", "load_model"]
+__all__ = ["IngestedStore", "load_json", "load_model"]

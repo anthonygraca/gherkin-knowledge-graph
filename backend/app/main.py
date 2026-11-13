@@ -13,7 +13,7 @@ from app.api.errors import register_exception_handlers
 from app.api.routes import router
 from app.assurance.sample_findings import SampleFindingsSource
 from app.discovery.registry import ProviderRegistry
-from app.persistence.store import FixtureStore
+from app.persistence.ingested import IngestedStore
 from app.settings import Settings, load_settings
 from app.version import PACKAGE_VERSION
 
@@ -33,8 +33,10 @@ Invariants this API upholds:
 * **Version-aware.** Artifacts carry a revision and a content hash; findings and evidence
   are pinned to the baseline they were evaluated at.
 
-M0 status: reads and discovery are implemented over committed fixture data. The endpoints
-tagged `contract-only` return 501 and name the story that will implement them.
+M1 status: artifacts, links, evidence, and threads are parsed from the nested fixture repository
+at the requested revision; `POST /api/ingestion/run` reports what it ingested. `GET /api/findings`
+still replays reviewed sample findings. The endpoints tagged `contract-only` return 501 and name the
+story that will implement them.
 """
 
 
@@ -45,7 +47,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         version=PACKAGE_VERSION,
         description=DESCRIPTION,
         openapi_tags=[
-            {"name": "reads", "description": "Implemented over the fixture-backed store."},
+            {"name": "reads", "description": "Implemented over the ingested fixture repository."},
+            {"name": "ingestion", "description": "Parses the configured repository at a revision."},
             {"name": "discovery", "description": "Candidate proposals only; never writes links."},
             {
                 "name": "contract-only",
@@ -54,7 +57,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         ],
     )
     app.state.settings = resolved
-    app.state.store = FixtureStore.from_settings(resolved)
+    app.state.store = IngestedStore.from_settings(resolved)
     app.state.findings_source = SampleFindingsSource.from_settings(resolved)
     app.state.providers = ProviderRegistry(resolved)
     register_exception_handlers(app)

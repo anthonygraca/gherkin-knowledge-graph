@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "baseline": "baseline-b",
   "findings": [
     {
@@ -10,12 +10,12 @@
       "artifact_ids": [
         "REQ-002"
       ],
-      "evaluated_baseline": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+      "evaluated_baseline": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
       "evidence_ids": [],
       "explanation": "REQ-002 has no accepted verification scenario at baseline-b.",
       "rule_id": "RULE-MISSING-VERIFICATION-LINK",
       "artifact_revisions": {
-        "REQ-002": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54"
+        "REQ-002": "156ad72b01b361970cc22229e7a2b17f9d6bcb85"
       }
     },
     {
@@ -26,12 +26,12 @@
       "artifact_ids": [
         "SCN-002"
       ],
-      "evaluated_baseline": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+      "evaluated_baseline": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
       "evidence_ids": [],
       "explanation": "SCN-002 has no accepted implementation link at baseline-b.",
       "rule_id": "RULE-MISSING-IMPLEMENTATION-LINK",
       "artifact_revisions": {
-        "SCN-002": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54"
+        "SCN-002": "156ad72b01b361970cc22229e7a2b17f9d6bcb85"
       }
     },
     {
@@ -43,13 +43,13 @@
         "REQ-002",
         "SCN-002"
       ],
-      "evaluated_baseline": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+      "evaluated_baseline": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
       "evidence_ids": [],
       "explanation": "Proposed link LNK-007 (REQ-002 verified_by SCN-002) has not been reviewed.",
       "rule_id": "RULE-CANDIDATE-PENDING-REVIEW",
       "artifact_revisions": {
-        "REQ-002": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
-        "SCN-002": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54"
+        "REQ-002": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
+        "SCN-002": "156ad72b01b361970cc22229e7a2b17f9d6bcb85"
       }
     },
     {
@@ -60,12 +60,12 @@
       "artifact_ids": [
         "REQ-003"
       ],
-      "evaluated_baseline": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+      "evaluated_baseline": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
       "evidence_ids": [],
       "explanation": "REQ-003 is superseded but still has accepted relationships; a lifecycle review is required.",
       "rule_id": "RULE-LIFECYCLE-SUPERSEDED",
       "artifact_revisions": {
-        "REQ-003": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54"
+        "REQ-003": "156ad72b01b361970cc22229e7a2b17f9d6bcb85"
       }
     },
     {
@@ -78,16 +78,16 @@
         "REQ-001",
         "SCN-001"
       ],
-      "evaluated_baseline": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+      "evaluated_baseline": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
       "evidence_ids": [
         "EV-001"
       ],
       "explanation": "SCN-001 verification passed at baseline-a (EV-001). CODE-001 changed at baseline-b and no later evidence for SCN-001 exists, so reverification is required. This is not a verification failure.",
       "rule_id": "RULE-REVERIFICATION-REQUIRED",
       "artifact_revisions": {
-        "CODE-001": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
-        "REQ-001": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
-        "SCN-001": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54"
+        "CODE-001": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
+        "REQ-001": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
+        "SCN-001": "156ad72b01b361970cc22229e7a2b17f9d6bcb85"
       }
     },
     {
@@ -100,16 +100,16 @@
         "SCN-003",
         "TEST-002"
       ],
-      "evaluated_baseline": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
+      "evaluated_baseline": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
       "evidence_ids": [
         "EV-003"
       ],
       "explanation": "EV-003 recorded a failing run of TEST-002 at baseline-b; TEST-002 exercises SCN-003, which verifies REQ-003.",
       "rule_id": "RULE-VERIFICATION-FAILED",
       "artifact_revisions": {
-        "REQ-003": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
-        "SCN-003": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54",
-        "TEST-002": "c02064fed61bcfc6ade5ea14ac62f9eb1b5f5c54"
+        "REQ-003": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
+        "SCN-003": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
+        "TEST-002": "156ad72b01b361970cc22229e7a2b17f9d6bcb85"
       }
     }
   ]
