@@ -1,0 +1,25 @@
+commit=29df1050aea4ad8b0b42041fd519636a6b0b7794
+captured_start=2026-11-13T05:13:37Z
+cmd=uv run --project backend pytest backend/tests -q
+exit=0
+cmd=uv run --project backend python tools/fixturectl.py verify
+exit=0
+cmd=uv run --project backend ruff check .
+exit=0
+cmd=uv run --project backend ruff format --check .
+exit=0
+cmd=git diff --check
+exit=0
+cmd=python tools/commitlint.py
+exit=0
+probe_captured=2026-11-13T05:13:45Z
+cmd=unshare -rn backend/.venv/bin/python (socket probe)
+exit=0
+cmd=unshare -rn backend/.venv/bin/python -m pytest backend/tests -q
+exit=0
+captured_end=2026-11-13T05:13:53Z
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+233 passed, 1 warning in 6.78s
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+233 passed, 1 warning in 6.68s
+DENIED: OSError: [Errno 101] Network is unreachable

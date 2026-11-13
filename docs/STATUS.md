@@ -2,10 +2,11 @@
 
 ```text
 Date:                2026-11-13
-Current branch:      feat/26-as-04-summary-ui (from main d238776)
+Current branch:      main at 29df105 (AS-04 merged 2026-11-13T05:12Z)
 Milestone:           M0 — exit gate SATISFIED by re-review round 2 (historical record below)
-                     M1 — IN PROGRESS; gate NOT yet satisfied
-Active task:         AS-04 (#26) findings and coverage summary UI
+                     M1 — implementation and exit demo COMPLETE; gate NOT satisfied:
+                     independent milestone review blocked by Codex credit exhaustion
+Active task:         none — awaiting the M1 milestone review (packet committed)
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
                      docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
                      NEEDS_INPUT; R1–R7 all repaired; AC-1.1…AC-1.8 and AC-2.1…AC-2.5 all PASS;
@@ -20,13 +21,14 @@ Historical (SETUP-01, 2026-11-12): the commit-reference slice landed via PR #42;
                      had 107 passed; the SETUP-01 tree then had 135 passed (also under an
                      OS-level network denial). Outstanding owner actions: #18/#19 closure, the
                      FT-03/project-definition reviews, the required-check ruleset, README work item.
-Tests executed:      AS-04 (in progress): frontend build/Vitest and browser demo in
-                     docs/reports/omp-as-04-summary/.
-                     AS-01 approved snapshot: 233 passed; PR #48 merged as d238776 with both
-                     hosted checks passing; issue #2 closed; AS01-R1 test strengthening applied
-                     on this branch.
-                     DT-04 approved snapshot: 227 passed; PR #47 merged as c43541b with both
-                     hosted checks passing; issue #23 closed.
+Tests executed:      M1 integrated snapshot 29df105: 233 backend passed (also under an OS-level
+                     network denial, probe DENIED); frontend 10 passed; fixturectl verify exit 0;
+                     ruff and `git diff --check` clean; commitlint 25 commits; hosted run
+                     43370472013 (all three jobs) success.
+                     AS-04 approved snapshot: 233 passed / 10 frontend; PR #49 merged as 29df105;
+                     issue #26 closed.
+                     AS-01 approved snapshot: 233 passed; PR #48 merged as d238776; issue #2 closed.
+                     DT-04 approved snapshot: 227 passed; PR #47 merged as c43541b; issue #23 closed.
                      DT-03 approved snapshot: 219 passed; PR #46 merged as 0970f7a with both
                      hosted checks passing; issue #22 closed.
                      DT-02 approved snapshot: 208 passed; PR #45 merged as 590e776 with both
@@ -35,7 +37,8 @@ Tests executed:      AS-04 (in progress): frontend build/Vitest and browser demo
                      hosted checks passing; issue #20 closed.
 Current API/schema version: 0.2.0 (additive: `GET /api/artifacts`; fixtures regenerated)
 Tracker:             docs/traceability-issue-map.md (features → user stories → tasks)
-Run records:         docs/reports/omp-m0-rereview/ and docs/reports/omp-setup-01-commitlint/
+Run records:         docs/reports/omp-m0-rereview/, docs/reports/omp-setup-01-commitlint/,
+                     docs/reports/omp-m1-milestone/, and the six omp-<task> report folders
                      (reports, prompt logs, metrics, evidence, packets; excluded from ruff scope
                      — records, not sources)
 Environment:         Python ≥3.11, uv, git ≥2.28; no GPU, LLM, vector store, Docker, or network
@@ -58,11 +61,31 @@ not claim that draft as an approved baseline.
 | DT-03 typed links + review state | [#22](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/22) | B | [DT-03.feature](stories/DT-03.feature) | **merged** PR [#46](https://github.com/anthonygraca/gherkin-knowledge-graph/pull/46) → `0970f7a`; APPROVE at submission 2; issue closed |
 | DT-04 requirement thread | [#23](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/23) | B | [DT-04.feature](stories/DT-04.feature) | **merged** PR [#47](https://github.com/anthonygraca/gherkin-knowledge-graph/pull/47) → `c43541b`; APPROVE at submission 2; issue closed |
 | AS-01 missing-link finding | [#2](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/2) | C | [AS-01.feature](stories/AS-01.feature) | **merged** PR [#48](https://github.com/anthonygraca/gherkin-knowledge-graph/pull/48) → `d238776`; APPROVE at submission 1; issue closed |
-| AS-04 findings/coverage summary | [#26](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/26) | C | [AS-04.feature](stories/AS-04.feature) | refined; implementation in review |
+| AS-04 findings/coverage summary | [#26](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/26) | C | [AS-04.feature](stories/AS-04.feature) | **merged** PR [#49](https://github.com/anthonygraca/gherkin-knowledge-graph/pull/49) → `29df105`; APPROVE at submission 3; issue closed |
 
 Per-task reports live under `docs/reports/omp-<task-slug>/`; each carries the AC-to-check table,
 actual commands/exits, the snapshot identity, and the independent verdict. Issue closure is
 recorded separately from implementation, approval, and merge.
+
+### M1 milestone — implementation complete, review blocked (2026-11-13)
+
+All six M1 stories are independently approved and merged (`26a25d0`, `590e776`, `0970f7a`,
+`c43541b`, `d238776`, `29df105`); issues #20/#21/#22/#23/#2/#26 are closed. The exit demo and
+checks are recorded in [omp-m1-milestone/IMPLEMENTATION.md](reports/omp-m1-milestone/IMPLEMENTATION.md):
+
+* REQ-001 thread with SCN-001/CODE-001/TEST-001, LNK-001..003, EV-001 (tag/SHA identical).
+* REQ-002 `missing_verification_link` from the deterministic evaluator and in the UI.
+* 233 backend tests (normal and network-denied), 10 frontend tests, fixture verify, ruff,
+  commitlint, and hosted CI run `43370472013` all pass.
+
+**M1 gate: NOT SATISFIED.** The mandatory independent milestone review could not run: Codex exited
+with `ERROR: Your workspace is out of credits` at 2026-11-13T05:20:10Z, producing no verdict. The
+failed attempt is recorded in
+[reviews/M1-review-attempt-1.md](reviews/M1-review-attempt-1.md); the committed packet is
+[reviews/M1-review-prompt.md](reviews/M1-review-prompt.md) (sha256 `132b4806…`). The milestone
+counter remains 0 used. Next action: the workspace owner restores Codex credits, then rerun the
+packet with `gpt-6.1-sol` at `xhigh`; record the verdict and dispositions before claiming the gate.
+The task-review counters stand at DT-01 5/7, DT-02 4/7, DT-03 2/7, DT-04 2/7, AS-01 1/7, AS-04 3/7.
 
 ## SETUP-01 commit-reference enforcement — landed (2026-11-12)
 

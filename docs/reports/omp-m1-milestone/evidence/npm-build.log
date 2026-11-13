@@ -1,0 +1,13 @@
+
+> cta-dashboard@0.1.0 build
+> tsc -b && vite build
+
+vite v6.4.6 building for production...
+transforming...
+✓ 30 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.42 kB │ gzip:  0.28 kB
+dist/assets/index-CUXGX3Sc.css    2.05 kB │ gzip:  0.89 kB
+dist/assets/index-DA71Skzm.js   230.90 kB │ gzip: 71.95 kB
+✓ built in 1.27s
