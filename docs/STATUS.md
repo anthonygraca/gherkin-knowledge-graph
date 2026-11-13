@@ -89,6 +89,21 @@ M1-N2 packet digest) was repaired; the credit-exhaustion attempts did not consum
 Approval covers the M1 **engineering** gate only — stakeholder validation, human labels/link
 decisions, and release authorization remain owner gates.
 
+## M0 tracker closure (2026-11-13T06:49:39Z)
+
+The M0 engineering gate was already independently approved at `bca69cf`
+(`docs/reviews/M0-rereview-2.md`); the remaining open items were tracker hygiene. All six were
+closed with evidence comments and milestone 3 was closed with **7 closed, 0 open**:
+
+| Issue | Closure basis |
+| --- | --- |
+| [#8](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/8) SETUP-01 | `CONTRIBUTING.md` (`d4dc0ca`, Refs #8), recorded retro-attribution, and the CI commit-reference job (`37135cf`, PR #42 → `d4af73a`, hosted runs green) |
+| [#18](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/18) FT-01 | M0 APPROVE; fixture generator/oracle tests and drift guard; owner oracle attestation |
+| [#19](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/19) FT-02 | M0 APPROVE; contract/API tests. Its M0 501 for `POST /api/assurance/evaluate` was intentionally superseded by AS-01 in M1 |
+| [#30](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/30) AI-01 | M0 fake-provider slice and port contract; real adapter is AI-02 (#31, M3) |
+| [#34](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/34) AI-04 | Discovery API and ranked-proposal tests; no accepted/evidence writes |
+| [#7](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/7) F-01 | Feature parent; its stories are closed and the M0 gate is approved |
+
 ## SETUP-01 commit-reference enforcement — landed (2026-11-12)
 
 The previously uncommitted SETUP-01 follow-up slice (#8) was resumed, re-verified on base `f34ae07`
