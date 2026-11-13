@@ -1,0 +1,39 @@
+--- files matching AI-ish terms before task (base 60dcc1f) ---
+60dcc1f:backend/app/__init__.py:3:Offline-first: nothing in this package requires a GPU, LLM, embedding service, or
+60dcc1f:backend/app/discovery/registry.py:3:One provider is registered in M0: ``fake`` (fixture index). Local embedding providers
+60dcc1f:backend/app/domain/ports.py:36:    #: Stable provider name, e.g. ``"fake"`` or ``"local-embeddinggemma"``.
+60dcc1f:backend/app/ingestion/parsers.py:211:                if (match := ANNOTATION_RE.fullmatch(comment)) is not None
+60dcc1f:backend/app/ingestion/parsers.py:220:    match = ANNOTATION_RE.fullmatch(comment)
+60dcc1f:backend/app/ingestion/parsers.py:255:            if not SCENARIO_ID_RE.fullmatch(name):
+60dcc1f:backend/tests/test_api_contract.py:258:        "/api/discovery", json={"artifact_id": "SCN-001", "provider": "local-embeddinggemma"}
+60dcc1f:backend/tests/test_domain_contracts.py:244:# Vectors deliberately include duplicate and out-of-order artifact ids.
+60dcc1f:backend/tests/test_domain_contracts.py:245:INDEPENDENT_FINGERPRINT_VECTORS = [
+60dcc1f:backend/tests/test_domain_contracts.py:269:    INDEPENDENT_FINGERPRINT_VECTORS,
+60dcc1f:backend/tests/test_domain_contracts.py:271:def test_fingerprint_matches_an_independently_computed_vector(
+60dcc1f:docs/adr/0006-deferred-decisions.md:16:| 3 | Embedding provider and index | `fake` provider only | Offline-first; retrieval quality must not be a prerequisite for domain work | AI-02 (M3) selects a local model; verify the exact model identifier, instructions, runtime compatibility, and licence at implementation time rather than trusting any prior example. Never mix embeddings from different models or index revisions in one collection |
+60dcc1f:tools/commitlint.py:49:        if len(columns) > 3 and (match := link.fullmatch(columns[2].strip())):
+60dcc1f:tools/commitlint.py:59:    match = SUBJECT.fullmatch(subject)
+60dcc1f:tools/commitlint.py:66:            if not REFERENCE.fullmatch(line):
+--- task changed paths ---
+   M .gitignore
+   M backend/app/discovery/__init__.py
+   M backend/app/discovery/registry.py
+   M backend/app/settings.py
+   M backend/pyproject.toml
+   M backend/uv.lock
+   M docs/adr/0006-deferred-decisions.md
+   M docs/architecture.md
+   M docs/setup.md
+  ?? backend/app/discovery/ai.py
+  ?? backend/app/discovery/ai_fake.py
+  ?? backend/app/discovery/ai_http.py
+  ?? backend/app/discovery/capabilities.py
+  ?? backend/tests/test_ai_providers.py
+  ?? backend/tests/test_live_provider_integration.py
+  ?? docs/adr/0007-ai-provider-boundary.md
+  ?? docs/reports/omp-rag-pr1/
+  ?? docs/stories/AI-01.feature
+  ?? docs/stories/AI-01.md
+  ?? tools/probe_ai_capabilities.py
+--- assurance/api/domain/version touched? ---
+none

@@ -1,0 +1,26 @@
+{
+  "embeddings": {
+    "api_key_present": false,
+    "configured": false,
+    "model": null
+  },
+  "generated_at": "2026-11-13T08:01:16.129800Z",
+  "limits": {
+    "concurrency_limit": "unknown",
+    "configured_max_retries": 1,
+    "configured_timeout_seconds": 10.0,
+    "retry_after_cap_seconds": 5.0
+  },
+  "live_tests_enabled": false,
+  "llm": {
+    "api_key_present": false,
+    "configured": false,
+    "model": null
+  },
+  "mode": "fake",
+  "probed": false,
+  "reason": "no probe requested; pass --live to contact the configured endpoint",
+  "schema_version": "1",
+  "vector_backend": "memory"
+}
+offline_probe_exit=0

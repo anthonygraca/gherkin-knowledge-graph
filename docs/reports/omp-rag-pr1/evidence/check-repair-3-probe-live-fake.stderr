@@ -1,0 +1,1 @@
+configuration error: --live requires CTA_AI_MODE=live; fake mode never contacts an endpoint

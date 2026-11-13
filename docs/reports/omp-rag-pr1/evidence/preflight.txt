@@ -1,0 +1,38 @@
+2026-11-13T07:24:33Z
+--- repo ---
+60dcc1fc5d0383b6011e7a97a3bf2a110984ff07
+feat/30-hosted-ai-provider
+origin	git@github.com:anthonygraca/gherkin-knowledge-graph.git (fetch)
+origin	git@github.com:anthonygraca/gherkin-knowledge-graph.git (push)
+--- status ---
+ M .gitignore
+ M backend/app/discovery/__init__.py
+ M backend/app/discovery/registry.py
+ M backend/app/settings.py
+ M backend/pyproject.toml
+ M backend/uv.lock
+ M docs/adr/0006-deferred-decisions.md
+ M docs/architecture.md
+ M docs/setup.md
+?? backend/app/discovery/ai.py
+?? backend/app/discovery/ai_fake.py
+?? backend/app/discovery/ai_http.py
+?? backend/app/discovery/capabilities.py
+?? backend/tests/test_ai_providers.py
+?? backend/tests/test_live_provider_integration.py
+?? docs/adr/0007-ai-provider-boundary.md
+?? docs/stories/AI-01.feature
+?? docs/stories/AI-01.md
+?? tools/probe_ai_capabilities.py
+--- issue 30 ---
+30 [CLOSED] AI-01 — Fake and real CandidateDiscovery implementations behind one interface
+https://github.com/anthonygraca/gherkin-knowledge-graph/issues/30
+milestone=M0 — Contract + fixture foundation
+--- issues 31/32/35 ---
+31 [OPEN] AI-02 — Local EmbeddingGemma 2 inference without shared DGX services https://github.com/anthonygraca/gherkin-knowledge-graph/issues/31
+32 [OPEN] AI-03 — Revision-aware incremental embedding refresh https://github.com/anthonygraca/gherkin-knowledge-graph/issues/32
+35 [OPEN] AI-05 — Labeled precision/recall and recall@k evaluation of retrieval https://github.com/anthonygraca/gherkin-knowledge-graph/issues/35
+--- tools ---
+uv 0.13.7 (x86_64-unknown-linux-gnu)
+Python 3.12.16
+codex-cli 0.167.2
