@@ -79,13 +79,13 @@ checks are recorded in [omp-m1-milestone/IMPLEMENTATION.md](reports/omp-m1-miles
   commitlint, and hosted CI run `43370472013` all pass.
 
 **M1 gate: NOT SATISFIED.** The mandatory independent milestone review could not run: Codex exited
-with `ERROR: Your workspace is out of credits` at 2026-11-13T05:20:10Z, producing no verdict. The
-failed attempt is recorded in
+with `ERROR: Your workspace is out of credits` at 2026-11-13T05:20:10Z, and a single retry at
+2026-11-13T05:29:20Z failed identically. No verdict was produced. The failed attempts are recorded in
 [reviews/M1-review-attempt-1.md](reviews/M1-review-attempt-1.md); the committed packet is
 [reviews/M1-review-prompt.md](reviews/M1-review-prompt.md) (sha256 `132b4806…`). The milestone
 counter remains 0 used. Next action: the workspace owner restores Codex credits, then rerun the
 packet with `gpt-6.1-sol` at `xhigh`; record the verdict and dispositions before claiming the gate.
-The task-review counters stand at DT-01 5/7, DT-02 4/7, DT-03 2/7, DT-04 2/7, AS-01 1/7, AS-04 3/7.
+Do not retry again until the workspace is refilled.
 
 ## SETUP-01 commit-reference enforcement — landed (2026-11-12)
 

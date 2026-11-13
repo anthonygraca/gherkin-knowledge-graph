@@ -30,3 +30,17 @@ must not be reported as milestone-approved.
 Raw stderr/stdout and the failure metadata remain outside Git in the run directory; the sanitized
 failure summary is this record. The packet is committed at `docs/reviews/M1-review-prompt.md` so the
 run can be reproduced without rebuilding it.
+
+## Attempt 2 (2026-11-13T05:29:16Z → 05:29:20Z)
+
+The same committed packet was retried once to test whether credits had been restored. The process
+exited 1 after 4 seconds with the same terminal output and again produced no `--output-last-message`
+file:
+
+```text
+ERROR: Your workspace is out of credits. Ask your workspace owner to refill in order to continue.
+ERROR: Your workspace is out of credits. Ask your workspace owner to refill in order to continue.
+```
+
+No verdict; still 0 milestone submissions consumed. Do not retry again until the workspace is
+refilled; the next justified action is a rerun after refill, not repeated attempts.
