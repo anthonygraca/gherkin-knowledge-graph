@@ -5,9 +5,10 @@ from __future__ import annotations
 import pytest
 
 from app.ingestion.errors import IngestionError
-from app.ingestion.parsers import parse_front_matter, parse_scenarios
+from app.ingestion.parsers import parse_annotation, parse_front_matter, parse_scenarios
 
 WHERE = "test:requirements/REQ-900.md"
+SOURCE_WHERE = "test:src/accounts.py"
 
 
 # ---------------------------------------------------------------------------- front matter
@@ -117,6 +118,86 @@ def test_unicode_line_separator_in_a_quoted_scalar_is_preserved() -> None:
     """R6: U+2028 is YAML content; it must not be split and rejoined as an ASCII newline."""
     text = '---\nid: REQ-900\ntitle: "Before\u2028  After"\n---\n'
     assert parse_front_matter(text, where=WHERE)["title"] == "Before\u2028After"
+
+
+# ------------------------------------------------------------------------ source/test annotations
+
+
+def test_annotation_declares_a_source_or_test_identity() -> None:
+    assert (
+        parse_annotation("# cta:artifact CODE-001\nprint('x')\n", where=SOURCE_WHERE) == "CODE-001"
+    )
+    assert parse_annotation("# cta:artifact TEST-002\n", where=SOURCE_WHERE) == "TEST-002"
+
+
+def test_no_annotation_returns_none() -> None:
+    text = (
+        '"""Documents the annotation convention without declaring one.\n\n'
+        "# cta:artifact CODE-001\n"
+        '"""\n'
+        "VALUE = 1\n"
+    )
+    assert parse_annotation(text, where=SOURCE_WHERE) is None
+
+
+def test_annotation_after_the_first_line_is_rejected() -> None:
+    with pytest.raises(IngestionError, match="must be the first line"):
+        parse_annotation('"""doc"""\n# cta:artifact CODE-001\n', where=SOURCE_WHERE)
+
+
+def test_a_malformed_first_line_annotation_is_rejected() -> None:
+    with pytest.raises(IngestionError, match="must be the first line"):
+        parse_annotation("# cta:artifact CODE-1\n", where=SOURCE_WHERE)
+
+
+def test_a_second_annotation_is_rejected_naming_both_identities() -> None:
+    with pytest.raises(IngestionError) as failure:
+        parse_annotation("# cta:artifact CODE-001\n# cta:artifact TEST-002\n", where=SOURCE_WHERE)
+    message = str(failure.value)
+    assert "only one artifact annotation" in message
+    assert "CODE-001" in message
+    assert "TEST-002" in message
+
+
+def test_a_requirement_prefix_is_not_a_source_or_test_annotation() -> None:
+    with pytest.raises(IngestionError, match="must be the first line"):
+        parse_annotation("# cta:artifact REQ-001\n", where=SOURCE_WHERE)
+
+
+def test_an_annotated_file_may_mention_other_identities_in_strings() -> None:
+    text = '# cta:artifact CODE-001\n"""Example:\n# cta:artifact TEST-002\n"""\nVALUE = 1\n'
+    assert parse_annotation(text, where=SOURCE_WHERE) == "CODE-001"
+
+
+def test_a_trailing_comment_is_not_a_declaration() -> None:
+    text = "VALUE = 1  # cta:artifact CODE-001\n"
+    assert parse_annotation(text, where=SOURCE_WHERE) is None
+
+
+def test_a_trailing_comment_after_a_valid_declaration_is_ignored() -> None:
+    text = "# cta:artifact CODE-001\nVALUE = 1  # cta:artifact TEST-002\n"
+    assert parse_annotation(text, where=SOURCE_WHERE) == "CODE-001"
+
+
+def test_incomplete_tokenization_is_rejected() -> None:
+    text = "# cta:artifact CODE-001\nif True:\n    pass\n  pass\n# cta:artifact TEST-002\n"
+    with pytest.raises(IngestionError, match="cannot tokenize"):
+        parse_annotation(text, where=SOURCE_WHERE)
+
+
+def test_an_indented_standalone_annotation_is_rejected() -> None:
+    text = "# cta:artifact CODE-001\ndef example():\n    # cta:artifact TEST-002\n    pass\n"
+    with pytest.raises(IngestionError) as failure:
+        parse_annotation(text, where=SOURCE_WHERE)
+    message = str(failure.value)
+    assert "CODE-001" in message
+    assert "TEST-002" in message
+
+
+def test_a_late_standalone_annotation_is_rejected() -> None:
+    text = "VALUE = 1\ndef example():\n    # cta:artifact TEST-002\n    pass\n"
+    with pytest.raises(IngestionError, match="first line at column 0"):
+        parse_annotation(text, where=SOURCE_WHERE)
 
 
 # ------------------------------------------------------------------------------- scenarios

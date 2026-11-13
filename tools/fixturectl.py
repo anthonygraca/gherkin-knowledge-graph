@@ -32,7 +32,7 @@ import sys
 import tempfile
 from collections.abc import Iterable, Iterator
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import TypeVar
 
 from pydantic import BaseModel
 
@@ -40,7 +40,6 @@ from app.discovery.fake import FakeCandidateDiscovery, compute_index_revision
 from app.domain.api import DiscoveryResponse, ThreadResponse
 from app.domain.enums import ArtifactType, ReviewState
 from app.domain.models import (
-    Artifact,
     AssuranceFinding,
     TraceLink,
     VerificationEvidence,
@@ -58,6 +57,8 @@ from app.domain.oracle import (
     FixtureSnapshot,
     MaterializedFindings,
 )
+from app.ingestion import GitRepository, IngestionError
+from app.ingestion.scan import scan_artifacts as scan_revision_artifacts
 from app.persistence.fixtures import load_model
 from app.version import SCHEMA_VERSION
 
@@ -98,9 +99,6 @@ GIT_FLAGS = (
 )
 
 TOKEN_RE = re.compile(r"\{\{([A-Za-z0-9_:\-.]+)\}\}")
-ANNOTATION_RE = re.compile(r"^#\s*cta:artifact\s+((?:CODE|TEST)-\d{3})\s*$", re.MULTILINE)
-SCENARIO_TAG_RE = re.compile(r"^@(SCN-\d{3})$")
-SCENARIO_LINE_RE = re.compile(r"^\s*Scenario:\s*(\S.*?)\s*$")
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
 
@@ -242,107 +240,6 @@ def build_repo(fixture_dir: Path, dest: Path) -> BaselinesManifest:
 # ----------------------------------------------------------------------------------------
 
 
-def parse_front_matter(text: str, *, where: str) -> dict[str, str]:
-    if not text.startswith("---\n"):
-        raise FixtureToolError(
-            f"{where}: expected a '---' front matter block at the start of the file"
-        )
-    end = text.find("\n---\n", 3)
-    if end == -1:
-        raise FixtureToolError(f"{where}: front matter block is not terminated by '---'")
-    fields: dict[str, str] = {}
-    for line in text[4:end].splitlines():
-        if not line.strip():
-            continue
-        key, separator, value = line.partition(":")
-        if not separator:
-            raise FixtureToolError(f"{where}: unusable front matter line {line!r}")
-        fields[key.strip()] = value.strip()
-    return fields
-
-
-def parse_scenarios(text: str, *, where: str) -> list[tuple[str, str]]:
-    """Return (scenario_id, title) pairs for ``@SCN-nnn`` tagged scenarios."""
-    found: list[tuple[str, str]] = []
-    pending: str | None = None
-    for line in text.splitlines():
-        tag = SCENARIO_TAG_RE.match(line.strip())
-        if tag:
-            pending = tag.group(1)
-            continue
-        if pending is None:
-            continue
-        match = SCENARIO_LINE_RE.match(line)
-        if match:
-            found.append((pending, match.group(1)))
-            pending = None
-    if pending is not None:
-        raise FixtureToolError(f"{where}: tag @{pending} is not followed by a 'Scenario:' line")
-    return found
-
-
-def scan_artifacts(repo: Path, commit: str, repository: str) -> list[Artifact]:
-    listed = git(["ls-tree", "-r", "--name-only", commit], cwd=repo).splitlines()
-    artifacts: list[Artifact] = []
-    for path in sorted(listed):
-        blob = git_blob(repo, commit, path)
-        content_hash = f"sha256:{__import__('hashlib').sha256(blob).hexdigest()}"
-        common: dict[str, Any] = {
-            "source_uri": f"fixture://{repository}/{path}",
-            "repository": repository,
-            "revision": commit,
-            "content_hash": content_hash,
-        }
-        if path.startswith("requirements/") and path.endswith(".md"):
-            fields = parse_front_matter(blob.decode("utf-8"), where=f"{commit}:{path}")
-            missing = {"id", "title"} - fields.keys()
-            if missing:
-                raise FixtureToolError(
-                    f"{commit}:{path}: missing front matter keys {sorted(missing)}"
-                )
-            artifacts.append(
-                Artifact(
-                    artifact_id=fields["id"],
-                    artifact_type=ArtifactType.REQUIREMENT,
-                    title=fields["title"],
-                    locator=path,
-                    metadata={"status": fields.get("status", "active")},
-                    **common,
-                )
-            )
-        elif path.startswith("features/") and path.endswith(".feature"):
-            for scenario_id, title in parse_scenarios(
-                blob.decode("utf-8"), where=f"{commit}:{path}"
-            ):
-                artifacts.append(
-                    Artifact(
-                        artifact_id=scenario_id,
-                        artifact_type=ArtifactType.SCENARIO,
-                        title=title,
-                        locator=f"{path}#{scenario_id}",
-                        **common,
-                    )
-                )
-        elif path.endswith(".py"):
-            annotation = ANNOTATION_RE.search(blob.decode("utf-8"))
-            if annotation:
-                artifact_id = annotation.group(1)
-                artifacts.append(
-                    Artifact(
-                        artifact_id=artifact_id,
-                        artifact_type=(
-                            ArtifactType.SOURCE
-                            if artifact_id.startswith("CODE")
-                            else ArtifactType.TEST
-                        ),
-                        title=path,
-                        locator=path,
-                        **common,
-                    )
-                )
-    return artifacts
-
-
 def load_evidence(repo: Path, commit: str) -> list[VerificationEvidence]:
     listed = git(["ls-tree", "-r", "--name-only", commit], cwd=repo).splitlines()
     if EVIDENCE_PATH not in listed:
@@ -395,7 +292,9 @@ def build_snapshot(manifest: BaselinesManifest, repo: Path) -> FixtureSnapshot:
             BaselineSnapshot(
                 baseline=tag,
                 commit=commit,
-                artifacts=scan_artifacts(repo, commit, manifest.fixture),
+                artifacts=scan_revision_artifacts(
+                    GitRepository(repo), commit, repository_name=manifest.fixture
+                ),
                 accepted_links=accepted,
                 proposed_links=proposed,
                 evidence=load_evidence(repo, commit),
@@ -711,7 +610,7 @@ def main(argv: list[str] | None = None) -> int:
             command_materialize()
             return 0
         return command_verify(api_dir=args.api_dir, baselines_path=args.baselines)
-    except FixtureToolError as exc:
+    except (FixtureToolError, IngestionError) as exc:
         print(f"fixturectl: {exc}", file=sys.stderr)
         return 2
 

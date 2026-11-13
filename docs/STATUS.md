@@ -2,10 +2,10 @@
 
 ```text
 Date:                2026-11-13
-Current branch:      main at e18cdcf (PR #43 merged); M1 work starts from that revision
+Current branch:      feat/21-dt-02-source-test-artifacts (from main 26a25d0)
 Milestone:           M0 — exit gate SATISFIED by re-review round 2 (historical record below)
                      M1 — IN PROGRESS; gate NOT yet satisfied
-Active task:         DT-01 (#20) requirements and Gherkin parsed into stable artifacts
+Active task:         DT-02 (#21) source and test artifacts tied to path and Git revision
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
                      docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
                      NEEDS_INPUT; R1–R7 all repaired; AC-1.1…AC-1.8 and AC-2.1…AC-2.5 all PASS;
@@ -20,9 +20,11 @@ Historical (SETUP-01, 2026-11-12): the commit-reference slice landed via PR #42;
                      had 107 passed; the SETUP-01 tree then had 135 passed (also under an
                      OS-level network denial). Outstanding owner actions: #18/#19 closure, the
                      FT-03/project-definition reviews, the required-check ruleset, README work item.
-Tests executed:      DT-01 (2026-11-13T01:13Z): 169 passed (also under an OS-level network
-                     denial); fixturectl verify exit 0; ruff check/format clean. Round-1 review
-                     findings repaired; details in docs/reports/omp-dt-01-ingestion/.
+Tests executed:      DT-02 (2026-11-13T02:07Z): 197 passed (also under an OS-level network
+                     denial); fixturectl verify exit 0 with the generator reusing the shared
+                     scanner; ruff check/format clean.
+                     DT-01 approved snapshot: 183 passed; PR #44 merged as 26a25d0 with both
+                     hosted checks passing; issue #20 closed.
 Current API/schema version: 0.1.0
 Tracker:             docs/traceability-issue-map.md (features → user stories → tasks)
 Run records:         docs/reports/omp-m0-rereview/ and docs/reports/omp-setup-01-commitlint/
@@ -43,8 +45,8 @@ not claim that draft as an approved baseline.
 
 | Story | GitHub | Owner | Canonical feature | State |
 | --- | --- | --- | --- | --- |
-| DT-01 requirements + scenarios parsed | [#20](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/20) | B | [DT-01.feature](stories/DT-01.feature) | refined; implementation in review |
-| DT-02 source/test artifacts | [#21](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/21) | B | not yet written | eligible after DT-01 |
+| DT-01 requirements + scenarios parsed | [#20](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/20) | B | [DT-01.feature](stories/DT-01.feature) | **merged** PR [#44](https://github.com/anthonygraca/gherkin-knowledge-graph/pull/44) → `26a25d0`; APPROVE at submission 5; issue closed |
+| DT-02 source/test artifacts | [#21](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/21) | B | [DT-02.feature](stories/DT-02.feature) | refined; implementation in review |
 | DT-03 typed links + review state | [#22](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/22) | B | not yet written | eligible after DT-02 |
 | DT-04 requirement thread | [#23](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/23) | B | not yet written | eligible after DT-03 |
 | AS-01 missing-link finding | [#2](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/2) | C | not yet written | eligible after DT-04 |
