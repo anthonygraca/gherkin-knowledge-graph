@@ -6,6 +6,7 @@
 | Repository | anthonygraca/gherkin-knowledge-graph |
 | Starting revision | `e18cdcfafe058e2f1d99c3c0b4bc2e155e9b16c9` (`main`) |
 | Integrated revision | `29df1050aea4ad8b0b42041fd519636a6b0b7794` (`main`, AS-04 merge) |
+| Review tree | `e1497cfd91626709195035154e50a6003681f681` (`main`, after round-1 repairs) |
 | Run window (observed) | 2026-11-13T00:44Z → 2026-11-13T05:16Z (demo end) |
 | OMP model / thinking | `vllm/deepseek-ai/DeepSeek-V4.1-Flash-1017`; `max` |
 | Reviewer | Codex `gpt-6.1-sol`, `xhigh`, read-only, fresh session per submission |
@@ -79,6 +80,7 @@ Retained logs: `docs/reports/omp-m1-milestone/evidence/checks.txt`,
 | AS-04 | 3 | 109,521 + 295,809 + 108,468 |
 | Milestone review attempt 1 | 0 consumed (no verdict) | 54,511 (failed: workspace out of credits) |
 | Milestone review round 1 | 1 consumed | 154,525 (NEEDS_INPUT) |
+| Milestone review round 2 | 1 consumed | 137,915 (APPROVE) |
 
 OMP delegations: none. OMP advisory calls: none. Quota/cost telemetry: not exposed; not claimed.
 Wall time is reported from captured UTC boundaries; review calls overlap other work where possible.
@@ -100,11 +102,27 @@ reviewer returned NEEDS_INPUT for retained hosted-CI evidence, plus two nonblock
 Submission 2 is pending at the post-repair snapshot. The M1 gate remains **not satisfied** until a
 verdict exists.
 
+## Milestone review — round 2: APPROVE (submission 2 of 7)
+
+Reviewer: `gpt-6.1-sol`, `xhigh`, read-only, session `01a1d385-f9a4-7952-8796-a4387986acda`;
+2026-11-13T06:08:54Z → 06:20:10Z (675.73 s), exit 0; 137,915 tokens. Verdict:
+`docs/reviews/M1-review-2.md`; packet `docs/reviews/M1-review-prompt-2.md` (sha256 `8586bd34…`).
+
+* All 40 story criteria and the M1 engineering exit PASS at review tree `e1497cf` / code snapshot
+  `29df105`; **no open major finding**.
+* M1-E1 (hosted evidence), M1-N1 (OpenAPI text), and M1-N2 (packet digest) closed.
+* The reviewer independently checked 63 parser/domain tests, 10 frontend tests, both TypeScript
+  configurations, an in-memory production build, eight HTTP captures, six threads with example
+  reads forbidden, malformed-input probes, lint/format, and commitlint over 31 commits.
+* Approval covers the M1 engineering gate only; it does not attest stakeholder validation, human
+  labels/link decisions, or release authorization.
+
 ## Milestone verdict
 
-**Round 1 NEEDS_INPUT** — all criteria PASS; the blocking item was evidence retention (M1-E1), now
-supplied above. Round 2 pending. Earlier credit-exhaustion attempts are recorded in
-`docs/reviews/M1-review-attempt-1.md` and did not consume submissions.
+**APPROVE — M1 engineering gate SATISFIED** at review tree
+`e1497cfd91626709195035154e50a6003681f681` (code snapshot `29df105`), submission 2 of 7
+(milestone counter), `gpt-6.1-sol` at `xhigh`. No open major finding. Earlier credit-exhaustion
+attempts are recorded in `docs/reviews/M1-review-attempt-1.md` and did not consume submissions.
 
 
 ## Owner / human gates (separate from the engineering exit)
