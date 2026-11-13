@@ -118,6 +118,7 @@ is implemented locally on `feat/30-hosted-ai-provider` (base `60dcc1f`) and inde
 * **Live path:** **NOT RUN** — `CTA_AI_MODE`/`CTA_LLM_*`/`CTA_EMBED_*` were absent. No hosted
   inference or capability claim. The approval does not establish live compatibility.
 * **Publication:** local branch only as of this record; no issue creation, push, PR, or merge.
+  Local commits: `b722ef7` (implementation), `59d8644` (records); both unpushed.
   PR 2/PR 3 are not started; PR 3 still needs a real story issue with human-reviewed criteria.
 
 ## M0 tracker closure (2026-11-13T06:49:39Z)

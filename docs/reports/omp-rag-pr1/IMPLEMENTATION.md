@@ -9,7 +9,8 @@
 | Task branch | `feat/30-hosted-ai-provider` (base `60dcc1f`) |
 | Served issue | [AI-01 #30](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/30) — **closed**; this is a follow-up on its real-provider boundary, not a reopening or closure claim |
 | Implementation commit | `b722ef7076d13ad51f0e1f12596c3adf6c81d8ff` — `feat(ai): [issue #30] add optional hosted AI provider boundary` (local; not pushed) |
-| Record commit | the commit containing this report (record-only; see branch history) |
+| Records commit | `59d8644` — `docs(review): [issue #30] record PR 1 provider acceptance` (local; not pushed) |
+| Bookkeeping commit | the commit containing this traceability line (record-only; see branch history) |
 | GitHub authority | **local-only**: read issues/PRs/checks; prepare local branch, commit, and publication text. No issue creation, push, PR, or merge was performed. |
 | Milestone ceiling | M3 for PR 1–PR 3; PR 1 implements no M2 deterministic assurance and does not close M4 |
 | OMP model / thinking | installed `vllm/deepseek-ai/DeepSeek-V4.1-Flash-1017`; `max` (usage/cost telemetry not exposed; not claimed) |
@@ -301,6 +302,18 @@ New:
 * `docs/reports/omp-rag-pr1/` (this record and evidence).
 
 Unrelated pre-existing change preserved and **not staged**: `.gitignore` (adds `prompts/`).
+
+## Local commit traceability
+
+| Commit | Subject | Served issue | Scope / evidence |
+| --- | --- | --- | --- |
+| `b722ef7` | `feat(ai): [issue #30] add optional hosted AI provider boundary` | [#30](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/30) | Provider boundary, adapters, settings, probe, tests, ADR/docs, AI-01 feature/companion. This is the implementation snapshot approved at review submission 4 of 7. |
+| `59d8644` | `docs(review): [issue #30] record PR 1 provider acceptance` | [#30](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/30) | This report, prompt/call log, metrics, retrospective, sanitized capability evidence, four review records/packets, and `docs/STATUS.md`. Record-only after approval. |
+
+Both commits are local on `feat/30-hosted-ai-provider` and were not pushed, opened as a PR, or
+merged. GitHub authority was local-only. The range audit `python tools/commitlint.py --base 60dcc1f
+--head HEAD` passed for both commits. The unrelated `.gitignore` working-tree change was preserved
+and not staged.
 
 ## Remaining risks and limitations
 
