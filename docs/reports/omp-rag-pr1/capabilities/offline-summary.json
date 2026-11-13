@@ -1,0 +1,26 @@
+{
+  "embeddings": {
+    "api_key_present": false,
+    "configured": true,
+    "model": "embeddinggemma-2:270m-q8_0-text"
+  },
+  "generated_at": "2026-11-13T16:24:09.568321Z",
+  "limits": {
+    "concurrency_limit": "unknown",
+    "configured_max_retries": 1,
+    "configured_timeout_seconds": 10.0,
+    "retry_after_cap_seconds": 5.0
+  },
+  "live_tests_enabled": false,
+  "llm": {
+    "api_key_present": false,
+    "configured": true,
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash"
+  },
+  "mode": "fake",
+  "probed": false,
+  "reason": "no probe requested; pass --live to contact the configured endpoint",
+  "schema_version": "1",
+  "vector_backend": "memory"
+}
+offline_probe_exit=0

@@ -39,6 +39,10 @@ Two rules explain most of the layout:
 | `app/domain/policy.py` | Rule → finding type and severity policy | Contract |
 | `app/persistence/` | `IngestedStore`: ingests a revision and caches artifacts, links, evidence, and assembled threads | Working implementation (in-process) |
 | `app/discovery/fake.py` | Fixture-backed candidate provider | Working implementation (deliberately fake) |
+| `app/discovery/ai.py` | Typed chat/embedding provider protocols, usage, provenance, error taxonomy | Contract (optional AI layer) |
+| `app/discovery/ai_fake.py` | Deterministic fake chat and embedding providers | Working implementation (test/offline only) |
+| `app/discovery/ai_http.py` | OpenAI-compatible chat and embedding adapters with timeout, bounded retry, schema validation, redaction | Implemented; live path not exercised without configuration |
+| `app/discovery/capabilities.py` | Synthetic-canary capability probe used by the CLI and tests | Implemented; offline/mocked evidence only in CI |
 | `app/assurance/rules.py` | `DeterministicAssuranceEvaluator` (M1: missing-verification rule) | Working implementation (M1 subset) |
 | `app/assurance/sample_findings.py` | Replay of reviewed sample findings for `GET /api/findings` | Mock service (full rule set in M2) |
 | `app/api/` | Routes, dependencies, RFC 9457 problem documents | Working |
@@ -77,6 +81,7 @@ writes the responses. `verify` does all of that into a temporary directory and d
 | Fixture tests passing/failing as labeled | Real: the suite runs the fixture's own tests at both tags. |
 | Findings | **Not computed.** Reviewed sample responses generated from the hand-labeled oracle. |
 | Retrieval quality | **Not measured.** Candidate scores are fixture labels, never model output. |
+| Optional AI providers | The typed chat/embedding boundary, fake adapters, and OpenAI-compatible HTTP adapters exist and are offline-tested with mocked transports. No live endpoint is configured in CI or the default suite; a live probe is explicitly opt-in and its result is `NOT RUN` when configuration is absent. The adapters cannot accept links, write evidence, or change assurance policy. |
 | Ingestion from a real repository | Requirements, scenarios, source, test, link, and evidence declarations are parsed from the nested fixture repository at a pinned revision; threads are assembled from that data (`POST /api/ingestion/run` reports counts). General non-fixture repositories remain a later capability. |
 | Link review and audit history | Not implemented; `POST /api/links/{id}/review` returns 501 naming AS-06. |
 
@@ -102,3 +107,4 @@ Recorded as ADRs in `docs/adr/`:
 | 0004 | Proposals vs accepted links; the fake discovery contract |
 | 0005 | Initial evidence-freshness policy and its assumptions |
 | 0006 | Deferred decisions: storage engine, embedding provider, graph semantics, frontend stack, auth |
+| 0007 | Optional AI provider boundary: typed chat/embedding protocols, fake and OpenAI-compatible adapters, timeout/retry/redaction rules, synthetic-canary probe, offline default |

@@ -2,11 +2,15 @@
 
 ```text
 Date:                2026-11-13
-Current branch:      main at e1497cf (M1 review repairs merged 2026-11-13T06:05Z)
+Current branch:      main at 60dcc1f (M0 tracker closure merged 2026-11-13T06:49Z); local task
+                     branch feat/30-hosted-ai-provider based on 60dcc1f
 Milestone:           M0 — exit gate SATISFIED by re-review round 2 (historical record below)
                      M1 — exit gate SATISFIED by independent review round 2 at e1497cf;
                      no open major finding
-Active task:         none — M1 complete through the authorized ceiling
+                     RAG mission — PR 1 provider slice locally APPROVE at submission 5 of 7;
+                     live chat/schema observed, embeddings NOT RUN; PR 2/PR 3 not started
+Active task:         PR 1 hosted AI provider slice — locally approved (submission 5); unmerged;
+                     live chat/schema observed, embeddings NOT RUN
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
                      docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
                      NEEDS_INPUT; R1–R7 all repaired; AC-1.1…AC-1.8 and AC-2.1…AC-2.5 all PASS;
@@ -20,12 +24,23 @@ Independent review:  docs/reviews/M0-review.md — first review: "M0 not verifie
                      engineering exit PASS; E1 hosted evidence, N1/N2); repairs landed
                      docs/reviews/M1-review-2.md — M1 round 2 APPROVE at e1497cf, submission
                      2 of 7; E1/N1/N2 closed; no open major finding
+                     docs/reviews/AI-01-hosted-provider-review-4.md — PR 1 provider slice
+                     APPROVE at submission 4 of 7; R1/R5 closed; implementation snapshot
+                     docs/reviews/AI-01-hosted-provider-review-5.md — post-approval probe/test
+                     change and sanitized live chat/schema evidence APPROVE at submission 5 of 7;
+                     embeddings NOT RUN
 Historical (SETUP-01, 2026-11-12): the commit-reference slice landed via PR #42; commitlint
                      green on the landed history (9 commits); the M0 approved snapshot bca69cf
                      had 107 passed; the SETUP-01 tree then had 135 passed (also under an
                      OS-level network denial). Outstanding owner actions: #18/#19 closure, the
                      FT-03/project-definition reviews, the required-check ruleset, README work item.
-Tests executed:      M1 integrated snapshot 29df105: 233 backend passed (also under an OS-level
+Tests executed:      PR 1 approved snapshot (local branch): 285 backend passed, 2 opt-in skips
+                     (also under an OS-level network denial, probe DENIED); fixturectl verify
+                     exit 0; ruff, format, and `git diff --check` clean. Post-approval live probe:
+                     chat HTTP 200 / 54 tokens / 553.3 ms, schema JSON 200 / 92 tokens; live chat
+                     test 1 passed; embeddings unavailable (connection refused), live embeddings
+                     test NOT RUN.
+                     M1 integrated snapshot 29df105: 233 backend passed (also under an OS-level
                      network denial, probe DENIED); frontend 10 passed; fixturectl verify exit 0;
                      ruff and `git diff --check` clean; commitlint 25 commits; hosted run
                      43370472013 (all three jobs) success.
@@ -42,7 +57,8 @@ Tests executed:      M1 integrated snapshot 29df105: 233 backend passed (also un
 Current API/schema version: 0.2.0 (additive: `GET /api/artifacts`; fixtures regenerated)
 Tracker:             docs/traceability-issue-map.md (features → user stories → tasks)
 Run records:         docs/reports/omp-m0-rereview/, docs/reports/omp-setup-01-commitlint/,
-                     docs/reports/omp-m1-milestone/, and the six omp-<task> report folders
+                     docs/reports/omp-m1-milestone/, docs/reports/omp-rag-pr1/, and the six
+                     omp-<task> report folders
                      (reports, prompt logs, metrics, evidence, packets; excluded from ruff scope
                      — records, not sources)
 Environment:         Python ≥3.11, uv, git ≥2.28; no GPU, LLM, vector store, Docker, or network
@@ -88,6 +104,38 @@ no open major finding. Round 1 NEEDS_INPUT (M1-E1 retained hosted evidence, M1-N
 M1-N2 packet digest) was repaired; the credit-exhaustion attempts did not consume submissions.
 Approval covers the M1 **engineering** gate only — stakeholder validation, human labels/link
 decisions, and release authorization remain owner gates.
+
+## RAG mission — PR 1 hosted provider slice (local, approved; publication authorized)
+
+As of 2026-11-13T16:36Z, the M1 milestone gate remains **SATISFIED** at the independent
+engineering review (`docs/reviews/M1-review-2.md`); M1 is not reopened. The RAG mission's PR 1 slice
+is implemented locally on `feat/30-hosted-ai-provider` (base `60dcc1f`) and independently
+**APPROVE** at submission 4 of 7 (`docs/reviews/AI-01-hosted-provider-review-4.md`); the
+post-approval probe/test change and live evidence were independently **APPROVE** at submission 5 of
+7 (`docs/reviews/AI-01-hosted-provider-review-5.md`).
+
+* **Served issue:** AI-01 [#30](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/30)
+  (closed) — follow-up on its real-provider boundary; PR 1 does not reopen/close AI-01 or claim
+  AI-02/AI-03/AI-05. It does not deliver a real `CandidateDiscovery`.
+* **Delivered:** typed chat/embedding protocols, deterministic fake providers, OpenAI-compatible
+  HTTP adapters with bounded retry/timeout/redaction, construction-time settings validation, a
+  synthetic-canary capability probe, 52 provider tests (50 offline + 2 opt-in skips), ADR 0007, and
+  operator docs. No API/schema/fixture/assurance change.
+* **Checks:** 285 backend passed / 2 skipped (also under an OS-level network denial), fixture verify,
+  ruff, format, and `git diff --check` clean. Evidence:
+  [omp-rag-pr1/IMPLEMENTATION.md](reports/omp-rag-pr1/IMPLEMENTATION.md).
+* **Live path:** **RUN (partial, post-approval)** — with process-only `CTA_AI_MODE=live` and the
+  observed catalogue model `deepseek-ai/DeepSeek-V4.1-Flash-1017`, chat returned HTTP 200
+  (`finish_reason=stop`, 54 tokens, 553.3 ms) and schema-constrained JSON parsed (92 tokens). The
+  configured model `deepseek-ai/DeepSeek-V4.1-Flash` was not in the catalogue and returned 404.
+  Embeddings are **NOT RUN** — the configured local endpoint refused the connection.
+* **Publication:** user-authorized on 2026-11-13T16:39:52Z (“stop after the first PR has been
+  merged”); branch push, PR creation, and merge are authorized after required checks. No issue
+  creation, issue closure, force push, or deployment is authorized. Local commits: `b722ef7`
+  (implementation), `59d8644` (submission-4 records), `c113ae9` (traceability), `d7f9203`
+  (post-approval probe/test fix), `01f8f16` (submission-5 records); this record is pre-PR. The PR
+  and merge outcome are recorded in GitHub and the final run summary. PR 2/PR 3 are not started;
+  PR 3 still needs a real story issue with human-reviewed criteria.
 
 ## M0 tracker closure (2026-11-13T06:49:39Z)
 

@@ -9,7 +9,8 @@
 
 Not required: Docker, a GPU, a model server, a database server, network access during tests.
 The first `uv sync` downloads dependencies from a package index; everything after that runs
-offline.
+offline. `httpx` is installed as a runtime dependency for the optional AI adapters; fake mode
+does not import the transport.
 
 ## Install and run
 
@@ -51,6 +52,57 @@ Start the backend first (`uv run --project backend uvicorn app.main:app --port 8
 fixtures. Vite proxies `/health` and `/api` to the backend. The dashboard shows the reviewed
 fixture findings and the assembled thread for the selected baseline; it needs no model or external
 service.
+
+## Optional AI providers (offline by default)
+
+The application never contacts a model endpoint by default. The optional providers are configured
+from the process environment only; do not add a `.env` file or commit a key.
+
+```bash
+# Default: deterministic fake providers; no network, no model, no vector index.
+export CTA_AI_MODE=fake
+
+# Optional live configuration. Base URLs are the OpenAI-compatible API root (include /v1).
+export CTA_AI_MODE=live
+export CTA_LLM_BASE_URL="http://your-endpoint:8000/v1"
+export CTA_LLM_MODEL="your-chat-model"
+# export CTA_LLM_API_KEY="..."          # optional, process environment only
+
+export CTA_EMBED_BASE_URL="http://your-embedding-endpoint:11434/v1"
+export CTA_EMBED_MODEL="your-embedding-model"
+# export CTA_EMBED_API_KEY="..."        # optional, process environment only
+
+export CTA_VECTOR_BACKEND=memory        # validated in PR 1; the index arrives in PR 2
+```
+
+Inspect the configuration without contacting anything:
+
+```bash
+uv run --project backend python tools/probe_ai_capabilities.py
+```
+
+Probe the endpoint explicitly with synthetic canary text only:
+
+```bash
+uv run --project backend python tools/probe_ai_capabilities.py --live \
+  --report /tmp/cta-ai-capabilities.json
+```
+
+A live report may contain local endpoint details; write it outside the repository. The CLI refuses
+a repository path unless `--allow-repo-report` is explicit, and even then the content is sanitized.
+The probe never sends repository artifacts, fixture content, or user data. Sending those to a
+hosted endpoint requires a separate owner-approved data-handling configuration.
+
+The live integration test is opt-in and skips by default:
+
+```bash
+CTA_AI_LIVE_TESTS=1 CTA_AI_MODE=live \
+  uv run --project backend pytest backend/tests/test_live_provider_integration.py -q
+```
+
+If the configuration is absent, the live path is `NOT RUN`, not passed. The adapters use explicit
+timeouts, bounded retries (429/5xx/timeouts only, honoring a capped `Retry-After`), and sanitized
+error types. They cannot accept links, write evidence, or change assurance policy.
 
 ## Quality gates
 
