@@ -109,6 +109,11 @@ response), `score` (0..1), `discovery_provider`, `model_version`, `index_revisio
 Severity and type come from the policy tables in `app/domain/policy.py`; the oracle is asserted
 against those tables, so changing the policy is a deliberate, reviewed edit.
 
+M1 implements `RULE-MISSING-VERIFICATION-LINK` in `POST /api/assurance/evaluate`; the remaining
+rules are specified here and implemented with AS-02/AS-03 (M2). `GET /api/findings` keeps replaying
+the reviewed sample findings until that rule set is complete, so M2 findings are not silently
+dropped.
+
 **Fingerprint.** `finding_id = "FND-" + sha256(rule_id | finding_type | sorted artifact_ids)[:16]`
 with `sha256` truncated to 16 hex characters. It deliberately excludes the baseline, the evidence
 set, and all prose, so the same underlying problem keeps one identity across baselines — which is

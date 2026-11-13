@@ -11,6 +11,7 @@ from fastapi import FastAPI
 
 from app.api.errors import register_exception_handlers
 from app.api.routes import router
+from app.assurance.rules import DeterministicAssuranceEvaluator
 from app.assurance.sample_findings import SampleFindingsSource
 from app.discovery.registry import ProviderRegistry
 from app.persistence.ingested import IngestedStore
@@ -49,6 +50,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         openapi_tags=[
             {"name": "reads", "description": "Implemented over the ingested fixture repository."},
             {"name": "ingestion", "description": "Parses the configured repository at a revision."},
+            {
+                "name": "assurance",
+                "description": "Deterministic rules; no model calls, no network.",
+            },
             {"name": "discovery", "description": "Candidate proposals only; never writes links."},
             {
                 "name": "contract-only",
@@ -59,6 +64,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = resolved
     app.state.store = IngestedStore.from_settings(resolved)
     app.state.findings_source = SampleFindingsSource.from_settings(resolved)
+    app.state.evaluator = DeterministicAssuranceEvaluator(app.state.store)
     app.state.providers = ProviderRegistry(resolved)
     register_exception_handlers(app)
     app.include_router(router)

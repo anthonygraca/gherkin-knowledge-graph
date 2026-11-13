@@ -122,9 +122,9 @@ not a requirement root (M1 assembles requirement threads; other roots are a docu
 ### `GET /api/findings?baseline=…`
 
 Findings for one baseline, ordered as in the oracle. **M1 replays reviewed sample findings**
-generated from `fixtures/banking-demo/expected/baseline-*.json`; `POST /api/assurance/evaluate` is
-contract-only in this snapshot (501; AS-01…AS-03). The replay remains until the rule set is
-implemented, so M2 findings are not silently dropped from this response.
+generated from `fixtures/banking-demo/expected/baseline-*.json`; `POST /api/assurance/evaluate`
+runs the implemented M1 rule subset. The replay remains until the rule set is implemented, so M2
+findings are not silently dropped from this response.
 
 ```json
 {
@@ -184,6 +184,50 @@ revision → 404 `baseline-not-found`; malformed repository content → 500 `fix
 missing built repository → 500 `fixture-data-missing` with the build instruction. A revision that is
 not a named baseline is ingestable; `baseline` then reports the SHA.
 
+## Assurance
+
+### `POST /api/assurance/evaluate`
+
+Runs the implemented deterministic rules for one baseline. M1 implements only
+`RULE-MISSING-VERIFICATION-LINK`: a requirement with no accepted `verified_by` link to an existing
+scenario. Proposals never satisfy it. `GET /api/findings` continues to replay the reviewed sample
+responses until AS-02/AS-03 complete the rule set.
+
+Request:
+
+```json
+{ "baseline": "baseline-a", "policy": null }
+```
+
+Response:
+
+```json
+{
+  "schema_version": "0.2.0",
+  "baseline": "baseline-a",
+  "findings": [
+    {
+      "finding_id": "FND-8e701f84ea44fa6c",
+      "finding_type": "missing_verification_link",
+      "status": "open",
+      "severity": "high",
+      "artifact_ids": ["REQ-002"],
+      "evaluated_baseline": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
+      "evidence_ids": [],
+      "explanation": "REQ-002 has no accepted verification scenario at baseline-a.",
+      "rule_id": "RULE-MISSING-VERIFICATION-LINK",
+      "artifact_revisions": {
+        "REQ-002": "0f8607b29d1ccb423062d856835f5310c9f54aa3"
+      }
+    }
+  ]
+}
+```
+
+Errors: unknown baseline → 404 `baseline-not-found`; unknown policy → 400 `invalid-request`; invalid
+body → 422. Findings are deterministic and offline; `evaluated_baseline` and `artifact_revisions`
+always carry the resolved commit SHA.
+
 ## Discovery
 
 ### `POST /api/discovery`
@@ -235,17 +279,16 @@ first, so the contract is real even though the behaviour is not implemented:
 | Endpoint | Body | Owning work |
 | --- | --- | --- |
 | `POST /api/links/{link_id}/review` | `{ "decision": "accept" \| "reject", "reviewer_id": "rv-ana", "reason": null }` | AS-06 (C, M1/M2) |
-| `POST /api/assurance/evaluate` | `{ "baseline": "baseline-a", "policy": null }` | AS-01…AS-03 (C-PR1, M1/M2) |
 
 ```json
 {
   "type": "urn:cta:error:not-implemented",
   "title": "Not implemented in this milestone",
   "status": 501,
-  "detail": "Deterministic rule evaluation is implemented with AS-01…AS-03 against the fixture oracle. GET /api/findings currently returns the reviewed sample findings.",
-  "instance": "/api/assurance/evaluate",
+  "detail": "Link review with reviewer identity, timestamp, reason, and immutable decision history is implemented with AS-06. Accepting a link will not change verification status: an accepted link is not evidence of behaviour.",
+  "instance": "/api/links/LNK-007/review",
   "code": "not-implemented",
-  "story": "AS-01, AS-02, AS-03 (C-PR1)",
+  "story": "AS-06 (C-PR1 onward)",
   "milestone": "M1/M2"
 }
 ```
