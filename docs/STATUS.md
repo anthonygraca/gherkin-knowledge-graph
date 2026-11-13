@@ -78,14 +78,14 @@ checks are recorded in [omp-m1-milestone/IMPLEMENTATION.md](reports/omp-m1-miles
 * 233 backend tests (normal and network-denied), 10 frontend tests, fixture verify, ruff,
   commitlint, and hosted CI run `43370472013` all pass.
 
-**M1 gate: NOT SATISFIED.** The mandatory independent milestone review could not run: Codex exited
-with `ERROR: Your workspace is out of credits` at 2026-11-13T05:20:10Z, and a single retry at
-2026-11-13T05:29:20Z failed identically. No verdict was produced. The failed attempts are recorded in
-[reviews/M1-review-attempt-1.md](reviews/M1-review-attempt-1.md); the committed packet is
-[reviews/M1-review-prompt.md](reviews/M1-review-prompt.md) (sha256 `132b4806…`). The milestone
-counter remains 0 used. Next action: the workspace owner restores Codex credits, then rerun the
-packet with `gpt-6.1-sol` at `xhigh`; record the verdict and dispositions before claiming the gate.
-Do not retry again until the workspace is refilled.
+**M1 gate: NOT SATISFIED.** Milestone-review round 1 (2026-11-13T05:55Z) returned **NEEDS_INPUT**:
+all 40 story criteria and the engineering exit PASS at `29df105`, but hosted CI evidence was not
+retained (M1-E1, blocking), and two nonblocking doc/record fixes were requested (M1-N1/N2). Repairs:
+the raw hosted run/check-run evidence is committed under
+`reports/omp-m1-milestone/evidence/`; the findings OpenAPI description is corrected; the packet is
+rebuilt with one current manifest block. Submission 2 is pending. The milestone counter is 1 of 7
+used. Earlier credit-exhaustion attempts (`docs/reviews/M1-review-attempt-1.md`) did not consume
+submissions. Do not claim the gate until round 2 approves.
 
 ## SETUP-01 commit-reference enforcement — landed (2026-11-12)
 

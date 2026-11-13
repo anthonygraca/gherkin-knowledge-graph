@@ -1,0 +1,12 @@
+captured_start=2026-11-13T06:01:16Z
+cmd=uv run --project backend pytest backend/tests -q
+exit=0
+cmd=uv run --project backend ruff check .
+exit=0
+cmd=uv run --project backend ruff format --check .
+exit=0
+cmd=git diff --check
+exit=0
+captured_end=2026-11-13T06:01:25Z
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+233 passed, 1 warning in 7.93s
