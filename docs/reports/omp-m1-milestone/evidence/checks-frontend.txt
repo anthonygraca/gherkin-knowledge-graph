@@ -1,0 +1,10 @@
+cmd=npm run build
+exit=0
+cmd=npm test
+exit=0
+dist/assets/index-DA71Skzm.js   230.90 kB │ gzip: 71.95 kB
+✓ built in 1.27s
+      Tests  10 passed (10)
+   Start at  21:13:58
+   Duration  2.24s (transform 143ms, setup 90ms, collect 244ms, tests 818ms, environment 554ms, prepare 112ms)
+
