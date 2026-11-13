@@ -27,7 +27,7 @@ def evaluate(client: TestClient, baseline: str) -> FindingsResponse:
 
 @pytest.mark.parametrize("baseline", BASELINES)
 def test_evaluate_matches_the_oracle_missing_verification_finding(
-    client: TestClient, fixture_settings: Settings, baseline: str
+    client: TestClient, fixture_settings: Settings, committed_manifest, baseline: str
 ) -> None:
     body = evaluate(client, baseline)
     expected = [
@@ -51,7 +51,9 @@ def test_evaluate_matches_the_oracle_missing_verification_finding(
     assert finding.finding_id == finding_fingerprint(
         item.rule_id, item.finding_type, item.artifact_ids
     )
-    assert finding.evaluated_baseline == finding.artifact_revisions["REQ-002"]
+    expected_commit = committed_manifest.tags[baseline]
+    assert finding.evaluated_baseline == expected_commit
+    assert finding.artifact_revisions["REQ-002"] == expected_commit
 
 
 def test_evaluate_does_not_count_proposals(client: TestClient) -> None:
