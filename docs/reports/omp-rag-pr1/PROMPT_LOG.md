@@ -16,7 +16,7 @@ The mission prompt is the user's invocation; it was not launched by saving a fil
 | Branch | `feat/30-hosted-ai-provider` |
 | OMP model / thinking | installed `vllm/deepseek-ai/DeepSeek-V4.1-Flash-1017`; `max` |
 | Codex advice/review | `gpt-6.1-sol`, reasoning `high`, explicit on every call |
-| Review limit | 7 submissions for PR 1; **APPROVE at submission 4 of 7** |
+| Review limit | 7 submissions for PR 1; **APPROVE at submission 4 of 7** (implementation) and **submission 5 of 7** (post-approval live probe/test change and evidence) |
 | GitHub policy | local-only; no issue creation, push, PR, or merge |
 
 ## Prompt sources
@@ -44,7 +44,9 @@ by the coordinator and rechecked before resubmission.
 | Offline summary | `uv run --project backend python tools/probe_ai_capabilities.py` | 2026-11-13T07:26Z | 0 | `probed=false`, `mode=fake`; no endpoint contacted |
 | Final offline summary | same, after repairs | 2026-11-13T08:01:16Z | 0 | `probed=false`, `mode=fake`; sanitized output |
 | Live refused in fake mode | `... --live` | 2026-11-13T08:01:16Z | 2 | `--live requires CTA_AI_MODE=live`; no endpoint contacted |
-| Hosted live probe | not invoked | — | — | **NOT RUN**: `CTA_AI_MODE`/`CTA_LLM_*`/`CTA_EMBED_*` absent |
+| Hosted live probe, configured model | `CTA_AI_MODE=live` probe with configured `CTA_LLM_MODEL=deepseek-ai/DeepSeek-V4.1-Flash` | 2026-11-13T16:18Z | 0 | HTTP 404 for chat; configured model not in catalogue; `/models` exposed `deepseek-ai/DeepSeek-V4.1-Flash-1017` |
+| Hosted live probe, observed model | `CTA_AI_MODE=live CTA_LLM_MODEL=deepseek-ai/DeepSeek-V4.1-Flash-1017` | 2026-11-13T16:22:11Z → 16:22:22Z | 0 | Chat 200, 54 tokens, 553.3 ms; JSON schema 200, 92 tokens; embeddings unavailable (connection refused) |
+| Live chat test | `CTA_AI_LIVE_TESTS=1 CTA_AI_MODE=live CTA_LLM_MODEL=...` | 2026-11-13T16:23:00Z → 16:23:01Z | 0 | 1 passed; embeddings test NOT RUN |
 
 ## Independent review calls
 
@@ -54,6 +56,7 @@ by the coordinator and rechecked before resubmission.
 | 2 of 7 | `AI-01-hosted-provider-review-prompt-2.md` / `02f3c22076216cc8d0dcff74d9daa03936fb07a18ec44edf8980c4db61135dee` | `01a1d3de-2e54-7b01-8a65-4d70e5ec6ef0` | 07:45:15 → 07:47:08 | 113 s | 0 | 92,552 | REQUEST_CHANGES |
 | 3 of 7 | `AI-01-hosted-provider-review-prompt-3.md` / `b8233550b3807dc61505a7f73ec69dd053c76477782336184775c75b112ffd97` | `01a1d3e6-7dca-78c3-a371-a17262f82609` | 07:54:20 → 07:57:09 | 169 s | 0 | 79,113 | REQUEST_CHANGES |
 | 4 of 7 | `AI-01-hosted-provider-review-prompt-4.md` / `760b974e4e4b5bf18153e26347026f7815a4c276396ed4593d6f5d59bf2bbf50` | `01a1d3ef-6d7f-7a70-8f16-25d95fb41265` | 08:04:05 → 08:06:16 | 131 s | 0 | 88,098 | **APPROVE** |
+| 5 of 7 | `AI-01-hosted-provider-review-prompt-5.md` / `e549b736b036f6594f5cef552c3021577d301b074ed8f8837e5211667a5e743a` | `01a1d5bd-f1bc-7c71-bf92-84bc65844181` | 16:29:16 → 16:31:51 | 155 s | 0 | 85,412 | **APPROVE** |
 
 Each review used a fresh Codex session, `--sandbox read-only`, and passed the packet on stdin. The
 output-last-message file and stdout/stderr are retained outside Git. `git status` before/after each
@@ -71,5 +74,12 @@ to edit, commit, regenerate fixtures, or delegate.
 * The third repair sanitized `_base_summary`, the fake-mode probe return, `offline_summary`, the CLI
   `_offline_summary`, and every log field/upstream error code; added four regressions; re-ran the
   full gates (285 passed, 2 skipped; also network-denied).
-* Submission 4 approved the snapshot with no new findings. The approval covers the offline/mocked
-  provider-boundary slice only; hosted compatibility remains `NOT RUN`.
+* Submission 4 approved the implementation snapshot with no new findings; the approval covered the
+  offline/mocked provider-boundary slice only.
+* The endpoint variables were then supplied. The first live probe exposed a reasoning-model budget
+  issue: the "ignore this request" canary with 16 tokens returned `content: null` and
+  `finish_reason=length`; the adapter rejected it as designed. The probe/test now asks for a final
+  answer with a 64-token budget.
+* The live smoke with the observed catalogue model passed chat and schema-constrained JSON;
+  embeddings were unavailable (connection refused). Submission 5 approved the probe/test change and
+  the sanitized live evidence. This does not establish general live compatibility.

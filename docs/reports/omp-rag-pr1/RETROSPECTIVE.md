@@ -10,8 +10,10 @@
   changes, no API/schema/fixture change, no model in the default path.
 * Recorded the M1 premise correction honestly: the gate was unsatisfied at prompt creation and is
   now independently approved at the M1 engineering level.
-* Independent review approved submission 4 of 7 with no open finding. Live provider capability
-  remains `NOT RUN`; no hosted inference is claimed.
+* Independent review approved submission 4 of 7 with no open finding. After the endpoint variables
+  were supplied, the live probe observed chat and schema-constrained JSON with the catalogue model;
+  embeddings were unavailable. Submission 5 approved the post-approval probe/test change and the
+  sanitized live evidence.
 
 ## Rework
 
@@ -36,11 +38,18 @@ Independent review found four more defect classes over three rounds:
 All were reproduced with failing tests before repair; the final repair covers the shared sanitizer
 surface and both report and logging paths.
 
+The live smoke added a probe-design correction: a reasoning model spent the original 16-token
+canary budget entirely on reasoning and returned no content; the adapter correctly rejected it.
+The probe and live test now ask for a final answer with a 64-token budget. The live smoke then
+observed chat (HTTP 200, `finish_reason=stop`, 54 tokens) and schema JSON (92 tokens) with the
+catalogue model; the configured model name was not in the catalogue and returned 404, and the
+embedding endpoint was unavailable.
+
 ## Resources
 
-No OMP delegates or advisory calls. Four independent review calls, 351,249 CLI-reported Codex
-tokens total, 602 seconds of review time. OMP usage/cost was not exposed. No comparator baseline
-exists, so no benefit claim is made.
+No OMP delegates or advisory calls. Five independent review calls, 436,661 CLI-reported Codex
+tokens total, 757 seconds of review time. The live probe took 11 seconds; the live chat test 0.55
+seconds. OMP usage/cost was not exposed. No comparator baseline exists, so no benefit claim is made.
 
 ## What went well
 
@@ -60,7 +69,9 @@ exists, so no benefit claim is made.
   needed a new `check-*` capture; earlier logs were retained rather than overwritten.
 * The packet manifest initially included the report that is updated after the verdict; later
   manifests exclude the post-verdict report to keep the reviewed snapshot stable.
-* The live path could not be exercised because the process environment had no AI configuration.
+* The first live probe used a prompt that invited a reasoning model to spend the whole budget
+  without producing a final answer. A direct final-answer prompt with an adequate budget fixed the
+  probe; the adapter's rejection was correct.
 
 ## What to do better
 
@@ -73,6 +84,8 @@ exists, so no benefit claim is made.
   checkout can move between planning and implementation.
 * Treat "no live configuration" as a first-class `NOT RUN` outcome in the report and packet, not as
   a reason to weaken the offline evidence.
+* For reasoning-model probes, ask for a final answer explicitly and budget enough tokens for both
+  reasoning and content; do not infer capability from a length-truncated `content: null` response.
 
 ## New run rule
 
@@ -80,3 +93,7 @@ exists, so no benefit claim is made.
 finds credential leakage, fix the shared sanitizer and every sink (report values, dynamic keys,
 helper returns, CLI stdout/report, logs, and error records) in one pass, with one regression per
 sink. This prevents path-by-path review cycling.
+
+**Give reasoning-model probes a final-answer prompt and budget.** A capability probe must not
+mistake a reasoning-only, length-truncated response for a missing chat capability; request a final
+answer and reserve tokens for both reasoning and content.

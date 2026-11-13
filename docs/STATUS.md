@@ -7,9 +7,10 @@ Current branch:      main at 60dcc1f (M0 tracker closure merged 2026-11-13T06:49
 Milestone:           M0 — exit gate SATISFIED by re-review round 2 (historical record below)
                      M1 — exit gate SATISFIED by independent review round 2 at e1497cf;
                      no open major finding
-                     RAG mission — PR 1 provider slice locally APPROVE at submission 4 of 7;
-                     PR 2/PR 3 not started
-Active task:         PR 1 hosted AI provider slice — locally approved; unmerged; live path NOT RUN
+                     RAG mission — PR 1 provider slice locally APPROVE at submission 5 of 7;
+                     live chat/schema observed, embeddings NOT RUN; PR 2/PR 3 not started
+Active task:         PR 1 hosted AI provider slice — locally approved (submission 5); unmerged;
+                     live chat/schema observed, embeddings NOT RUN
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
                      docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
                      NEEDS_INPUT; R1–R7 all repaired; AC-1.1…AC-1.8 and AC-2.1…AC-2.5 all PASS;
@@ -24,7 +25,10 @@ Independent review:  docs/reviews/M0-review.md — first review: "M0 not verifie
                      docs/reviews/M1-review-2.md — M1 round 2 APPROVE at e1497cf, submission
                      2 of 7; E1/N1/N2 closed; no open major finding
                      docs/reviews/AI-01-hosted-provider-review-4.md — PR 1 provider slice
-                     APPROVE at submission 4 of 7; R1/R5 closed; live compatibility NOT RUN
+                     APPROVE at submission 4 of 7; R1/R5 closed; implementation snapshot
+                     docs/reviews/AI-01-hosted-provider-review-5.md — post-approval probe/test
+                     change and sanitized live chat/schema evidence APPROVE at submission 5 of 7;
+                     embeddings NOT RUN
 Historical (SETUP-01, 2026-11-12): the commit-reference slice landed via PR #42; commitlint
                      green on the landed history (9 commits); the M0 approved snapshot bca69cf
                      had 107 passed; the SETUP-01 tree then had 135 passed (also under an
@@ -32,7 +36,10 @@ Historical (SETUP-01, 2026-11-12): the commit-reference slice landed via PR #42;
                      FT-03/project-definition reviews, the required-check ruleset, README work item.
 Tests executed:      PR 1 approved snapshot (local branch): 285 backend passed, 2 opt-in skips
                      (also under an OS-level network denial, probe DENIED); fixturectl verify
-                     exit 0; ruff, format, and `git diff --check` clean; live capability NOT RUN.
+                     exit 0; ruff, format, and `git diff --check` clean. Post-approval live probe:
+                     chat HTTP 200 / 54 tokens / 553.3 ms, schema JSON 200 / 92 tokens; live chat
+                     test 1 passed; embeddings unavailable (connection refused), live embeddings
+                     test NOT RUN.
                      M1 integrated snapshot 29df105: 233 backend passed (also under an OS-level
                      network denial, probe DENIED); frontend 10 passed; fixturectl verify exit 0;
                      ruff and `git diff --check` clean; commitlint 25 commits; hosted run
@@ -100,10 +107,12 @@ decisions, and release authorization remain owner gates.
 
 ## RAG mission — PR 1 hosted provider slice (local, approved, unmerged)
 
-As of 2026-11-13T08:07Z, the M1 milestone gate remains **SATISFIED** at the independent
+As of 2026-11-13T16:36Z, the M1 milestone gate remains **SATISFIED** at the independent
 engineering review (`docs/reviews/M1-review-2.md`); M1 is not reopened. The RAG mission's PR 1 slice
 is implemented locally on `feat/30-hosted-ai-provider` (base `60dcc1f`) and independently
-**APPROVE** at submission 4 of 7 (`docs/reviews/AI-01-hosted-provider-review-4.md`).
+**APPROVE** at submission 4 of 7 (`docs/reviews/AI-01-hosted-provider-review-4.md`); the
+post-approval probe/test change and live evidence were independently **APPROVE** at submission 5 of
+7 (`docs/reviews/AI-01-hosted-provider-review-5.md`).
 
 * **Served issue:** AI-01 [#30](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/30)
   (closed) — follow-up on its real-provider boundary; PR 1 does not reopen/close AI-01 or claim
@@ -115,11 +124,16 @@ is implemented locally on `feat/30-hosted-ai-provider` (base `60dcc1f`) and inde
 * **Checks:** 285 backend passed / 2 skipped (also under an OS-level network denial), fixture verify,
   ruff, format, and `git diff --check` clean. Evidence:
   [omp-rag-pr1/IMPLEMENTATION.md](reports/omp-rag-pr1/IMPLEMENTATION.md).
-* **Live path:** **NOT RUN** — `CTA_AI_MODE`/`CTA_LLM_*`/`CTA_EMBED_*` were absent. No hosted
-  inference or capability claim. The approval does not establish live compatibility.
+* **Live path:** **RUN (partial, post-approval)** — with process-only `CTA_AI_MODE=live` and the
+  observed catalogue model `deepseek-ai/DeepSeek-V4.1-Flash-1017`, chat returned HTTP 200
+  (`finish_reason=stop`, 54 tokens, 553.3 ms) and schema-constrained JSON parsed (92 tokens). The
+  configured model `deepseek-ai/DeepSeek-V4.1-Flash` was not in the catalogue and returned 404.
+  Embeddings are **NOT RUN** — the configured local endpoint refused the connection.
 * **Publication:** local branch only as of this record; no issue creation, push, PR, or merge.
-  Local commits: `b722ef7` (implementation), `59d8644` (records); both unpushed.
-  PR 2/PR 3 are not started; PR 3 still needs a real story issue with human-reviewed criteria.
+  Local commits: `b722ef7` (implementation), `59d8644` (submission-4 records), `c113ae9`
+  (traceability), `d7f9203` (post-approval probe/test fix); all unpushed. The submission-5 records
+  commit follows this report. PR 2/PR 3 are not started; PR 3 still needs a real story issue with
+  human-reviewed criteria.
 
 ## M0 tracker closure (2026-11-13T06:49:39Z)
 

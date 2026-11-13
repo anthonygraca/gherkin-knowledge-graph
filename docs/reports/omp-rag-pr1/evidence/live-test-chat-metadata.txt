@@ -1,0 +1,8 @@
+started_utc=2026-11-13T16:23:00Z
+mode_override=live
+model_override=deepseek-ai/DeepSeek-V4.1-Flash-1017
+live_tests=1
+selector=test_live_chat_completion_returns_an_observed_response
+exit=0
+ended_utc=2026-11-13T16:23:01Z
+duration_seconds=1

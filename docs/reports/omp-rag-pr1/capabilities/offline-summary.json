@@ -1,10 +1,10 @@
 {
   "embeddings": {
     "api_key_present": false,
-    "configured": false,
-    "model": null
+    "configured": true,
+    "model": "embeddinggemma-2:270m-q8_0-text"
   },
-  "generated_at": "2026-11-13T08:01:16.129800Z",
+  "generated_at": "2026-11-13T16:24:09.568321Z",
   "limits": {
     "concurrency_limit": "unknown",
     "configured_max_retries": 1,
@@ -14,8 +14,8 @@
   "live_tests_enabled": false,
   "llm": {
     "api_key_present": false,
-    "configured": false,
-    "model": null
+    "configured": true,
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash"
   },
   "mode": "fake",
   "probed": false,

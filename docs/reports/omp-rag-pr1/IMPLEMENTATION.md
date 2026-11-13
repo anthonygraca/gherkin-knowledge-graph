@@ -9,12 +9,13 @@
 | Task branch | `feat/30-hosted-ai-provider` (base `60dcc1f`) |
 | Served issue | [AI-01 #30](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/30) — **closed**; this is a follow-up on its real-provider boundary, not a reopening or closure claim |
 | Implementation commit | `b722ef7076d13ad51f0e1f12596c3adf6c81d8ff` — `feat(ai): [issue #30] add optional hosted AI provider boundary` (local; not pushed) |
-| Records commit | `59d8644` — `docs(review): [issue #30] record PR 1 provider acceptance` (local; not pushed) |
-| Bookkeeping commit | the commit containing this traceability line (record-only; see branch history) |
+| Submission-4 records commit | `59d8644` — `docs(review): [issue #30] record PR 1 provider acceptance` (local; not pushed) |
+| Post-approval fix | `d7f9203` — `fix(ai): [issue #30] use a final-answer canary budget` (local; not pushed) |
+| Submission-5 records commit | the commit containing this report (record-only; see branch history) |
 | GitHub authority | **local-only**: read issues/PRs/checks; prepare local branch, commit, and publication text. No issue creation, push, PR, or merge was performed. |
 | Milestone ceiling | M3 for PR 1–PR 3; PR 1 implements no M2 deterministic assurance and does not close M4 |
 | OMP model / thinking | installed `vllm/deepseek-ai/DeepSeek-V4.1-Flash-1017`; `max` (usage/cost telemetry not exposed; not claimed) |
-| Reviewer | Codex `gpt-6.1-sol`, reasoning effort `high` — **APPROVE**, submission 4 of 7 ([record](../../reviews/AI-01-hosted-provider-review-4.md)) |
+| Reviewer | Codex `gpt-6.1-sol`, reasoning effort `high` — **APPROVE** at submission 4 (implementation; [record](../../reviews/AI-01-hosted-provider-review-4.md)) and submission 5 (post-approval live probe/test change and evidence; [record](../../reviews/AI-01-hosted-provider-review-5.md)) |
 
 ## Premise check (corrected before claiming)
 
@@ -147,13 +148,14 @@ schema version, fixture, or assurance rule changed.
 | PR1-AC-5 | Probe CLI reports configuration without contact; `--live` is explicit; it reports the required capability fields with synthetic canary text and sanitizes/refuses in-repo reports. | `test_probe_offline_fake_mode_never_contacts_the_endpoint`, `test_probe_records_observed_capabilities`, `test_probe_reports_an_absent_embedding_endpoint`, `test_probe_reports_json_schema_unsupported`, `test_probe_sanitizes_urls_in_model_metadata`, `test_probe_sanitizes_dynamic_model_id_keys`, `test_fake_mode_probe_report_is_sanitized`, `test_offline_summary_is_sanitized`, `test_probe_does_not_claim_identity_from_an_unrelated_catalogue`, `test_probe_cli_offline_makes_no_probe`, `test_probe_cli_offline_sanitizes_model_credentials`, `test_probe_cli_offline_import_does_not_import_the_transport`, `test_probe_cli_refuses_a_repository_report`, `test_sanitizer_redacts_dynamic_dictionary_keys`, `test_sanitizer_redacts_credentials_and_url_query`; manual CLI runs below | PASS (offline/mocked); live **NOT RUN** |
 | PR1-AC-6 | Offline contract tests cover fake/real adapters and provider failure classes; live integration is opt-in and skips by default; the default suite needs no network. | 52 provider tests passed, 2 live tests skipped; full suite 285 passed, 2 skipped; network-denied suite 285 passed with a denied socket probe | PASS |
 | PR1-AC-7 | ADR and docs cover interface, configuration, timeout/retry, data handling, redaction, optionality; no API/schema/assurance change. | ADR 0007, setup, architecture; `git status` shows no changes under `backend/app/assurance/`, `backend/app/api/`, `backend/app/domain/`, or `version.py`; `SCHEMA_VERSION` unchanged | PASS |
-| PR1-AC-8 | Traceability and publication state are recorded; the slice does not claim a later story, milestone closure, or hosted inference. | Issue #30 verified; branch/base recorded; no push/PR/merge; live path `NOT RUN`; M1 premise corrected above | PASS (local-only) |
+| PR1-AC-8 | Traceability and publication state are recorded; the slice does not claim a later story, milestone closure, or hosted inference. | Issue #30 verified; branch/base recorded; no push/PR/merge; post-approval live chat/schema observed, embeddings `NOT RUN`; M1 premise corrected above | PASS (local-only) |
 
 ## Checks at the final snapshot
 
 All commands were run from the repository root at the base/branch above. Logs are retained under
 [`evidence/`](evidence/); earlier checkpoint logs (`check-1-*`, `check-final-*`) are retained but
-are not the post-repair evidence. The final captures are `check-repair-3-*`.
+are not the post-repair evidence. The approved implementation snapshot is `check-repair-3-*`; the
+post-approval probe/test change is `check-live-repair-*`.
 
 ```text
 uv sync --project backend --frozen                       exit 0  (25 packages checked)
@@ -170,28 +172,67 @@ uv run --project backend python tools/probe_ai_capabilities.py --live
                                                          exit 2  expected: fake mode refuses live
 ```
 
+Post-approval live evidence (process-only `CTA_AI_MODE=live`; observed catalogue model override):
+
+```text
+CTA_AI_MODE=live CTA_LLM_MODEL=deepseek-ai/DeepSeek-V4.1-Flash-1017 \
+  probe_ai_capabilities.py --live --report /tmp/...     exit 0  11 s
+  chat: HTTP 200, finish=stop, 54 tokens, 553.3 ms, text=canary
+  json_schema: HTTP 200, parsed, 92 tokens
+  models: HTTP 200, context=1048576
+  embeddings: unavailable (provider-transport-error; connection refused)
+CTA_AI_LIVE_TESTS=1 ... pytest ...::test_live_chat_completion_returns_an_observed_response
+                                                         exit 0  1 passed (0.55 s)
+```
+
 The 2 skipped tests are the opt-in live integration tests. The network-denied suite used the venv
 interpreter under `unshare -rn`; the denied socket probe is retained in
 [`evidence/network-probe.log`](evidence/network-probe.log). This proves the default suite does not
 need network, not that a hosted endpoint is reachable.
 
-## Live provider smoke — NOT RUN
+## Live provider smoke — RUN (post-approval observation)
 
-At invocation, none of `CTA_AI_MODE`, `CTA_LLM_BASE_URL`, `CTA_LLM_MODEL`,
-`CTA_LLM_API_KEY`, `CTA_EMBED_BASE_URL`, `CTA_EMBED_MODEL`, `CTA_EMBED_API_KEY`, or
-`CTA_VECTOR_BACKEND` was present in the process environment. Per the mission, a missing live
-configuration is **NOT RUN**, not failed and not passed. No endpoint was contacted, no key was
-printed or committed, and no hosted response or capability matrix is claimed. The offline/mocked
-provider tests pass; the hosted path remains unverified until an owner supplies configuration and
-explicitly enables the live smoke.
+The endpoint variables were supplied after the submission-4 approval. The process environment had
+`CTA_AI_MODE=fake`; the probe and live test were invoked with process-only `CTA_AI_MODE=live`.
+No API key was configured; no key or endpoint URL is recorded in the committed evidence. Only
+synthetic canary text was sent.
 
-If configured later, the exact commands are:
+**Configuration observation.** The configured chat model was `deepseek-ai/DeepSeek-V4.1-Flash`.
+The endpoint's `/models` catalogue exposed `deepseek-ai/DeepSeek-V4.1-Flash-1017` with
+`max_model_len=1048576`; the configured value was **not found**, and a chat request using it
+returned HTTP 404 (`provider-capability-error`). The final smoke used the observed catalogue model as
+a process-only `CTA_LLM_MODEL` override; the user's environment was not changed.
+
+| Observation | Result |
+| --- | --- |
+| `/models` | HTTP 200; model `deepseek-ai/DeepSeek-V4.1-Flash-1017`; context length 1,048,576; 67.3 ms |
+| Chat completion | HTTP 200; model observed; `finish_reason=stop`; 553.3 ms; 39 prompt + 15 completion = 54 tokens; text `canary` |
+| Schema-constrained JSON | supported; HTTP 200; parsed `{"ok": true, "label": "canary"}`; 92 total tokens |
+| Embeddings | **unavailable**; configured local endpoint refused the connection (`provider-transport-error`); no chat substitution |
+| Timeout | 5 ms probe deadline observed as timeout; configured timeout 10 s |
+| Error format | empty `messages` request returned HTTP 200 with no error object; the endpoint accepted it |
+| Live chat test | `test_live_chat_completion_returns_an_observed_response` — **1 passed** (0.55 s) |
+| Live embeddings test | **NOT RUN** — local embedding endpoint unavailable |
+
+**Probe-design repair.** The first live probe used the original "ignore this request" canary with
+`max_tokens=16`. The reasoning model spent the budget on `reasoning` and returned `content: null`
+with `finish_reason=length`; the adapter correctly rejected the unusable completion as
+`provider-response-error`. The probe now asks for a final answer explicitly ("Reply with the single
+word: canary.") and allows 64 tokens; the live test uses the same prompt and budget. This was a
+post-approval probe/test change, reviewed and approved at submission 5; the submission-4 approval
+did not cover it or the live evidence.
+
+Sanitized evidence: [capabilities/live-observation.md](capabilities/live-observation.md) and
+[capabilities/live-summary.json](capabilities/live-summary.json). The raw live report (which may
+contain local endpoint details) remains outside Git. Exact commands:
 
 ```bash
-uv run --project backend python tools/probe_ai_capabilities.py --live \
+CTA_AI_MODE=live CTA_LLM_MODEL='deepseek-ai/DeepSeek-V4.1-Flash-1017' \
+  uv run --project backend python tools/probe_ai_capabilities.py --live \
   --report /tmp/cta-ai-capabilities.json
-CTA_AI_LIVE_TESTS=1 CTA_AI_MODE=live \
-  uv run --project backend pytest backend/tests/test_live_provider_integration.py -q
+CTA_AI_LIVE_TESTS=1 CTA_AI_MODE=live CTA_LLM_MODEL='deepseek-ai/DeepSeek-V4.1-Flash-1017' \
+  uv run --project backend pytest \
+  backend/tests/test_live_provider_integration.py::test_live_chat_completion_returns_an_observed_response -q
 ```
 
 The probe sends synthetic canary text only. Repository artifacts must not be sent until a documented
@@ -278,8 +319,25 @@ independently ran 34 pytest checks plus 18 direct read-only invocations, and ins
 remains **NOT RUN**. This approval covers the provider-boundary slice only; it does not close AI-01
 (already closed), AI-02/AI-03/AI-05, M1, or any later milestone.
 
-Post-approval changes are record-only: this report, the review records/packets, the prompt/metrics/
-retrospective records, and `docs/STATUS.md`. The reviewed implementation snapshot is unchanged.
+The submission-4 approval covers the implementation snapshot `b722ef7`. After that approval, the
+live endpoint was supplied; the probe's canary prompt/budget and the live test's prompt/budget were
+changed so a reasoning model can return a final answer. That post-approval probe/test change and
+the live evidence were reviewed and approved at submission 5. Record updates after review 5 are
+limited to the report, review records, prompt/metrics/retrospective records, and `docs/STATUS.md`.
+
+### Submission 5 of 7 — APPROVE
+
+Reviewer: same model/effort, read-only, session `01a1d5bd-f1bc-7c71-bf92-84bc65844181`;
+2026-11-13T16:29:16Z → 16:31:51Z (155 s), exit 0, 85,412 CLI-reported tokens. Packet:
+[`AI-01-hosted-provider-review-prompt-5.md`](../../reviews/AI-01-hosted-provider-review-prompt-5.md),
+sha256 `e549b736b036f6594f5cef552c3021577d301b074ed8f8837e5211667a5e743a`. Record:
+[`AI-01-hosted-provider-review-5.md`](../../reviews/AI-01-hosted-provider-review-5.md).
+
+The reviewer accepted the explicit canary prompt/64-token budget and the sanitized live evidence:
+no new findings; PR1-R1…R5 remain closed. The configured model still returned 404; chat and
+schema-constrained JSON succeeded only with the process-only observed catalogue model; embeddings
+remained unavailable, so the live embeddings test is **NOT RUN**. This approval does not establish
+general live compatibility or a tested capacity guarantee.
 
 ## Changed files
 
@@ -308,18 +366,21 @@ Unrelated pre-existing change preserved and **not staged**: `.gitignore` (adds `
 | Commit | Subject | Served issue | Scope / evidence |
 | --- | --- | --- | --- |
 | `b722ef7` | `feat(ai): [issue #30] add optional hosted AI provider boundary` | [#30](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/30) | Provider boundary, adapters, settings, probe, tests, ADR/docs, AI-01 feature/companion. This is the implementation snapshot approved at review submission 4 of 7. |
-| `59d8644` | `docs(review): [issue #30] record PR 1 provider acceptance` | [#30](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/30) | This report, prompt/call log, metrics, retrospective, sanitized capability evidence, four review records/packets, and `docs/STATUS.md`. Record-only after approval. |
+| `59d8644` | `docs(review): [issue #30] record PR 1 provider acceptance` | [#30](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/30) | Submission-4 report, prompt/call log, metrics, retrospective, sanitized capability evidence, four review records/packets, and `docs/STATUS.md`. Record-only after approval. |
+| `d7f9203` | `fix(ai): [issue #30] use a final-answer canary budget` | [#30](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/30) | Post-approval probe canary prompt/64-token budget and live test prompt/budget, reviewed and approved at submission 5. |
+| submission-5 records | `docs(review): [issue #30] record PR 1 live evidence` | [#30](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/30) | This report update, review 5 record/packet, live capability evidence, prompt/metrics/retrospective updates, and `docs/STATUS.md`. The commit containing this report is identified by branch history. |
 
-Both commits are local on `feat/30-hosted-ai-provider` and were not pushed, opened as a PR, or
-merged. GitHub authority was local-only. The range audit `python tools/commitlint.py --base 60dcc1f
---head HEAD` passed for both commits. The unrelated `.gitignore` working-tree change was preserved
-and not staged.
+These commits are local on `feat/30-hosted-ai-provider` and were not pushed, opened as a PR, or
+merged. GitHub authority was local-only. The unrelated `.gitignore` working-tree change was
+preserved and not staged.
 
 ## Remaining risks and limitations
 
-* **Compatibility is unverified live.** The OpenAI-compatible shapes are implemented from the
-  endpoint contract in the mission; no live probe has confirmed the endpoint, model, JSON-schema
-  field, or embedding API. The adapter reports capability failures rather than guessing.
+* **Live compatibility is partial.** The observed catalogue model
+  (`deepseek-ai/DeepSeek-V4.1-Flash-1017`) returned a chat completion and schema-constrained JSON;
+  the configured model value was not the catalogue identifier and returned 404. Embeddings are
+  unavailable (connection refused). No general endpoint, model, context-window, or concurrency
+  compatibility claim is made.
 * **No semantic retrieval or GraphRAG yet.** PR 1 provides providers only; there is no index,
   vector store, retrieval pipeline, answer endpoint, UI, or graph expansion. Retrieval quality is
   unmeasured.
@@ -330,7 +391,8 @@ and not staged.
 * **No concurrency claim.** The probe records `concurrency_limit: unknown` and does not stress-test
   a shared endpoint. Free calls are not treated as unlimited capacity.
 * **Live test is opt-in.** The default suite proves the offline contract and mocked transport
-  behavior; it does not prove a deployed endpoint works.
+  behavior. The chat live test was run manually and passed; the embeddings live test was not run
+  because the endpoint was unavailable.
 * **`httpx` runtime dependency.** It is imported only by the live adapter module; fake mode import
   isolation is tested, but the dependency is still installed by default.
 * **Approval scope.** The independent approval covers the offline/mocked provider-boundary slice;

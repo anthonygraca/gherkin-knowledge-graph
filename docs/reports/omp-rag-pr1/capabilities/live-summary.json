@@ -1,0 +1,103 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-11-13T16:22:11Z",
+  "probe_mode_override": "live",
+  "configured_environment_mode": "fake",
+  "configured_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+  "observed_catalogue_model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+  "configured_model_found": false,
+  "observed_model_run": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "models": {
+      "available": true,
+      "status": 200,
+      "model_ids": [
+        "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+      ],
+      "context_lengths": {
+        "deepseek-ai/DeepSeek-V4.1-Flash-1017": 1048576
+      },
+      "configured_model_found": true,
+      "latency_ms": 67.327
+    },
+    "chat": {
+      "available": true,
+      "http_status": 200,
+      "observed_model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "model_observed": true,
+      "finish_reason": "stop",
+      "latency_ms": 553.3,
+      "usage": {
+        "prompt_tokens": 39,
+        "completion_tokens": 15,
+        "total_tokens": 54
+      },
+      "usage_available": true,
+      "text": "canary",
+      "text_length": 6,
+      "text_sha256": "e100fbce008c04ec40637af0af91fb2f05aeedc23f856a2d3c0b1580625d755e"
+    },
+    "json_schema": {
+      "supported": true,
+      "http_status": 200,
+      "observed_model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "model_observed": true,
+      "parsed": {
+        "ok": true,
+        "label": "canary"
+      },
+      "usage": {
+        "prompt_tokens": 43,
+        "completion_tokens": 49,
+        "total_tokens": 92
+      }
+    }
+  },
+  "configured_model_run": {
+    "chat": {
+      "available": false,
+      "error_code": "provider-capability-error",
+      "status": 404,
+      "detail": "chat completion endpoint or model is unavailable (HTTP 404)"
+    }
+  },
+  "embeddings": {
+    "configured": true,
+    "available": false,
+    "error_code": "provider-transport-error",
+    "detail": "embedding failed in transport",
+    "endpoint_reachable": false
+  },
+  "context_window": 1048576,
+  "deployment_identifiable": true,
+  "timeout": {
+    "observed": "timeout",
+    "probe_timeout_seconds": 0.005,
+    "configured_timeout_seconds": 10.0,
+    "latency_ms": 24.072
+  },
+  "error_format": {
+    "observed": true,
+    "status": 200,
+    "json_object": true,
+    "error_keys": [],
+    "latency_ms": 8816.015
+  },
+  "capability_matrix": {
+    "chat_available": true,
+    "embeddings_available": false,
+    "json_schema_supported": true,
+    "models_available": true,
+    "context_window": 1048576,
+    "deployment_identifiable": true
+  },
+  "live_chat_test": {
+    "selector": "backend/tests/test_live_provider_integration.py::test_live_chat_completion_returns_an_observed_response",
+    "result": "1 passed",
+    "duration_seconds": 1
+  },
+  "live_embeddings_test": {
+    "result": "NOT RUN",
+    "reason": "local embedding endpoint refused the connection"
+  }
+}

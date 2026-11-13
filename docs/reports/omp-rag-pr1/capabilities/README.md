@@ -1,10 +1,22 @@
 # PR 1 capability evidence
 
-**Live capability status: NOT RUN.** At invocation, none of `CTA_AI_MODE`, `CTA_LLM_BASE_URL`,
-`CTA_LLM_MODEL`, `CTA_LLM_API_KEY`, `CTA_EMBED_BASE_URL`, `CTA_EMBED_MODEL`,
-`CTA_EMBED_API_KEY`, or `CTA_VECTOR_BACKEND` was present in the process environment. No endpoint
-was contacted, and no hosted capability matrix is claimed. A missing configuration is **NOT RUN**,
-not failed and not passed.
+**Live capability status: RUN (partial, post-approval).** The endpoint variables were supplied after
+the submission-4 approval. With process-only `CTA_AI_MODE=live` and the observed catalogue model
+`deepseek-ai/DeepSeek-V4.1-Flash-1017`, the synthetic-canary probe observed:
+
+* chat: HTTP 200, `finish_reason=stop`, 54 tokens, 553.3 ms, text `canary`;
+* schema-constrained JSON: HTTP 200, parsed `{"ok": true, "label": "canary"}`, 92 tokens;
+* `/models`: HTTP 200, one model, context length 1,048,576 (metadata, not a tested capacity);
+* embeddings: **unavailable** (configured local endpoint refused the connection);
+* timeout: 5 ms probe deadline observed as timeout; configured timeout 10 s;
+* error format: an empty `messages` request returned HTTP 200 with no error object.
+
+The configured model `deepseek-ai/DeepSeek-V4.1-Flash` was **not** in the catalogue and returned
+HTTP 404; the final smoke used the observed catalogue model as a process-only override. The user's
+environment was not changed. The live chat test passed; the live embeddings test is **NOT RUN**
+because the endpoint was unavailable. These are observations at one configuration, not a general
+compatibility or capacity guarantee. See [`live-observation.md`](live-observation.md) and
+[`live-summary.json`](live-summary.json).
 
 The committed `offline-summary.json` is the sanitized output of:
 
@@ -17,8 +29,8 @@ The CLI's `--live` path was also invoked in fake mode and correctly exited 2 wit
 error; that stderr is retained at
 [`../evidence/check-repair-3-probe-live-fake.stderr`](../evidence/check-repair-3-probe-live-fake.stderr).
 
-If a live probe is run later, its report may contain local endpoint details. Write it outside the
-repository; the CLI refuses a repository path unless `--allow-repo-report` is explicit. The report
-is sanitized for URL userinfo/query, dynamic keys, configured secrets, and credential-like fields.
-Commit only a sanitized capability summary with owner approval. The probe uses synthetic canary text
-only; repository artifacts require a separate owner-approved data-handling decision (ADR 0007).
+A live report may contain local endpoint details. Write it outside the repository; the CLI refuses a
+repository path unless `--allow-repo-report` is explicit. The report is sanitized for URL
+userinfo/query, dynamic keys, configured secrets, and credential-like fields. Commit only a sanitized
+capability summary with owner approval. The probe uses synthetic canary text only; repository
+artifacts require a separate owner-approved data-handling decision (ADR 0007).
