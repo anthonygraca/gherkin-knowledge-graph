@@ -2,15 +2,18 @@
 
 ```text
 Date:                2026-11-13
-Current branch:      main at 60dcc1f (M0 tracker closure merged 2026-11-13T06:49Z); local task
-                     branch feat/30-hosted-ai-provider based on 60dcc1f
+Current branch:      main at a674fb9 (RAG PR 1 hosted-provider slice merged); local task
+                     branch feat/56-cocoindex-code based on a674fb9
 Milestone:           M0 — exit gate SATISFIED by re-review round 2 (historical record below)
                      M1 — exit gate SATISFIED by independent review round 2 at e1497cf;
                      no open major finding
-                     RAG mission — PR 1 provider slice locally APPROVE at submission 5 of 7;
-                     live chat/schema observed, embeddings NOT RUN; PR 2/PR 3 not started
-Active task:         PR 1 hosted AI provider slice — locally approved (submission 5); unmerged;
-                     live chat/schema observed, embeddings NOT RUN
+                     M2 — not implemented
+                     M3 — AI-06 PR 1 (CocoIndex capability/contract/live smoke) implemented
+                     locally; review 1 REQUEST_CHANGES (8), review 2 REQUEST_CHANGES (3),
+                     review 3 REQUEST_CHANGES (R2/R5), review 4 REQUEST_CHANGES (R2/R5), all repaired;
+                     review 5 APPROVE (submission 5 of 7); AI06-R9 minor metadata repaired;
+                     AI-02/AI-03/AI-05 open
+Active task:         AI-06 (#56) CocoIndex Code capability and integration contract (M3)
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
                      docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
                      NEEDS_INPUT; R1–R7 all repaired; AC-1.1…AC-1.8 and AC-2.1…AC-2.5 all PASS;
@@ -29,17 +32,34 @@ Independent review:  docs/reviews/M0-review.md — first review: "M0 not verifie
                      docs/reviews/AI-01-hosted-provider-review-5.md — post-approval probe/test
                      change and sanitized live chat/schema evidence APPROVE at submission 5 of 7;
                      embeddings NOT RUN
+                     AI-06 criteria advisory: docs/reports/omp-cocoindex-pr1/reviews/
+                     advisory-criteria.md (REVISE before implementation; not an acceptance review)
+                     docs/reviews/AI-06-cocoindex-review.md — AI-06 submission 1 of 7
+                     REQUEST_CHANGES (8 findings AI06-R1…R8); repairs completed
+                     docs/reviews/AI-06-cocoindex-review-2.md — AI-06 submission 2 of 7
+                     REQUEST_CHANGES (R1/R2/R5 open; R3/R4/R6/R7/R8 closed); repairs completed
+                     docs/reviews/AI-06-cocoindex-review-3.md — AI-06 submission 3 of 7
+                     REQUEST_CHANGES (R1 closed; R2/R5 open); repairs completed
+                     docs/reviews/AI-06-cocoindex-review-4.md — AI-06 submission 4 of 7
+                     REQUEST_CHANGES (R2/R5 open); repairs completed
+                     docs/reviews/AI-06-cocoindex-review-5.md — AI-06 submission 5 of 7
+                     APPROVE; R2/R5 closed, R1/R3/R4/R6/R7/R8 remain closed; AI06-R9 minor
+                     metadata repaired; approval covers this PR 1 slice only
 Historical (SETUP-01, 2026-11-12): the commit-reference slice landed via PR #42; commitlint
                      green on the landed history (9 commits); the M0 approved snapshot bca69cf
                      had 107 passed; the SETUP-01 tree then had 135 passed (also under an
                      OS-level network denial). Outstanding owner actions: #18/#19 closure, the
                      FT-03/project-definition reviews, the required-check ruleset, README work item.
-Tests executed:      PR 1 approved snapshot (local branch): 285 backend passed, 2 opt-in skips
-                     (also under an OS-level network denial, probe DENIED); fixturectl verify
-                     exit 0; ruff, format, and `git diff --check` clean. Post-approval live probe:
-                     chat HTTP 200 / 54 tokens / 553.3 ms, schema JSON 200 / 92 tokens; live chat
-                     test 1 passed; embeddings unavailable (connection refused), live embeddings
-                     test NOT RUN.
+Tests executed:      AI-06 repaired snapshot (local branch): 402 backend passed, 3 opt-in skips
+                     (default suite); CocoIndex contract module 117 passed; opt-in live test
+                     1 passed; fixturectl verify exit 0; ruff, format, and `git diff --check`
+                     clean; network-denied suite 402 passed. Live probe: all six steps ok; search
+                     886.4 ms warm; 3 hits verified against snapshot 0f8607b; index identity
+                     unavailable by contract; isolated daemon/index hash recorded before/after.
+                     PR 1 hosted-provider snapshot: 285 backend passed, 2 opt-in skips
+                     (also under an OS-level network denial, probe DENIED); live chat HTTP 200 /
+                     54 tokens / 553.3 ms, schema JSON 200 / 92 tokens; live chat test 1 passed;
+                     embeddings unavailable (connection refused), live embeddings test NOT RUN.
                      M1 integrated snapshot 29df105: 233 backend passed (also under an OS-level
                      network denial, probe DENIED); frontend 10 passed; fixturectl verify exit 0;
                      ruff and `git diff --check` clean; commitlint 25 commits; hosted run
@@ -54,7 +74,7 @@ Tests executed:      PR 1 approved snapshot (local branch): 285 backend passed, 
                      hosted checks passing; issue #21 closed.
                      DT-01 approved snapshot: 183 passed; PR #44 merged as 26a25d0 with both
                      hosted checks passing; issue #20 closed.
-Current API/schema version: 0.2.0 (additive: `GET /api/artifacts`; fixtures regenerated)
+Current API/schema version: 0.2.0 (unchanged by AI-06: no API/domain/fixture shape change)
 Tracker:             docs/traceability-issue-map.md (features → user stories → tasks)
 Run records:         docs/reports/omp-m0-rereview/, docs/reports/omp-setup-01-commitlint/,
                      docs/reports/omp-m1-milestone/, docs/reports/omp-rag-pr1/, and the six
@@ -136,6 +156,59 @@ post-approval probe/test change and live evidence were independently **APPROVE**
   (post-approval probe/test fix), `01f8f16` (submission-5 records); this record is pre-PR. The PR
   and merge outcome are recorded in GitHub and the final run summary. PR 2/PR 3 are not started;
   PR 3 still needs a real story issue with human-reviewed criteria.
+
+## RAG mission — AI-06 CocoIndex Code slice (approved at submission 5; publication pending)
+
+**As of 2026-11-13T17:50Z**, the M1 engineering gate remains **SATISFIED**
+(`docs/reviews/M1-review-2.md`); M1 is not reopened. The RAG mission's second slice is **AI-06**
+([#56](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/56)), an
+implementation-approach story under F-08 (#14) created with the run's issue-creation authority. It
+adopts CocoIndex Code 0.2.43 for semantic *code* search and does **not** amend or close AI-01 (#30),
+AI-02 (#31), AI-03 (#32), AI-04 (#34), or AI-05 (#35). AI-02's "no request leaves the machine"
+criterion is not satisfied by the external Ollama runtime used for the smoke.
+
+* **Delivered locally (uncommitted at this record):** `app/discovery/cocoindex.py` (typed models,
+  errors, fake transport, normalization), `app/discovery/cocoindex_mcp.py` (bounded `ccc mcp` stdio
+  transport with mandatory isolated state/runtime), `CTA_CCC_*` settings with offline defaults,
+  `tools/probe_cocoindex.py`, 117 offline contract tests, an opt-in live test, the captured MCP
+  response fixture, ADR 0008, the integration guide, and the AI-06 canonical feature/companion.
+* **No API/domain/fixture change:** `POST /api/discovery`, `GET /health`, `SCHEMA_VERSION` 0.2.0,
+  the fixture oracle, and `FakeCandidateDiscovery` are unchanged. `cocoindex` is not a registered
+  discovery provider; PR 2 owns hit-to-`TraceCandidate` mapping.
+* **Verification:** 402 backend passed / 3 opt-in skips in the default suite; CocoIndex contract
+  module 117 passed; `fixturectl verify`, ruff, format, and `git diff --check` clean (final repaired
+  captures under `docs/reports/omp-cocoindex-pr1/evidence/`).
+* **Live path:** **RUN (pass)** with explicit opt-in on an isolated `fixtures/banking-demo`
+  worktree at `baseline-a` (`0f8607b`), CocoIndex 0.2.43, MCP protocol `2024-11-05`, local
+  `embeddinggemma-2:270m-q8_0-text`; 3 hits verified against the snapshot, warm search 886.4 ms,
+  `index_identity=null` by contract. The probe records the isolated daemon PID and index SHA-256
+  before/after. Evidence: [capabilities/live-smoke.md](reports/omp-cocoindex-pr1/capabilities/live-smoke.md)
+  and [live-run-manifest.json](reports/omp-cocoindex-pr1/capabilities/live-run-manifest.json).
+* **Lifecycle:** `ccc mcp` starts/restarts a daemon and always schedules a background index. CTA
+  requires isolated `COCOINDEX_CODE_DIR`/`COCOINDEX_CODE_RUNTIME_DIR`, refuses the default shared
+  state and the project-local state directory, and does not claim a session leaves an index
+  unchanged.
+* **NOT RUN:** baseline-b isolation/indexing, `.feature` semantic retrieval, retrieval-quality
+  metrics, chat/GraphRAG, production data-handling review, and the default suite's live test
+  (skipped; not a pass).
+* **Gates:** M1 satisfied; M2 not implemented. Roadmap §7 permits M3 work in parallel after M0;
+  `AGENTS.md`'s stricter "no later milestone while an earlier gate is unmet" reading is recorded as
+  a conflict in `docs/stories/AI-06.md`. This slice consumes no M2 semantics and does not claim M3
+  completion.
+* **Review:** independent review 1
+  ([AI-06-cocoindex-review.md](reviews/AI-06-cocoindex-review.md), submission 1 of 7) returned
+  **REQUEST_CHANGES** with eight findings. Review 2
+  ([AI-06-cocoindex-review-2.md](reviews/AI-06-cocoindex-review-2.md), submission 2 of 7) closed
+  R3/R4/R6/R7/R8 and left R1/R2/R5 open. Review 3
+  ([AI-06-cocoindex-review-3.md](reviews/AI-06-cocoindex-review-3.md), submission 3 of 7) closed
+  R1 and kept R2/R5 open. Review 4
+  ([AI-06-cocoindex-review-4.md](reviews/AI-06-cocoindex-review-4.md), submission 4 of 7) kept
+  R2/R5 open. Round 5 repairs: field-specific schema allowlists, rejection of conflicting outer
+  filter keywords, and independent normalization of every supplied payload. Submission 5
+  **APPROVE**; the only finding (AI06-R9, minor stale report metadata) was repaired after
+  approval. Publication is pending. The pre-implementation
+  criteria advisory (REVISE, incorporated) is under
+  `docs/reports/omp-cocoindex-pr1/reviews/`. No approval is claimed.
 
 ## M0 tracker closure (2026-11-13T06:49:39Z)
 

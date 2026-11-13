@@ -1,0 +1,11 @@
+unformatted: File would be reformatted
+   --> tools/probe_cocoindex.py:550:55
+    |
+549 |         help=(
+    -             "allow a raw report inside the repository "
+    -             "(only sanitized content should be committed)"
+550 +             "allow a raw report inside the repository (only sanitized content should be committed)"
+551 |         ),
+    |
+
+1 file would be reformatted, 61 files already formatted

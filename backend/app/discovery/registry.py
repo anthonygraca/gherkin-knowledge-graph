@@ -38,8 +38,8 @@ class ProviderRegistry:
         if resolved not in REGISTERED_PROVIDERS:
             raise ProviderNotRegistered(
                 f"Unknown discovery provider '{resolved}'. Registered providers: "
-                f"{', '.join(REGISTERED_PROVIDERS)}. Local model providers arrive with AI-02 (M3); "
-                f"they are optional plugins and never required for tests."
+                f"{', '.join(REGISTERED_PROVIDERS)}. Code-search candidates arrive with AI-06 "
+                f"PR 2; they are optional plugins and never required for tests."
             )
         if resolved not in self._cache:
             self._cache[resolved] = self._build(resolved)

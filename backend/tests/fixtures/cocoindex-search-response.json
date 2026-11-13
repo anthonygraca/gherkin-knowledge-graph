@@ -1,0 +1,58 @@
+{
+  "description": "Sanitized structural capture of a real CocoIndex Code 0.2.43 MCP search response. The project snapshot was an isolated worktree of fixtures/banking-demo at baseline-a; the content is synthetic fixture source. Harness metadata is outside the server payload.",
+  "captured": {
+    "captured_at": "2026-11-13T17:11:13Z",
+    "cocoindex_version": "0.2.43",
+    "protocol_version": "2024-11-05",
+    "server": "cocoindex-code",
+    "snapshot_revision": "0f8607b29d1ccb423062d856835f5310c9f54aa3",
+    "query": "withdraw whole dollar amounts",
+    "limit": 3,
+    "offset": 0,
+    "refresh_index": false,
+    "languages": [
+      "python"
+    ],
+    "paths": [
+      "src/*"
+    ],
+    "latency_ms": 53213.3
+  },
+  "server_info": {
+    "name": "cocoindex-code",
+    "version": "0.2.43",
+    "protocol_version": "2024-11-05"
+  },
+  "payload": {
+    "success": true,
+    "results": [
+      {
+        "file_path": "src/__init__.py",
+        "language": "python",
+        "content": "\"\"\"Banking demo source package.\"\"\"",
+        "start_line": 1,
+        "end_line": 1,
+        "score": 0.7128040949509113
+      },
+      {
+        "file_path": "src/transfers.py",
+        "language": "python",
+        "content": "# cta:artifact CODE-002\n\"\"\"Transfer operations and the daily allowance for the banking demo.\"\"\"\n\nfrom __future__ import annotations\n\nfrom dataclasses import dataclass, field\n\nDAILY_TRANSFER_LIMIT_CENTS = 100_000\n\n\nclass DailyLimitExceededError(ValueError):\n    \"\"\"Raised when a transfer would push the day's total past the daily limit.\"\"\"\n\n\n@dataclass\nclass TransferLedger:\n    \"\"\"Accumulates transfers for one account against a daily allowance.\"\"\"\n\n    limit_cents: int = DAILY_TRANSFER_LIMIT_CENTS\n    transferred_cents: int = 0\n    entries: list[tuple[str, int]] = field(default_factory=list)\n\n    def transfer(self, amount_cents: int) -> None:\n        if amount_cents <= 0:\n            raise ValueError(\"transfer amount must be positive\")\n        if self.transferred_cents + amount_cents >= self.limit_cents:\n            raise DailyLimitExceededError(\"daily transfer limit exceeded\")\n        self.transferred_cents += amount_cents\n        self.entries.append((\"transfer\", amount_cents))",
+        "start_line": 1,
+        "end_line": 29,
+        "score": 0.704876378553962
+      },
+      {
+        "file_path": "src/accounts.py",
+        "language": "python",
+        "content": "# cta:artifact CODE-001\n\"\"\"Account operations for the banking demo.\"\"\"\n\nfrom __future__ import annotations\n\nfrom dataclasses import dataclass, field\n\n\nclass InsufficientFundsError(ValueError):\n    \"\"\"Raised when a withdrawal exceeds the available balance.\"\"\"",
+        "start_line": 1,
+        "end_line": 10,
+        "score": 0.6955020310656153
+      }
+    ],
+    "total_returned": 3,
+    "offset": 0,
+    "message": null
+  }
+}

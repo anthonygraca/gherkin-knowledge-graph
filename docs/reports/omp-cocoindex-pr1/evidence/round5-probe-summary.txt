@@ -1,0 +1,1 @@
+{"overall": "ok", "probed": true, "steps": {"ccc_doctor": "ok", "ccc_status": "ok", "ccc_version": "ok", "mcp_capabilities": "ok", "ollama": "ok", "search": "ok"}}

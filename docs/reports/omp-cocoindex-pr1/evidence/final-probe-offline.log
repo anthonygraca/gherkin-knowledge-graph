@@ -1,0 +1,1 @@
+{"overall": "NOT RUN", "probed": false, "steps": {"ccc_doctor": "not_run", "ccc_status": "not_run", "ccc_version": "not_run", "mcp_capabilities": "not_run", "ollama": "not_run", "search": "not_run"}}

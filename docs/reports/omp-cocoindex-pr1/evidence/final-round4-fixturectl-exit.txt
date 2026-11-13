@@ -1,0 +1,1 @@
+fixturectl exit=0
