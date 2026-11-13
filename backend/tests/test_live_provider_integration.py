@@ -37,9 +37,9 @@ def test_live_chat_completion_returns_an_observed_response() -> None:
     settings = load_settings()
     registry = ProviderRegistry(settings)
     completion = registry.chat().complete(
-        [ChatMessage(role="user", content="CTA live canary; reply with one short word.")],
+        [ChatMessage(role="user", content="Reply with the single word: canary.")],
         temperature=0.0,
-        max_tokens=8,
+        max_tokens=64,
     )
     assert completion.text.strip()
     assert completion.model

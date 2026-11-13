@@ -27,7 +27,10 @@ from app.discovery.ai import (
 )
 from app.settings import Settings
 
-CANARY_TEXT = "CTA capability canary; ignore this request."
+# Ask for a final answer explicitly. A reasoning model can spend a small budget entirely on
+# reasoning and return no message content; the probe must not mistake that truncation for a
+# missing chat capability.
+CANARY_CHAT_PROMPT = "Reply with the single word: canary."
 CANARY_EMBEDDING_TEXTS = ("CTA canary alpha", "CTA canary beta")
 PROBE_TIMEOUT_SECONDS = 0.005
 PROBE_SCHEMA_VERSION = "1"
@@ -276,9 +279,9 @@ def probe_capabilities(
     # 2. One real chat completion with canary text.
     try:
         completion = chat.complete(
-            [ChatMessage(role="user", content=CANARY_TEXT)],
+            [ChatMessage(role="user", content=CANARY_CHAT_PROMPT)],
             temperature=0.0,
-            max_tokens=16,
+            max_tokens=64,
         )
         report["chat"] = {
             "available": True,
