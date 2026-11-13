@@ -78,22 +78,33 @@ Retained logs: `docs/reports/omp-m1-milestone/evidence/checks.txt`,
 | AS-01 | 1 | 106,974 |
 | AS-04 | 3 | 109,521 + 295,809 + 108,468 |
 | Milestone review attempt 1 | 0 consumed (no verdict) | 54,511 (failed: workspace out of credits) |
+| Milestone review round 1 | 1 consumed | 154,525 (NEEDS_INPUT) |
 
 OMP delegations: none. OMP advisory calls: none. Quota/cost telemetry: not exposed; not claimed.
 Wall time is reported from captured UTC boundaries; review calls overlap other work where possible.
 
+## Milestone review — round 1: NEEDS_INPUT (submission 1 of 7)
+
+Reviewer: `gpt-6.1-sol`, `xhigh`, read-only, session `01a1d374-de65-7192-adca-8efe345d268c`;
+2026-11-13T05:50:13Z → 05:55:53Z (339.56 s), exit 0; 154,525 tokens. Verdict:
+`docs/reviews/M1-review.md`. **All 40
+story criteria and the M1 engineering exit PASS** at the integrated code snapshot `29df105`; the
+reviewer returned NEEDS_INPUT for retained hosted-CI evidence, plus two nonblocking fixes.
+
+| Finding | Severity | Disposition |
+| --- | --- | --- |
+| M1-E1 hosted results were summarized, not retained | medium, blocking evidence | Captured `gh run view 43370472013` and the check-runs API for `29df105`: full SHA `29df105…`, completed, success, and all three jobs (Commit references, Offline tests, Frontend tests) success. Evidence: `evidence/hosted-ci-43370472013.json`, `evidence/check-runs-29df105.json`, `evidence/hosted-checks.txt`. |
+| M1-N1 findings OpenAPI text still said evaluate was contract-only | low, nonblocking | Updated the description to name the implemented M1 rule subset and the AS-02/AS-03 deferral; backend suite and ruff re-run (`evidence/repair-checks.txt`, 233 passed). |
+| M1-N2 the packet retained a stale duplicate report digest | low, nonblocking | Rebuilt the packet with one manifest block and current digests; verified every manifest line against the tree before resubmission. |
+
+Submission 2 is pending at the post-repair snapshot. The M1 gate remains **not satisfied** until a
+verdict exists.
+
 ## Milestone verdict
 
-**BLOCKED — no independent verdict.** The first milestone-review attempt
-(`docs/reviews/M1-review-attempt-1.md`, packet `docs/reviews/M1-review-prompt.md`, sha256
-`132b4806…`) ended at 2026-11-13T05:20:10Z with exit 1 and the CLI error
-`ERROR: Your workspace is out of credits. Ask your workspace owner to refill in order to continue.`
-No verdict file was produced. This is an infrastructure failure, not an acceptance review, and it
-does **not** consume a milestone submission (counter 0 used). The M1 gate is **not satisfied** and
-the work is not milestone-approved.
-
-Next action: restore Codex workspace credits and rerun the committed packet with `gpt-6.1-sol` at
-`xhigh` in a fresh session; then follow the verdict/disposition process and update this record.
+**Round 1 NEEDS_INPUT** — all criteria PASS; the blocking item was evidence retention (M1-E1), now
+supplied above. Round 2 pending. Earlier credit-exhaustion attempts are recorded in
+`docs/reviews/M1-review-attempt-1.md` and did not consume submissions.
 
 
 ## Owner / human gates (separate from the engineering exit)

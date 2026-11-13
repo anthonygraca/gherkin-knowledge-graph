@@ -1,0 +1,7 @@
+captured_utc=2026-11-13T05:59:41Z
+cmd=gh run view 43370472013 --repo anthonygraca/gherkin-knowledge-graph --json headSha,status,conclusion,jobs,url,createdAt,updatedAt,event,displayTitle
+exit=0
+{"headSha":"29df1050aea4ad8b0b42041fd519636a6b0b7794","status":"completed","conclusion":"success","event":"push","url":"https://github.com/anthonygraca/gherkin-knowledge-graph/actions/runs/43370472013","jobs":[{"name":"Offline contract, fixture, and API tests","conclusion":"success"},{"name":"Commit references","conclusion":"success"},{"name":"Frontend build and component tests","conclusion":"success"}]}
+cmd=gh api repos/anthonygraca/gherkin-knowledge-graph/commits/29df105.../check-runs
+exit=0
+{"total_count":3,"checks":[{"name":"Frontend build and component tests","status":"completed","conclusion":"success","head_sha":"29df1050aea4ad8b0b42041fd519636a6b0b7794"},{"name":"Commit references","status":"completed","conclusion":"success","head_sha":"29df1050aea4ad8b0b42041fd519636a6b0b7794"},{"name":"Offline contract, fixture, and API tests","status":"completed","conclusion":"success","head_sha":"29df1050aea4ad8b0b42041fd519636a6b0b7794"}]}

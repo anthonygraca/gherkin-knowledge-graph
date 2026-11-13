@@ -146,9 +146,9 @@ def get_thread(
     description=(
         "M1 replays the reviewed sample findings committed under `fixtures/api-responses/`, "
         "generated from the hand-labeled oracle in `fixtures/banking-demo/expected/`. "
-        "`POST /api/assurance/evaluate` is contract-only in this snapshot (501; AS-01…AS-03). "
-        "`GET` keeps the reviewed sample until the rule set is implemented, so M2 findings are not "
-        "silently dropped."
+        "`POST /api/assurance/evaluate` runs the implemented M1 rule subset (missing verification "
+        "links); the remaining rules arrive with AS-02/AS-03. `GET` keeps the reviewed "
+        "sample until the rule set is implemented, so M2 findings are not silently dropped."
     ),
 )
 def get_findings(
