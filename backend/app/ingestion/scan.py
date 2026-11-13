@@ -13,7 +13,7 @@ from pydantic import ValidationError
 from app.domain.enums import ArtifactType
 from app.domain.models import Artifact
 from app.ingestion.errors import IngestionError
-from app.ingestion.parsers import parse_front_matter, parse_scenarios
+from app.ingestion.parsers import parse_annotation, parse_front_matter, parse_scenarios
 from app.ingestion.repository import GitRepository
 
 REQUIREMENTS_PREFIX = "requirements/"
@@ -52,6 +52,11 @@ def scan_artifacts(
             ]
         elif path.startswith(FEATURES_PREFIX) and path.endswith(".feature"):
             found = _scenarios(blob, path=path, revision=commit, repository_name=repository_name)
+        elif path.endswith(".py"):
+            artifact = _python_artifact(
+                blob, path=path, revision=commit, repository_name=repository_name
+            )
+            found = [] if artifact is None else [artifact]
         else:
             continue
 
@@ -83,6 +88,26 @@ def _requirement(blob: bytes, *, path: str, revision: str, repository_name: str)
         revision=revision,
         repository_name=repository_name,
         metadata={"status": fields.get("status", "active")},
+    )
+
+
+def _python_artifact(
+    blob: bytes, *, path: str, revision: str, repository_name: str
+) -> Artifact | None:
+    where = f"{revision}:{path}"
+    artifact_id = parse_annotation(_decode(blob, where=where), where=where)
+    if artifact_id is None:
+        return None
+    return _artifact(
+        artifact_id=artifact_id,
+        artifact_type=(
+            ArtifactType.SOURCE if artifact_id.startswith("CODE-") else ArtifactType.TEST
+        ),
+        title=path,
+        locator=path,
+        blob=blob,
+        revision=revision,
+        repository_name=repository_name,
     )
 
 

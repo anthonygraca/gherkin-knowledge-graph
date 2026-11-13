@@ -21,7 +21,9 @@ Lexing rules that matter (each exists because a review probe broke a looser rule
 
 from __future__ import annotations
 
+import io
 import re
+import tokenize
 from dataclasses import dataclass
 from typing import Any
 
@@ -31,6 +33,8 @@ from app.ingestion.errors import IngestionError
 
 SCENARIO_ID_RE = re.compile(r"SCN-\d{3}")
 SCENARIO_LINE_RE = re.compile(r"^[ \t]*Scenario:[ \t]*(?P<title>\S.*?)[ \t]*$")
+ANNOTATION_RE = re.compile(r"^#\s*cta:artifact\s+(?P<id>(?:CODE|TEST)-\d{3})\s*$")
+ANNOTATION_ATTEMPT_RE = re.compile(r"^\s*#\s*cta:artifact\b")
 DOC_STRING_DELIMITERS = ('"""', "```")
 
 INDENT = " \t"
@@ -178,6 +182,65 @@ def parse_scenarios(text: str, *, where: str) -> list[ScenarioDeclaration]:
         raise IngestionError(f"{where}: doc string opened with {doc_delimiter!r} is not terminated")
     if pending is not None:
         raise IngestionError(f"{where}: tag @{pending} is not followed by a 'Scenario:' line")
+    return found
+
+
+def parse_annotation(text: str, *, where: str) -> str | None:
+    """Return the first-line ``# cta:artifact CODE-nnn|TEST-nnn`` identity, if any.
+
+    Python's tokenizer decides what is a comment: annotation-like text inside a string literal
+    is data. A comment that follows code on the same line is trailing and is data; a comment that
+    is the only content on its line is a declaration candidate. Only a column-0 candidate on the
+    physical first line declares an identity. A later candidate is an error (naming both
+    identities when the first is valid), and an incomplete tokenization is an error rather than a
+    silently partial inventory.
+    """
+    lines = text.split("\n")
+    declarations = []
+    for row, column, comment in _annotation_comments(text, where=where):
+        line = lines[row - 1] if 0 < row <= len(lines) else ""
+        if line[:column].strip():
+            continue
+        declarations.append((row, column, comment))
+    if not declarations:
+        return None
+    if len(declarations) > 1:
+        described = ", ".join(
+            (
+                match.group("id")
+                if (match := ANNOTATION_RE.fullmatch(comment)) is not None
+                else comment
+            )
+            for _, _, comment in declarations
+        )
+        raise IngestionError(
+            f"{where}: a file may declare only one artifact annotation; found {described}"
+        )
+    row, column, comment = declarations[0]
+    match = ANNOTATION_RE.fullmatch(comment)
+    if row != 1 or column != 0 or match is None:
+        raise IngestionError(
+            f"{where}: an artifact annotation must be the first line at column 0 and use "
+            f"'# cta:artifact CODE-nnn|TEST-nnn': {comment!r} at line {row}"
+        )
+    return match.group("id")
+
+
+def _annotation_comments(text: str, *, where: str) -> list[tuple[int, int, str]]:
+    """Declaration-like comment tokens as ``(row, column, text)``, in source order.
+
+    Tokenization errors abort the scan: a partial comment inventory could hide a declaration or a
+    conflict, so the caller receives an error instead of a successful incomplete result.
+    """
+    found: list[tuple[int, int, str]] = []
+    try:
+        for token in tokenize.generate_tokens(io.StringIO(text).readline):
+            if token.type == tokenize.COMMENT and ANNOTATION_ATTEMPT_RE.match(token.string):
+                found.append((token.start[0], token.start[1], token.string))
+    except (tokenize.TokenError, IndentationError, SyntaxError) as exc:
+        raise IngestionError(
+            f"{where}: cannot tokenize the file to verify artifact declarations: {exc}"
+        ) from exc
     return found
 
 
