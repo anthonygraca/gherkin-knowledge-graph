@@ -52,6 +52,12 @@ Direction is `source --relation_type--> target`:
 Adding a relation type is an additive contract change: enum, docs, oracle, and tests in one
 change. Direction ambiguity is a bug — discovery is anchored on `source_id`.
 
+Ingestion validates every declared link: the file's `schema_version` must match, its
+`review_state` must match the file name, ids must be unique within and across the accepted and
+proposed files, both endpoints must exist at the revision, and the source/target artifact types
+must equal `RELATION_DIRECTION[relation_type]`. A violation fails ingestion; links are never
+silently dropped. The table in `app/domain/enums.py` is the executable form of this section.
+
 ## Review states
 
 `proposed` → `accepted` | `rejected`. Only humans (or the fixture) set these. Consequences:
