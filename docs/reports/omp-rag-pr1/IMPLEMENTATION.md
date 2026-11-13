@@ -12,7 +12,7 @@
 | Submission-4 records commit | `59d8644` — `docs(review): [issue #30] record PR 1 provider acceptance` (local; not pushed) |
 | Post-approval fix | `d7f9203` — `fix(ai): [issue #30] use a final-answer canary budget` (local; not pushed) |
 | Submission-5 records commit | the commit containing this report (record-only; see branch history) |
-| GitHub authority | **local-only**: read issues/PRs/checks; prepare local branch, commit, and publication text. No issue creation, push, PR, or merge was performed. |
+| GitHub authority | **Broadened by the user on 2026-11-13T16:39:52Z:** “stop after the first PR has been merged.” Branch push, PR creation, and merge are authorized after required checks. No issue creation, issue closure, force push, or deployment is authorized. This is the pre-publication snapshot. |
 | Milestone ceiling | M3 for PR 1–PR 3; PR 1 implements no M2 deterministic assurance and does not close M4 |
 | OMP model / thinking | installed `vllm/deepseek-ai/DeepSeek-V4.1-Flash-1017`; `max` (usage/cost telemetry not exposed; not claimed) |
 | Reviewer | Codex `gpt-6.1-sol`, reasoning effort `high` — **APPROVE** at submission 4 (implementation; [record](../../reviews/AI-01-hosted-provider-review-4.md)) and submission 5 (post-approval live probe/test change and evidence; [record](../../reviews/AI-01-hosted-provider-review-5.md)) |
@@ -370,9 +370,11 @@ Unrelated pre-existing change preserved and **not staged**: `.gitignore` (adds `
 | `d7f9203` | `fix(ai): [issue #30] use a final-answer canary budget` | [#30](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/30) | Post-approval probe canary prompt/64-token budget and live test prompt/budget, reviewed and approved at submission 5. |
 | submission-5 records | `docs(review): [issue #30] record PR 1 live evidence` | [#30](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/30) | This report update, review 5 record/packet, live capability evidence, prompt/metrics/retrospective updates, and `docs/STATUS.md`. The commit containing this report is identified by branch history. |
 
-These commits are local on `feat/30-hosted-ai-provider` and were not pushed, opened as a PR, or
-merged. GitHub authority was local-only. The unrelated `.gitignore` working-tree change was
-preserved and not staged.
+These commits were prepared locally. The user authorized publication on 2026-11-13T16:39:52Z
+(“stop after the first PR has been merged”). The PR number, checks, merge commit, and merge outcome
+are recorded in GitHub and the final run summary; this report is the pre-publication snapshot and is
+not rewritten to claim a future merge. The unrelated `.gitignore` working-tree change was preserved
+and not staged.
 
 ## Remaining risks and limitations
 

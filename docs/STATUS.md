@@ -105,7 +105,7 @@ M1-N2 packet digest) was repaired; the credit-exhaustion attempts did not consum
 Approval covers the M1 **engineering** gate only — stakeholder validation, human labels/link
 decisions, and release authorization remain owner gates.
 
-## RAG mission — PR 1 hosted provider slice (local, approved, unmerged)
+## RAG mission — PR 1 hosted provider slice (local, approved; publication authorized)
 
 As of 2026-11-13T16:36Z, the M1 milestone gate remains **SATISFIED** at the independent
 engineering review (`docs/reviews/M1-review-2.md`); M1 is not reopened. The RAG mission's PR 1 slice
@@ -129,11 +129,13 @@ post-approval probe/test change and live evidence were independently **APPROVE**
   (`finish_reason=stop`, 54 tokens, 553.3 ms) and schema-constrained JSON parsed (92 tokens). The
   configured model `deepseek-ai/DeepSeek-V4.1-Flash` was not in the catalogue and returned 404.
   Embeddings are **NOT RUN** — the configured local endpoint refused the connection.
-* **Publication:** local branch only as of this record; no issue creation, push, PR, or merge.
-  Local commits: `b722ef7` (implementation), `59d8644` (submission-4 records), `c113ae9`
-  (traceability), `d7f9203` (post-approval probe/test fix); all unpushed. The submission-5 records
-  commit follows this report. PR 2/PR 3 are not started; PR 3 still needs a real story issue with
-  human-reviewed criteria.
+* **Publication:** user-authorized on 2026-11-13T16:39:52Z (“stop after the first PR has been
+  merged”); branch push, PR creation, and merge are authorized after required checks. No issue
+  creation, issue closure, force push, or deployment is authorized. Local commits: `b722ef7`
+  (implementation), `59d8644` (submission-4 records), `c113ae9` (traceability), `d7f9203`
+  (post-approval probe/test fix), `01f8f16` (submission-5 records); this record is pre-PR. The PR
+  and merge outcome are recorded in GitHub and the final run summary. PR 2/PR 3 are not started;
+  PR 3 still needs a real story issue with human-reviewed criteria.
 
 ## M0 tracker closure (2026-11-13T06:49:39Z)
 
