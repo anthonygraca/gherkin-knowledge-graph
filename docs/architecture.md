@@ -29,7 +29,7 @@ Two rules explain most of the layout:
 
 ## Modules
 
-| Module | What it is | Status in M0 |
+| Module | What it is | Status |
 | --- | --- | --- |
 | `app/domain/enums.py` | Closed vocabularies: artifact types, relations, review states, finding types, rule ids, severities | Contract |
 | `app/domain/models.py` | `Artifact`, `TraceLink`, `VerificationEvidence`, `TraceCandidate`, `AssuranceFinding`, fingerprint function | Contract |
@@ -41,7 +41,7 @@ Two rules explain most of the layout:
 | `app/discovery/fake.py` | Fixture-backed candidate provider | Working implementation (deliberately fake) |
 | `app/assurance/sample_findings.py` | Replay of reviewed sample findings | Mock service (rule engine arrives in C-PR1) |
 | `app/api/` | Routes, dependencies, RFC 9457 problem documents | Working |
-| `app/ingestion/` | Parsers + persistence | Absent by design; created in B-PR1 |
+| `app/ingestion/` | Revision-pinned parsing: requirement/Gherkin artifacts (DT-01); source/test (DT-02), links (DT-03), store cutover (DT-04) | Requirements and scenarios implemented; the rest absent by design |
 | `frontend/` | React/TypeScript dashboard | Absent by design; created in C-PR1 |
 
 ## Request flows
@@ -65,14 +65,14 @@ writes the responses. `verify` does all of that into a temporary directory and d
 
 ## What is real and what is not
 
-| Claim | Reality in M0 |
+| Claim | Reality at this snapshot |
 | --- | --- |
 | Git history, tags, and revisions | Real. Four commits, fixed SHAs, verified reproducible. |
 | Artifact identity, content hashes, revisions | Real, computed from git blobs. |
 | Fixture tests passing/failing as labeled | Real: the suite runs the fixture's own tests at both tags. |
 | Findings | **Not computed.** Reviewed sample responses generated from the hand-labeled oracle. |
 | Retrieval quality | **Not measured.** Candidate scores are fixture labels, never model output. |
-| Ingestion from a real repository | Not implemented; `POST /api/ingestion/run` returns 501 naming B-PR1. |
+| Ingestion from a real repository | Requirements and Gherkin scenarios are parsed from the nested fixture repository at a pinned revision (DT-01). Source/test artifacts, links, and the API cutover land in DT-02…DT-04; `POST /api/ingestion/run` still returns 501 until DT-04. |
 | Link review and audit history | Not implemented; `POST /api/links/{id}/review` returns 501 naming AS-06. |
 
 This is why the `contract-only` endpoints return 501 instead of plausible-looking data: the

@@ -1,11 +1,11 @@
 # Status
 
 ```text
-Date:                2026-11-12
-Current branch:      main — at d4af73a (PR #42 merged 2026-11-12; #38 → efa824b, #41 → f34ae07
-                     after the owner's conforming merge-message rewrite, #42 → d4af73a with a
-                     conforming merge subject; hosted push run 43161043845 success)
-Milestone:           M0 — implementation complete; exit gate SATISFIED by re-review round 2
+Date:                2026-11-13
+Current branch:      main at e18cdcf (PR #43 merged); M1 work starts from that revision
+Milestone:           M0 — exit gate SATISFIED by re-review round 2 (historical record below)
+                     M1 — IN PROGRESS; gate NOT yet satisfied
+Active task:         DT-01 (#20) requirements and Gherkin parsed into stable artifacts
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
                      docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
                      NEEDS_INPUT; R1–R7 all repaired; AC-1.1…AC-1.8 and AC-2.1…AC-2.5 all PASS;
@@ -15,15 +15,14 @@ Independent review:  docs/reviews/M0-review.md — first review: "M0 not verifie
                      docs/reviews/M0-rereview-2.md — re-review round 2 (GPT-6.1 Sol, xhigh):
                      APPROVE at snapshot bca69cf (tree e55ff9f); R8 repaired/closed; no open
                      major finding; M0 exit criteria verified within scope
-Active task:         none — SETUP-01 commit-reference enforcement landed via PR #42; commitlint
-                     green on the landed history (9 commits). Next work: M1 (B: DT-01/DT-02,
-                     C: AS-01/AS-04) with A's M3 items in parallel; outstanding owner actions:
-                     #18/#19 closure, FT-03 review, required-check ruleset, README work item
-Tests executed:      M0 approved snapshot (bca69cf): 107 passed offline (also under an OS-level
-                     network denial); fixturectl verify exit 0; ruff clean.
-                     Current tree (main f34ae07 + the uncommitted SETUP-01 slice): 135 passed
-                     (same 135 under an OS-level network denial); fixturectl verify exit 0;
-                     ruff check/format clean (35 files); commitlint checks pass on real history.
+Historical (SETUP-01, 2026-11-12): the commit-reference slice landed via PR #42; commitlint
+                     green on the landed history (9 commits); the M0 approved snapshot bca69cf
+                     had 107 passed; the SETUP-01 tree then had 135 passed (also under an
+                     OS-level network denial). Outstanding owner actions: #18/#19 closure, the
+                     FT-03/project-definition reviews, the required-check ruleset, README work item.
+Tests executed:      DT-01 (2026-11-13T01:13Z): 169 passed (also under an OS-level network
+                     denial); fixturectl verify exit 0; ruff check/format clean. Round-1 review
+                     findings repaired; details in docs/reports/omp-dt-01-ingestion/.
 Current API/schema version: 0.1.0
 Tracker:             docs/traceability-issue-map.md (features → user stories → tasks)
 Run records:         docs/reports/omp-m0-rereview/ and docs/reports/omp-setup-01-commitlint/
@@ -32,6 +31,28 @@ Run records:         docs/reports/omp-m0-rereview/ and docs/reports/omp-setup-01
 Environment:         Python ≥3.11, uv, git ≥2.28; no GPU, LLM, vector store, Docker, or network
                      during tests
 ```
+
+## Roadmap execution — M1 (active)
+
+Run started 2026-11-13T00:44Z from `e18cdcf` in roadmap mode with the milestone ceiling at M1.
+GitHub authority for this run: scoped issue updates, branch pushes, PR creation, and merges after
+required CI and independent/owner reviews. M0's gate is satisfied; **M1's gate is not yet
+satisfied**. Lifecycle note: the draft `project-definition.md` intent/obligations and the M0
+feature-extraction reviews remain owner dispositions; M1 stories derive from the roadmap and do
+not claim that draft as an approved baseline.
+
+| Story | GitHub | Owner | Canonical feature | State |
+| --- | --- | --- | --- | --- |
+| DT-01 requirements + scenarios parsed | [#20](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/20) | B | [DT-01.feature](stories/DT-01.feature) | refined; implementation in review |
+| DT-02 source/test artifacts | [#21](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/21) | B | not yet written | eligible after DT-01 |
+| DT-03 typed links + review state | [#22](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/22) | B | not yet written | eligible after DT-02 |
+| DT-04 requirement thread | [#23](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/23) | B | not yet written | eligible after DT-03 |
+| AS-01 missing-link finding | [#2](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/2) | C | not yet written | eligible after DT-04 |
+| AS-04 findings/coverage summary | [#26](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/26) | C | not yet written | eligible after AS-01 |
+
+Per-task reports live under `docs/reports/omp-<task-slug>/`; each carries the AC-to-check table,
+actual commands/exits, the snapshot identity, and the independent verdict. Issue closure is
+recorded separately from implementation, approval, and merge.
 
 ## SETUP-01 commit-reference enforcement — landed (2026-11-12)
 
