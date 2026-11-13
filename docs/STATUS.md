@@ -2,11 +2,11 @@
 
 ```text
 Date:                2026-11-13
-Current branch:      main at 29df105 (AS-04 merged 2026-11-13T05:12Z)
+Current branch:      main at e1497cf (M1 review repairs merged 2026-11-13T06:05Z)
 Milestone:           M0 — exit gate SATISFIED by re-review round 2 (historical record below)
-                     M1 — implementation and exit demo COMPLETE; gate NOT satisfied:
-                     independent milestone review blocked by Codex credit exhaustion
-Active task:         none — awaiting the M1 milestone review (packet committed)
+                     M1 — exit gate SATISFIED by independent review round 2 at e1497cf;
+                     no open major finding
+Active task:         none — M1 complete through the authorized ceiling
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
                      docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
                      NEEDS_INPUT; R1–R7 all repaired; AC-1.1…AC-1.8 and AC-2.1…AC-2.5 all PASS;
@@ -16,6 +16,10 @@ Independent review:  docs/reviews/M0-review.md — first review: "M0 not verifie
                      docs/reviews/M0-rereview-2.md — re-review round 2 (GPT-6.1 Sol, xhigh):
                      APPROVE at snapshot bca69cf (tree e55ff9f); R8 repaired/closed; no open
                      major finding; M0 exit criteria verified within scope
+                     docs/reviews/M1-review.md — M1 round 1 NEEDS_INPUT (all 40 criteria and the
+                     engineering exit PASS; E1 hosted evidence, N1/N2); repairs landed
+                     docs/reviews/M1-review-2.md — M1 round 2 APPROVE at e1497cf, submission
+                     2 of 7; E1/N1/N2 closed; no open major finding
 Historical (SETUP-01, 2026-11-12): the commit-reference slice landed via PR #42; commitlint
                      green on the landed history (9 commits); the M0 approved snapshot bca69cf
                      had 107 passed; the SETUP-01 tree then had 135 passed (also under an
@@ -67,7 +71,7 @@ Per-task reports live under `docs/reports/omp-<task-slug>/`; each carries the AC
 actual commands/exits, the snapshot identity, and the independent verdict. Issue closure is
 recorded separately from implementation, approval, and merge.
 
-### M1 milestone — implementation complete, review blocked (2026-11-13)
+### M1 milestone — exit gate satisfied (2026-11-13)
 
 All six M1 stories are independently approved and merged (`26a25d0`, `590e776`, `0970f7a`,
 `c43541b`, `d238776`, `29df105`); issues #20/#21/#22/#23/#2/#26 are closed. The exit demo and
@@ -78,14 +82,12 @@ checks are recorded in [omp-m1-milestone/IMPLEMENTATION.md](reports/omp-m1-miles
 * 233 backend tests (normal and network-denied), 10 frontend tests, fixture verify, ruff,
   commitlint, and hosted CI run `43370472013` all pass.
 
-**M1 gate: NOT SATISFIED.** Milestone-review round 1 (2026-11-13T05:55Z) returned **NEEDS_INPUT**:
-all 40 story criteria and the engineering exit PASS at `29df105`, but hosted CI evidence was not
-retained (M1-E1, blocking), and two nonblocking doc/record fixes were requested (M1-N1/N2). Repairs:
-the raw hosted run/check-run evidence is committed under
-`reports/omp-m1-milestone/evidence/`; the findings OpenAPI description is corrected; the packet is
-rebuilt with one current manifest block. Submission 2 is pending. The milestone counter is 1 of 7
-used. Earlier credit-exhaustion attempts (`docs/reviews/M1-review-attempt-1.md`) did not consume
-submissions. Do not claim the gate until round 2 approves.
+**M1 gate: SATISFIED.** Independent milestone review round 2 **APPROVE** at review tree `e1497cf`
+(submission 2 of 7, `gpt-6.1-sol` at `xhigh`): all 40 story criteria and the engineering exit PASS,
+no open major finding. Round 1 NEEDS_INPUT (M1-E1 retained hosted evidence, M1-N1 OpenAPI text,
+M1-N2 packet digest) was repaired; the credit-exhaustion attempts did not consume submissions.
+Approval covers the M1 **engineering** gate only — stakeholder validation, human labels/link
+decisions, and release authorization remain owner gates.
 
 ## SETUP-01 commit-reference enforcement — landed (2026-11-12)
 
