@@ -288,6 +288,13 @@ class FixtureLinkFile(_FrozenModel):
             )
         return self
 
+    @model_validator(mode="after")
+    def _unique_ids(self) -> FixtureLinkFile:
+        identifiers = [link.link_id for link in self.links]
+        if len(identifiers) != len(set(identifiers)):
+            raise ValueError("link ids must be unique within a link file")
+        return self
+
 
 class MaterializedFindings(_FrozenModel):
     """``fixtures/api-responses/findings.<baseline>.json`` — sample findings response."""

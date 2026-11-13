@@ -91,3 +91,13 @@ class RuleId(StrEnum):
     VERIFICATION_FAILED = "RULE-VERIFICATION-FAILED"
     CANDIDATE_PENDING_REVIEW = "RULE-CANDIDATE-PENDING-REVIEW"
     LIFECYCLE_SUPERSEDED = "RULE-LIFECYCLE-SUPERSEDED"
+
+
+#: Allowed ``(source type, target type)`` for each relation. Ingestion rejects a link whose
+#: artifact types disagree with this table; the vocabulary and direction are the contract
+#: (docs/domain-contracts.md), not a convention each consumer re-implements.
+RELATION_DIRECTION: dict[RelationType, tuple[ArtifactType, ArtifactType]] = {
+    RelationType.VERIFIED_BY: (ArtifactType.REQUIREMENT, ArtifactType.SCENARIO),
+    RelationType.IMPLEMENTED_BY: (ArtifactType.SCENARIO, ArtifactType.SOURCE),
+    RelationType.EXERCISED_BY: (ArtifactType.SCENARIO, ArtifactType.TEST),
+}
