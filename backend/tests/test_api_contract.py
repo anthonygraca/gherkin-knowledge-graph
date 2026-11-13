@@ -415,7 +415,6 @@ def test_thread_matches_the_committed_example(
     ("path", "payload", "story"),
     [
         ("/api/links/LNK-007/review", {"decision": "accept", "reviewer_id": "rv-ana"}, "AS-06"),
-        ("/api/assurance/evaluate", {"baseline": "baseline-a"}, "AS-01"),
     ],
 )
 def test_contract_only_endpoints_are_honest(

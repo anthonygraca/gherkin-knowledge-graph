@@ -4,6 +4,7 @@ Endpoints are grouped by intent, which is also the honesty axis of the system:
 
 * **reads** — real implementations over the ingested fixture repository.
 * **ingestion** — parses the configured repository at a revision.
+* **assurance** — deterministic rules over ingested facts; no model calls.
 * **discovery** — real implementation, fixture provider; returns proposals only.
 * **contract-only** — the shape is frozen and documented, the implementation belongs to a
   later milestone; the response is 501 with the owning story, never fake success.
@@ -15,7 +16,14 @@ from typing import Annotated
 
 from fastapi import APIRouter, Path, Query
 
-from app.api.deps import FindingsDep, ProvidersDep, RepositoryDep, SettingsDep, StoreDep
+from app.api.deps import (
+    EvaluatorDep,
+    FindingsDep,
+    ProvidersDep,
+    RepositoryDep,
+    SettingsDep,
+    StoreDep,
+)
 from app.domain.api import (
     ArtifactListResponse,
     DiscoveryRequest,
@@ -225,16 +233,17 @@ def post_link_review(
 @router.post(
     "/api/assurance/evaluate",
     response_model=FindingsResponse,
-    tags=["contract-only"],
-    responses={501: _PROBLEM_501, 404: _PROBLEM_404, 422: {"model": ProblemDetails}},
-    summary="Run deterministic assurance rules (contract only in M0)",
+    tags=["assurance"],
+    responses={400: _PROBLEM_400, 404: _PROBLEM_404, 422: {"model": ProblemDetails}},
+    summary="Run the implemented deterministic assurance rules",
 )
-def post_assurance_evaluate(payload: EvaluateRequest) -> FindingsResponse:
-    raise FeatureNotImplemented(
-        story="AS-01, AS-02, AS-03 (C-PR1)",
-        milestone="M1/M2",
-        detail=(
-            "Deterministic rule evaluation is implemented with AS-01…AS-03 against the fixture "
-            "oracle. GET /api/findings currently returns the reviewed sample findings."
-        ),
+def post_assurance_evaluate(
+    payload: EvaluateRequest, repository: RepositoryDep, evaluator: EvaluatorDep
+) -> FindingsResponse:
+    canonical = repository.resolve_baseline(payload.baseline)
+    findings = evaluator.evaluate(canonical, policy=payload.policy)
+    return FindingsResponse(
+        schema_version=SCHEMA_VERSION,
+        baseline=canonical,
+        findings=findings,
     )
