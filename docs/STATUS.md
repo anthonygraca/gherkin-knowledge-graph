@@ -257,9 +257,10 @@ criterion is not satisfied by the external Ollama runtime used for the smoke.
 
 ## M3 — AI-07 artifact-aware code discovery (PR 2)
 
-**As of 2026-11-14T03:36Z**, AI-07 [#66] is implemented locally on base `e4bbd82` and independently
-**APPROVE** at submission 5 of 7 (`docs/reviews/AI-07-review-5.md`). No files were merged at the
-time of this record.
+**As of 2026-11-14T03:43Z**, AI-07 [#66] is implemented, independently **APPROVE** at submission 5
+of 7 (`docs/reviews/AI-07-review-5.md`), and merged as `277311f` via PR
+[#67](https://github.com/anthonygraca/gherkin-knowledge-graph/pull/67). Main CI run `43553079154`
+passed all four jobs. The issue remains open by owner disposition.
 
 * `POST /api/retrieval/code` returns baseline-bound source/test proposals with path, lines,
   revision, content hash, method, model identity, and a CTA snapshot binding; mapping validates the
