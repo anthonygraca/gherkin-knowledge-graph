@@ -1,0 +1,136 @@
+{
+  "aggregate": {
+    "false_candidate_rate": 0.25,
+    "mrr": 0.75,
+    "precision_at_5": 0.75,
+    "recall_at_1": 0.625,
+    "recall_at_10": 0.75,
+    "recall_at_5": 0.75
+  },
+  "dataset": "fixtures/banking-demo/expected/candidate-links.json",
+  "dataset_sha256": "sha256:713c7095a169606abe80d606d80a69a8953f2652c4d42423e46e974fc8a6e47a",
+  "index_revision": "sha256:acb64531ff9e59bdad1de5f61232eff7cb2e4528de28da9bb25c85b58278da3d",
+  "limitations": [
+    "Five hand-labeled candidate pairs are a harness check, not a general retrieval claim.",
+    "Scores are fixture labels, not model measurements."
+  ],
+  "model_version": "fake-fixture-v1",
+  "provider": "fake",
+  "schema_version": "1",
+  "sources": [
+    {
+      "artifact_id": "REQ-002",
+      "false_candidate_rate": 0.0,
+      "labels": {
+        "negative": [],
+        "positive": [
+          [
+            "REQ-002",
+            "SCN-002",
+            "verified_by"
+          ]
+        ]
+      },
+      "mrr": 1.0,
+      "precision_at_5": 1.0,
+      "recall_at_1": 1.0,
+      "recall_at_10": 1.0,
+      "recall_at_5": 1.0,
+      "returned": [
+        [
+          "REQ-002",
+          "SCN-002",
+          "verified_by"
+        ]
+      ]
+    },
+    {
+      "artifact_id": "SCN-001",
+      "false_candidate_rate": 0.0,
+      "labels": {
+        "negative": [],
+        "positive": [
+          [
+            "SCN-001",
+            "CODE-001",
+            "implemented_by"
+          ],
+          [
+            "SCN-001",
+            "TEST-001",
+            "exercised_by"
+          ]
+        ]
+      },
+      "mrr": 1.0,
+      "precision_at_5": 1.0,
+      "recall_at_1": 0.5,
+      "recall_at_10": 1.0,
+      "recall_at_5": 1.0,
+      "returned": [
+        [
+          "SCN-001",
+          "CODE-001",
+          "implemented_by"
+        ],
+        [
+          "SCN-001",
+          "TEST-001",
+          "exercised_by"
+        ]
+      ]
+    },
+    {
+      "artifact_id": "SCN-002",
+      "false_candidate_rate": 1.0,
+      "labels": {
+        "negative": [
+          [
+            "SCN-002",
+            "CODE-001",
+            "implemented_by"
+          ]
+        ],
+        "positive": []
+      },
+      "mrr": 0.0,
+      "precision_at_5": 0.0,
+      "recall_at_1": 0.0,
+      "recall_at_10": 0.0,
+      "recall_at_5": 0.0,
+      "returned": [
+        [
+          "SCN-002",
+          "CODE-001",
+          "implemented_by"
+        ]
+      ]
+    },
+    {
+      "artifact_id": "SCN-003",
+      "false_candidate_rate": 0.0,
+      "labels": {
+        "negative": [],
+        "positive": [
+          [
+            "SCN-003",
+            "TEST-002",
+            "exercised_by"
+          ]
+        ]
+      },
+      "mrr": 1.0,
+      "precision_at_5": 1.0,
+      "recall_at_1": 1.0,
+      "recall_at_10": 1.0,
+      "recall_at_5": 1.0,
+      "returned": [
+        [
+          "SCN-003",
+          "TEST-002",
+          "exercised_by"
+        ]
+      ]
+    }
+  ]
+}

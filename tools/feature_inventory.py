@@ -51,6 +51,7 @@ DISPOSITIONS: dict[str, dict[str, str]] = {
     },
     "docs/stories/SETUP-01.feature": {"status": "executed", "reason": ""},
     "docs/stories/AI-01.feature": {"status": "executed", "reason": ""},
+    "docs/stories/AI-05.feature": {"status": "executed", "reason": ""},
     "docs/stories/AI-07.feature": {"status": "executed", "reason": ""},
     "docs/stories/AI-08.feature": {"status": "executed", "reason": ""},
     "docs/stories/AI-09.feature": {"status": "executed", "reason": ""},
