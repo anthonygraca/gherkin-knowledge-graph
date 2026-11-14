@@ -277,6 +277,24 @@ passed all four jobs. The issue remains open by owner disposition.
 * AI-06 (#56), AI-02 (#31), AI-03 (#32), AI-05 (#35) remain open. PR 3 (GraphRAG) and PR 4
   (evaluation) briefs are in `docs/reports/omp-cocoindex-pr2/NEXT-SLICES.md` (mission prompt).
 
+## M3 — AI-08/PR 3 GraphRAG and AI-09/PR 4 benchmark (merged)
+
+**As of 2026-11-14T06:11Z**, AI-08 [#69] and AI-09 [#70] are independently **APPROVE** at combined
+submission 4 of 7 (`docs/reviews/AI-08-AI-09-review-4.md`) and merged as `86b1db3` via PR
+[#71](https://github.com/anthonygraca/gherkin-knowledge-graph/pull/71). Main CI run `43565095101`
+passed all four jobs. Both issues remain open by owner disposition.
+
+* `POST /api/answers` traverses only accepted links, returns ordered graph paths with accepted link
+  and evidence IDs, applies M2 evidence precedence, and cites only retrieved IDs. Proposed links and
+  semantic candidates stay separate; deterministic text, `chat_model=null`.
+* Four-arm benchmark: A lexical and B live CocoIndex on identical four-file snapshots/labels;
+  C accepted graph and D hybrid scored against owner-attested answer labels. C/D exact agreement
+  1.0 for status, links, exact findings, evidence, paths, citations, revisions; unsupported claim
+  rate 0.0.
+* A/B result remains negative for CocoIndex on this corpus (no Recall@1 gain, lower precision,
+  ~1 s/query). No general retrieval claim; M3/M4 are not closed.
+* Schema `0.5.0` (additive); 478 backend passed / 3 skipped; 112 Cucumber scenarios / 933 results.
+
 ## M0 tracker closure (2026-11-13T06:49:39Z)
 
 The M0 engineering gate was already independently approved at `bca69cf`
