@@ -209,7 +209,7 @@ Template tokens inside fixture overlays: `{{COMMIT:<commit-id>}}`,
 `{{DISCOVERY_PROVIDER}}`, `{{DISCOVERY_MODEL_VERSION}}`, `{{DISCOVERY_INDEX_REVISION}}`.
 Unknown tokens fail the build rather than rendering literally.
 
-## Portable repository contracts (schema 0.4.0, additive)
+## Portable repository contracts (schema 0.5.0, additive)
 
 These models live in `app/domain/portable.py` and are deliberately separate from CTA's strict
 fixture artifacts. An external repository needs no `@SCN-nnn` tag, no `# cta:artifact` annotation,
@@ -242,7 +242,7 @@ indexed feature content, and the same report bytes cannot be rebound to another 
 report never yields an undefined-step finding or a fabricated execution. Scenario outcomes include
 hook results; a missing step result is `UNKNOWN`, never a pass.
 
-## Executable relations (schema 0.4.0, additive)
+## Executable relations (schema 0.5.0, additive)
 
 `ExecutableRelation(relation, origin, source_key, target_key, provenance)` with origins
 `extracted` (Gherkin AST), `matched` (framework resolution), and `observed` (a trusted report).
@@ -255,7 +255,7 @@ Executability findings (`undefined_step`, `ambiguous_step`, `execution_failed`) 
 requirement findings and carry portable artifact keys, not `REQ-/SCN-/CODE-/TEST-` ids.
 
 
-## Code retrieval contracts (schema 0.4.0, additive; AI-07)
+## Code retrieval contracts (schema 0.5.0, additive; AI-07)
 
 `CodeRetrievalRequest` = `artifact_id`, optional `baseline`, `top_k` (1..50), optional `method`
 (`lexical`/`cocoindex`; null selects CocoIndex when configured, else lexical), optional
@@ -282,3 +282,24 @@ Rules:
   request fails explicitly rather than returning cross-baseline hits.
 * The lexical method is a deterministic comparator over the same snapshot; it is not a research
   claim about semantic retrieval quality.
+
+
+## Evidence-answer contracts (schema 0.5.0, additive; AI-08)
+
+`AnswerRequest` = optional `requirement_id`, optional `question` (one required), optional
+`baseline`, `include_semantic_candidates`, optional `semantic_method`.
+
+`AnswerResponse` = schema version, question, requirement id, baseline/revision, status
+(`answered`/`abstained`/`not_found`), answer text, evidence state
+(`passed`/`failed`/`missing`/`none`), accepted links, proposed links, artifacts, evidence,
+`GraphPath`s, M2 findings, semantic candidates, method, references, `explanation_method`,
+`chat_model`, uncertainties.
+
+Rules:
+
+* `GraphPath` contains artifact ids, accepted link ids, evidence ids, and `review_state=accepted`.
+* Proposed links and semantic candidates never appear inside graph paths or accepted links.
+* References are a whitelist computed from the retrieved context.
+* No chat model is called; `chat_model` is null and the explanation is deterministic.
+* Missing accepted verification or missing evidence produces `abstained`, not a failure claim.
+* Answer text explains deterministic findings; it never re-derives M2 policy.

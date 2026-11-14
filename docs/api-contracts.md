@@ -18,7 +18,7 @@ with a tag and with that tag's SHA returns identical bodies. Version-pinning fie
 {
   "status": "ok",
   "package_version": "0.1.0",
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "fixture": "banking-demo",
   "baselines": ["baseline-a", "baseline-b"],
   "baseline_commits": {
@@ -37,7 +37,7 @@ coverage without hard-coded identities.
 
 ```json
 {
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "baseline": "baseline-a",
   "artifacts": [
     {
@@ -83,7 +83,7 @@ it does not read the generated example files.
 
 ```json
 {
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "root_id": "REQ-002",
   "baseline": "baseline-a",
   "artifacts": [
@@ -128,7 +128,7 @@ findings are not silently dropped from this response.
 
 ```json
 {
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "baseline": "baseline-b",
   "findings": [
     {
@@ -203,7 +203,7 @@ Response:
 
 ```json
 {
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "baseline": "baseline-a",
   "findings": [
     {
@@ -245,7 +245,7 @@ Response (abridged; `fixtures/api-responses/discovery.SCN-001.json` is the full 
 
 ```json
 {
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "artifact_id": "SCN-001",
   "provider": "fake",
   "model_version": "fake-fixture-v1",
@@ -301,7 +301,7 @@ first, so the contract is real even though the behaviour is not implemented:
 * Do not cache findings across baselines: `evaluated_baseline` is part of their meaning.
 
 
-## Portable repository endpoints (schema 0.4.0, additive)
+## Portable repository endpoints (schema 0.5.0, additive)
 
 All responses are repository- and revision-scoped. Omitted `revision` means the most recently
 indexed commit for that repository; an unindexed repository or revision is 404
@@ -325,7 +325,7 @@ Example (`GET /api/repositories/external-recipes/bindings?revision=v1`) before a
 
 ```json
 {
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "repository_id": "external-recipes",
   "revision": "4851146c92d4c02b1be5e3989a3947fb89997993",
   "availability": "not_available",
@@ -354,7 +354,7 @@ bytes were already attributed to another revision is refused (`report-not-applic
 imports of the same report at the same revision are idempotent (`imported: false`).
 
 
-## Code retrieval endpoint (schema 0.4.0, additive)
+## Code retrieval endpoint (schema 0.5.0, additive)
 
 `POST /api/retrieval/code` returns provenance-rich source/test proposals for one scenario at one
 baseline. It writes nothing.
@@ -372,7 +372,7 @@ Response (abridged):
 
 ```json
 {
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "artifact_id": "SCN-001",
   "baseline": "baseline-a",
   "revision": "<commit>",
@@ -406,3 +406,18 @@ Explicit `method: "cocoindex"` without configuration returns `status: "not_avail
 hits and a reason; it is not an empty success. A configured provider error is a 503 problem document
 with the adapter's typed code (`cocoindex-*`). `POST /api/discovery` accepts an optional `baseline`
 for the `cocoindex` provider; the default `fake` provider remains offline.
+
+
+## Evidence-answer endpoint (schema 0.5.0, additive)
+
+`POST /api/answers`
+
+```json
+{"requirement_id": "REQ-001", "baseline": "baseline-b", "include_semantic_candidates": false}
+```
+
+Returns `status`, deterministic `answer`, `evidence_state`, separated `accepted_links`/
+`proposed_links`, artifacts, evidence, accepted-only `graph_paths`, deterministic findings,
+optional semantic candidates, references, `explanation_method="deterministic"`, and
+`chat_model=null`. Unknown requirement ids return 404; unmatched questions return
+`status="not_found"` without inventing a requirement.

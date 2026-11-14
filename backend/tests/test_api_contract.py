@@ -46,6 +46,7 @@ CONTRACTED_PATHS = {
     "/api/repositories/{repository_id}/relations",
     "/api/repositories/{repository_id}/executable-findings",
     "/api/retrieval/code",
+    "/api/answers",
 }
 
 

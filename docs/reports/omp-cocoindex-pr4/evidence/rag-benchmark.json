@@ -1,0 +1,422 @@
+{
+  "A_B_code_retrieval": {
+    "cocoindex_live": {
+      "aggregate": {
+        "false_candidate_rate": 0.5833,
+        "mrr": 1.0,
+        "precision_at_5": 0.4167,
+        "recall_at_1": 0.6667,
+        "recall_at_5": 1.0
+      },
+      "cases": [
+        {
+          "artifact_id": "SCN-001",
+          "baseline": "baseline-a",
+          "case": "CR-001",
+          "false_candidate_rate": 0.5,
+          "index_binding": "snapshot:sha256:3a8ea30ca7b39b768ebeea7aa1b59fb44b5246a1b129a75b2c9682145d0b0a25",
+          "latency_ms": 940.04,
+          "mrr": 1.0,
+          "precision_at_5": 0.5,
+          "ranked": [
+            "CODE-001",
+            "TEST-001",
+            "CODE-002",
+            "TEST-002"
+          ],
+          "recall_at_1": 0.5,
+          "recall_at_5": 1.0,
+          "relevant": [
+            "CODE-001",
+            "TEST-001"
+          ],
+          "status": "ok",
+          "unresolved": []
+        },
+        {
+          "artifact_id": "SCN-002",
+          "baseline": "baseline-a",
+          "case": "CR-002",
+          "false_candidate_rate": 0.75,
+          "index_binding": "snapshot:sha256:3a8ea30ca7b39b768ebeea7aa1b59fb44b5246a1b129a75b2c9682145d0b0a25",
+          "latency_ms": 943.519,
+          "mrr": 1.0,
+          "precision_at_5": 0.25,
+          "ranked": [
+            "CODE-002",
+            "TEST-002",
+            "CODE-001",
+            "TEST-001"
+          ],
+          "recall_at_1": 1.0,
+          "recall_at_5": 1.0,
+          "relevant": [
+            "CODE-002"
+          ],
+          "status": "ok",
+          "unresolved": []
+        },
+        {
+          "artifact_id": "SCN-003",
+          "baseline": "baseline-a",
+          "case": "CR-003",
+          "false_candidate_rate": 0.5,
+          "index_binding": "snapshot:sha256:3a8ea30ca7b39b768ebeea7aa1b59fb44b5246a1b129a75b2c9682145d0b0a25",
+          "latency_ms": 969.181,
+          "mrr": 1.0,
+          "precision_at_5": 0.5,
+          "ranked": [
+            "CODE-002",
+            "TEST-002",
+            "CODE-001",
+            "TEST-001"
+          ],
+          "recall_at_1": 0.5,
+          "recall_at_5": 1.0,
+          "relevant": [
+            "CODE-002",
+            "TEST-002"
+          ],
+          "status": "ok",
+          "unresolved": []
+        }
+      ],
+      "mean_latency_ms": 950.913,
+      "method": "cocoindex",
+      "model_version": "cocoindex-code 0.2.43; embedding=ollama/embeddinggemma-2:270m-q8_0-text"
+    },
+    "lexical": {
+      "aggregate": {
+        "false_candidate_rate": 0.4444,
+        "mrr": 1.0,
+        "precision_at_5": 0.5556,
+        "recall_at_1": 0.6667,
+        "recall_at_5": 1.0
+      },
+      "cases": [
+        {
+          "artifact_id": "SCN-001",
+          "baseline": "baseline-a",
+          "case": "CR-001",
+          "false_candidate_rate": 0.3333333333333333,
+          "index_binding": "snapshot:sha256:3a8ea30ca7b39b768ebeea7aa1b59fb44b5246a1b129a75b2c9682145d0b0a25",
+          "latency_ms": 0.744,
+          "mrr": 1.0,
+          "precision_at_5": 0.6666666666666666,
+          "ranked": [
+            "CODE-001",
+            "CODE-002",
+            "TEST-001"
+          ],
+          "recall_at_1": 0.5,
+          "recall_at_5": 1.0,
+          "relevant": [
+            "CODE-001",
+            "TEST-001"
+          ],
+          "status": "ok",
+          "unresolved": []
+        },
+        {
+          "artifact_id": "SCN-002",
+          "baseline": "baseline-a",
+          "case": "CR-002",
+          "false_candidate_rate": 0.6666666666666666,
+          "index_binding": "snapshot:sha256:3a8ea30ca7b39b768ebeea7aa1b59fb44b5246a1b129a75b2c9682145d0b0a25",
+          "latency_ms": 0.6,
+          "mrr": 1.0,
+          "precision_at_5": 0.3333333333333333,
+          "ranked": [
+            "CODE-002",
+            "TEST-002",
+            "CODE-001"
+          ],
+          "recall_at_1": 1.0,
+          "recall_at_5": 1.0,
+          "relevant": [
+            "CODE-002"
+          ],
+          "status": "ok",
+          "unresolved": []
+        },
+        {
+          "artifact_id": "SCN-003",
+          "baseline": "baseline-a",
+          "case": "CR-003",
+          "false_candidate_rate": 0.3333333333333333,
+          "index_binding": "snapshot:sha256:3a8ea30ca7b39b768ebeea7aa1b59fb44b5246a1b129a75b2c9682145d0b0a25",
+          "latency_ms": 0.57,
+          "mrr": 1.0,
+          "precision_at_5": 0.6666666666666666,
+          "ranked": [
+            "CODE-002",
+            "TEST-002",
+            "CODE-001"
+          ],
+          "recall_at_1": 0.5,
+          "recall_at_5": 1.0,
+          "relevant": [
+            "CODE-002",
+            "TEST-002"
+          ],
+          "status": "ok",
+          "unresolved": []
+        }
+      ],
+      "mean_latency_ms": 0.638,
+      "method": "lexical",
+      "model_version": "deterministic-token-overlap-v1"
+    }
+  },
+  "C_graph_answers": {
+    "aggregate": {
+      "accepted_links_ok": 1.0,
+      "citation_ok": 1.0,
+      "claims_ok": 1.0,
+      "evidence_ok": 1.0,
+      "findings_ok": 1.0,
+      "forbidden_findings_ok": 1.0,
+      "paths_ok": 1.0,
+      "proposed_links_ok": 1.0,
+      "revisions_ok": 1.0,
+      "status_ok": 1.0
+    },
+    "cases": [
+      {
+        "accepted_links_ok": true,
+        "artifact_digest": "sha256:cb870547aa8d8c3fba2109d4694a4894023421af4a1513856fb33dcd7de3bad4",
+        "case": "EA-001",
+        "citation_ok": true,
+        "claims_ok": true,
+        "evidence_digest": "sha256:683a5641543514c397f57362075f180542b05dc002f33333b4ed7887aa00a144",
+        "evidence_ok": true,
+        "finding_digest": "sha256:d8272dfaa4c0373098d6415cd16ce9d2e64a360f4de1a8d1870bc405515ceee4",
+        "findings_ok": true,
+        "forbidden_findings_ok": true,
+        "latency_ms": 292.221,
+        "link_digest": "sha256:3a130425ba417a8d7a471785e606200bb8b54c150948bf6f42695e04ca23fd5e",
+        "paths_ok": true,
+        "proposed_links_ok": true,
+        "revision": "559e680834a07c6a98158ea2d642386a7db319bb",
+        "revisions_ok": true,
+        "semantic_candidates": 0,
+        "semantic_false_candidate_rate": 0.0,
+        "status": "answered",
+        "status_ok": true
+      },
+      {
+        "accepted_links_ok": true,
+        "artifact_digest": "sha256:34e170b88fbb0ff2ccd551f812dfb27cc94a27b1dd42acff81ea948a300d3431",
+        "case": "EA-002",
+        "citation_ok": true,
+        "claims_ok": true,
+        "evidence_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "evidence_ok": true,
+        "finding_digest": "sha256:56eaea2396f050e32f0ffb9790b6175e338c62153de585bd0f86920bfdbbd301",
+        "findings_ok": true,
+        "forbidden_findings_ok": true,
+        "latency_ms": 0.285,
+        "link_digest": "sha256:274da627edf8c7232201de801cf10d29577e98a5892cda7a4ff60e07fbf2ce4d",
+        "paths_ok": true,
+        "proposed_links_ok": true,
+        "revision": "559e680834a07c6a98158ea2d642386a7db319bb",
+        "revisions_ok": true,
+        "semantic_candidates": 0,
+        "semantic_false_candidate_rate": 0.0,
+        "status": "abstained",
+        "status_ok": true
+      },
+      {
+        "accepted_links_ok": true,
+        "artifact_digest": "sha256:05f568b8f5c62d59649af07038921b4fd3fd23ba539f3ea80d45f30c30c1100f",
+        "case": "EA-003",
+        "citation_ok": true,
+        "claims_ok": true,
+        "evidence_digest": "sha256:b22ed73ddf74b5fb0bb27335fb47d41417aadb49ea08aa346b99b738707cb8ad",
+        "evidence_ok": true,
+        "finding_digest": "sha256:670da99636e8cc7de20d4a5601f6975f5f881c9c746754cf3eea4a0e69f65d2e",
+        "findings_ok": true,
+        "forbidden_findings_ok": true,
+        "latency_ms": 0.262,
+        "link_digest": "sha256:15c8a2cef362b7d5854bac55f068b2bb234d4c7925a291b2c9c23aa87dfc10c1",
+        "paths_ok": true,
+        "proposed_links_ok": true,
+        "revision": "559e680834a07c6a98158ea2d642386a7db319bb",
+        "revisions_ok": true,
+        "semantic_candidates": 0,
+        "semantic_false_candidate_rate": 0.0,
+        "status": "answered",
+        "status_ok": true
+      },
+      {
+        "accepted_links_ok": true,
+        "artifact_digest": "sha256:d4d9f5aa66f4fe183ed788deab6b6c8a9a740aaf5146886083b19b2339c6db59",
+        "case": "EA-004",
+        "citation_ok": true,
+        "claims_ok": true,
+        "evidence_digest": "sha256:683a5641543514c397f57362075f180542b05dc002f33333b4ed7887aa00a144",
+        "evidence_ok": true,
+        "finding_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "findings_ok": true,
+        "forbidden_findings_ok": true,
+        "latency_ms": 0.202,
+        "link_digest": "sha256:3a130425ba417a8d7a471785e606200bb8b54c150948bf6f42695e04ca23fd5e",
+        "paths_ok": true,
+        "proposed_links_ok": true,
+        "revision": "19824b5c3e0c5b0491088f1b260f3c7ce648df3b",
+        "revisions_ok": true,
+        "semantic_candidates": 0,
+        "semantic_false_candidate_rate": 0.0,
+        "status": "answered",
+        "status_ok": true
+      }
+    ],
+    "forbidden_finding_violation_rate": 0.0,
+    "mean_latency_ms": 73.243,
+    "method": "accepted_graph",
+    "semantic_false_candidate_rate": 0.0,
+    "stored_proposal_mismatch_rate": 0.0,
+    "unsupported_claim_rate": 0.0
+  },
+  "D_hybrid_answers": {
+    "aggregate": {
+      "accepted_links_ok": 1.0,
+      "citation_ok": 1.0,
+      "claims_ok": 1.0,
+      "evidence_ok": 1.0,
+      "findings_ok": 1.0,
+      "forbidden_findings_ok": 1.0,
+      "paths_ok": 1.0,
+      "proposed_links_ok": 1.0,
+      "revisions_ok": 1.0,
+      "status_ok": 1.0
+    },
+    "cases": [
+      {
+        "accepted_links_ok": true,
+        "artifact_digest": "sha256:cb870547aa8d8c3fba2109d4694a4894023421af4a1513856fb33dcd7de3bad4",
+        "case": "EA-001",
+        "citation_ok": true,
+        "claims_ok": true,
+        "evidence_digest": "sha256:683a5641543514c397f57362075f180542b05dc002f33333b4ed7887aa00a144",
+        "evidence_ok": true,
+        "finding_digest": "sha256:d8272dfaa4c0373098d6415cd16ce9d2e64a360f4de1a8d1870bc405515ceee4",
+        "findings_ok": true,
+        "forbidden_findings_ok": true,
+        "latency_ms": 15.93,
+        "link_digest": "sha256:3a130425ba417a8d7a471785e606200bb8b54c150948bf6f42695e04ca23fd5e",
+        "paths_ok": true,
+        "proposed_links_ok": true,
+        "revision": "559e680834a07c6a98158ea2d642386a7db319bb",
+        "revisions_ok": true,
+        "semantic_candidates": 3,
+        "semantic_false_candidate_rate": 0.3333,
+        "status": "answered",
+        "status_ok": true
+      },
+      {
+        "accepted_links_ok": true,
+        "artifact_digest": "sha256:34e170b88fbb0ff2ccd551f812dfb27cc94a27b1dd42acff81ea948a300d3431",
+        "case": "EA-002",
+        "citation_ok": true,
+        "claims_ok": true,
+        "evidence_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "evidence_ok": true,
+        "finding_digest": "sha256:56eaea2396f050e32f0ffb9790b6175e338c62153de585bd0f86920bfdbbd301",
+        "findings_ok": true,
+        "forbidden_findings_ok": true,
+        "latency_ms": 0.266,
+        "link_digest": "sha256:274da627edf8c7232201de801cf10d29577e98a5892cda7a4ff60e07fbf2ce4d",
+        "paths_ok": true,
+        "proposed_links_ok": true,
+        "revision": "559e680834a07c6a98158ea2d642386a7db319bb",
+        "revisions_ok": true,
+        "semantic_candidates": 0,
+        "semantic_false_candidate_rate": 0.0,
+        "status": "abstained",
+        "status_ok": true
+      },
+      {
+        "accepted_links_ok": true,
+        "artifact_digest": "sha256:05f568b8f5c62d59649af07038921b4fd3fd23ba539f3ea80d45f30c30c1100f",
+        "case": "EA-003",
+        "citation_ok": true,
+        "claims_ok": true,
+        "evidence_digest": "sha256:b22ed73ddf74b5fb0bb27335fb47d41417aadb49ea08aa346b99b738707cb8ad",
+        "evidence_ok": true,
+        "finding_digest": "sha256:670da99636e8cc7de20d4a5601f6975f5f881c9c746754cf3eea4a0e69f65d2e",
+        "findings_ok": true,
+        "forbidden_findings_ok": true,
+        "latency_ms": 1.788,
+        "link_digest": "sha256:15c8a2cef362b7d5854bac55f068b2bb234d4c7925a291b2c9c23aa87dfc10c1",
+        "paths_ok": true,
+        "proposed_links_ok": true,
+        "revision": "559e680834a07c6a98158ea2d642386a7db319bb",
+        "revisions_ok": true,
+        "semantic_candidates": 3,
+        "semantic_false_candidate_rate": 0.3333,
+        "status": "answered",
+        "status_ok": true
+      },
+      {
+        "accepted_links_ok": true,
+        "artifact_digest": "sha256:d4d9f5aa66f4fe183ed788deab6b6c8a9a740aaf5146886083b19b2339c6db59",
+        "case": "EA-004",
+        "citation_ok": true,
+        "claims_ok": true,
+        "evidence_digest": "sha256:683a5641543514c397f57362075f180542b05dc002f33333b4ed7887aa00a144",
+        "evidence_ok": true,
+        "finding_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "findings_ok": true,
+        "forbidden_findings_ok": true,
+        "latency_ms": 15.569,
+        "link_digest": "sha256:3a130425ba417a8d7a471785e606200bb8b54c150948bf6f42695e04ca23fd5e",
+        "paths_ok": true,
+        "proposed_links_ok": true,
+        "revision": "19824b5c3e0c5b0491088f1b260f3c7ce648df3b",
+        "revisions_ok": true,
+        "semantic_candidates": 3,
+        "semantic_false_candidate_rate": 0.3333,
+        "status": "answered",
+        "status_ok": true
+      }
+    ],
+    "forbidden_finding_violation_rate": 0.0,
+    "mean_latency_ms": 8.388,
+    "method": "graph_plus_lexical_candidates",
+    "semantic_false_candidate_rate": 0.25,
+    "stored_proposal_mismatch_rate": 0.0,
+    "unsupported_claim_rate": 0.0
+  },
+  "baselines": {
+    "baseline-a": "19824b5c3e0c5b0491088f1b260f3c7ce648df3b",
+    "baseline-b": "559e680834a07c6a98158ea2d642386a7db319bb"
+  },
+  "fixture": "banking-demo",
+  "generated_at": "2026-11-14T05:57:49Z",
+  "implementation_hashes": {
+    "app/domain/answers.py": "sha256:a6468c0eb4995acbebaee3761e90a120c7d777ef84d83458435382c5872ec077",
+    "app/graphrag/context.py": "sha256:be05b3d976c10ad4a6027b7be1097c0586bab7b6fd41f8933a700171a1ca07ee",
+    "tools/evaluate_rag.py": "sha256:433e32100411bfc1b04ae1852e02f8889bfa84e6088ba09aceeb8ef5bd56dcfc"
+  },
+  "inputs": {
+    "answer_labels": {
+      "path": "fixtures/banking-demo/expected/evidence-answers.json",
+      "sha256": "sha256:cae8be443fdd5ee594e09bd39c896261bd742933c279e53706677506a56ab522"
+    },
+    "code_eval": {
+      "path": "docs/reports/omp-cocoindex-pr2/evidence/live-eval-baseline-a.json",
+      "sha256": "sha256:79ddbf780117f5729afc7a953670f89b05505731b83d0871e6a10a9d13208b50"
+    },
+    "code_labels": {
+      "path": "fixtures/banking-demo/expected/code-retrieval.json",
+      "sha256": "sha256:694bba1aafe74d7cc9c50ec71f97a89d3b2dc27ade4d3cd0d94abf37f772a344"
+    }
+  },
+  "limitations": [
+    "C and D receive accepted-graph information that A/B do not; compare them separately.",
+    "Answer labels are hand-derived from the M1/M2 fixture oracle.",
+    "This benchmark does not close M4 and makes no general retrieval-quality claim."
+  ],
+  "schema_version": "1"
+}

@@ -1,0 +1,305 @@
+{
+  "schema_version": "1",
+  "fixture": "banking-demo",
+  "hand_labeled": true,
+  "hand_labeled_at": "2026-11-14",
+  "basis": "Derived from the hand-labeled M1 link/evidence fixtures and the M2 findings oracle; not from answer output.",
+  "cases": [
+    {
+      "id": "EA-001",
+      "baseline": "baseline-b",
+      "requirement_id": "REQ-001",
+      "status": "answered",
+      "accepted_links": [
+        "LNK-001",
+        "LNK-002",
+        "LNK-003"
+      ],
+      "proposed_links": [],
+      "evidence": [
+        "EV-001"
+      ],
+      "findings": [
+        "reverification_required"
+      ],
+      "forbidden_findings": [
+        "verification_failed"
+      ],
+      "path_artifact_sets": [
+        [
+          "REQ-001",
+          "SCN-001"
+        ],
+        [
+          "CODE-001",
+          "REQ-001",
+          "SCN-001"
+        ],
+        [
+          "REQ-001",
+          "SCN-001",
+          "TEST-001"
+        ]
+      ],
+      "paths": [
+        {
+          "artifact_ids": [
+            "REQ-001",
+            "SCN-001"
+          ],
+          "link_ids": [
+            "LNK-001"
+          ],
+          "evidence_ids": [
+            "EV-001"
+          ]
+        },
+        {
+          "artifact_ids": [
+            "REQ-001",
+            "SCN-001",
+            "CODE-001"
+          ],
+          "link_ids": [
+            "LNK-001",
+            "LNK-002"
+          ],
+          "evidence_ids": [
+            "EV-001"
+          ]
+        },
+        {
+          "artifact_ids": [
+            "REQ-001",
+            "SCN-001",
+            "TEST-001"
+          ],
+          "link_ids": [
+            "LNK-001",
+            "LNK-003"
+          ],
+          "evidence_ids": [
+            "EV-001"
+          ]
+        }
+      ],
+      "required_answer_tokens": [
+        "reverification_required",
+        "not a verification failure"
+      ],
+      "forbidden_answer_tokens": [
+        "has a recorded failing execution",
+        "all its tests passed"
+      ]
+    },
+    {
+      "id": "EA-002",
+      "baseline": "baseline-b",
+      "requirement_id": "REQ-002",
+      "status": "abstained",
+      "accepted_links": [],
+      "proposed_links": [
+        "LNK-007"
+      ],
+      "evidence": [],
+      "findings": [
+        "missing_verification_link",
+        "candidate_pending_review"
+      ],
+      "forbidden_findings": [
+        "verification_failed"
+      ],
+      "path_artifact_sets": [],
+      "paths": [],
+      "required_answer_tokens": [
+        "no accepted verification scenario",
+        "no verification claim"
+      ],
+      "forbidden_answer_tokens": [
+        "has a recorded failing execution",
+        "all its tests passed",
+        "verification_failed",
+        "reverification_required"
+      ]
+    },
+    {
+      "id": "EA-003",
+      "baseline": "baseline-b",
+      "requirement_id": "REQ-003",
+      "status": "answered",
+      "accepted_links": [
+        "LNK-004",
+        "LNK-005",
+        "LNK-006"
+      ],
+      "proposed_links": [],
+      "evidence": [
+        "EV-002",
+        "EV-003"
+      ],
+      "findings": [
+        "verification_failed",
+        "lifecycle_review_required"
+      ],
+      "forbidden_findings": [
+        "reverification_required"
+      ],
+      "path_artifact_sets": [
+        [
+          "REQ-003",
+          "SCN-003"
+        ],
+        [
+          "CODE-002",
+          "REQ-003",
+          "SCN-003"
+        ],
+        [
+          "REQ-003",
+          "SCN-003",
+          "TEST-002"
+        ]
+      ],
+      "paths": [
+        {
+          "artifact_ids": [
+            "REQ-003",
+            "SCN-003"
+          ],
+          "link_ids": [
+            "LNK-004"
+          ],
+          "evidence_ids": [
+            "EV-002",
+            "EV-003"
+          ]
+        },
+        {
+          "artifact_ids": [
+            "REQ-003",
+            "SCN-003",
+            "CODE-002"
+          ],
+          "link_ids": [
+            "LNK-004",
+            "LNK-005"
+          ],
+          "evidence_ids": [
+            "EV-002",
+            "EV-003"
+          ]
+        },
+        {
+          "artifact_ids": [
+            "REQ-003",
+            "SCN-003",
+            "TEST-002"
+          ],
+          "link_ids": [
+            "LNK-004",
+            "LNK-006"
+          ],
+          "evidence_ids": [
+            "EV-002",
+            "EV-003"
+          ]
+        }
+      ],
+      "required_answer_tokens": [
+        "verification_failed",
+        "EV-003"
+      ],
+      "forbidden_answer_tokens": [
+        "reverification_required",
+        "all its tests passed"
+      ]
+    },
+    {
+      "id": "EA-004",
+      "baseline": "baseline-a",
+      "requirement_id": "REQ-001",
+      "status": "answered",
+      "accepted_links": [
+        "LNK-001",
+        "LNK-002",
+        "LNK-003"
+      ],
+      "proposed_links": [],
+      "evidence": [
+        "EV-001"
+      ],
+      "findings": [],
+      "forbidden_findings": [
+        "verification_failed",
+        "reverification_required"
+      ],
+      "path_artifact_sets": [
+        [
+          "REQ-001",
+          "SCN-001"
+        ],
+        [
+          "CODE-001",
+          "REQ-001",
+          "SCN-001"
+        ],
+        [
+          "REQ-001",
+          "SCN-001",
+          "TEST-001"
+        ]
+      ],
+      "paths": [
+        {
+          "artifact_ids": [
+            "REQ-001",
+            "SCN-001"
+          ],
+          "link_ids": [
+            "LNK-001"
+          ],
+          "evidence_ids": [
+            "EV-001"
+          ]
+        },
+        {
+          "artifact_ids": [
+            "REQ-001",
+            "SCN-001",
+            "CODE-001"
+          ],
+          "link_ids": [
+            "LNK-001",
+            "LNK-002"
+          ],
+          "evidence_ids": [
+            "EV-001"
+          ]
+        },
+        {
+          "artifact_ids": [
+            "REQ-001",
+            "SCN-001",
+            "TEST-001"
+          ],
+          "link_ids": [
+            "LNK-001",
+            "LNK-003"
+          ],
+          "evidence_ids": [
+            "EV-001"
+          ]
+        }
+      ],
+      "required_answer_tokens": [
+        "accepted chain",
+        "passed"
+      ],
+      "forbidden_answer_tokens": [
+        "verification_failed",
+        "reverification_required",
+        "has a recorded failing execution"
+      ]
+    }
+  ]
+}

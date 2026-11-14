@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 
+from app.api.answer_routes import router as answer_router
 from app.api.errors import register_exception_handlers
 from app.api.portable_routes import router as portable_router
 from app.api.retrieval_routes import router as retrieval_router
@@ -76,6 +77,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(router)
     app.include_router(portable_router)
     app.include_router(retrieval_router)
+    app.include_router(answer_router)
     return app
 
 
