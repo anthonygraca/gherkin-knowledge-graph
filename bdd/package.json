@@ -1,0 +1,15 @@
+{
+  "name": "cta-bdd",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Cucumber-JS execution harness for CTA acceptance specifications",
+  "scripts": {
+    "bdd": "cucumber-js",
+    "bdd:strict": "node tools/step-resolution.mjs"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^13.3.0",
+    "playwright-core": "^1.65.1"
+  }
+}

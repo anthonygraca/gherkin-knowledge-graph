@@ -37,9 +37,14 @@ def test_evaluate_matches_the_oracle_missing_verification_finding(
     ]
     assert len(expected) == 1
     assert body.baseline == baseline
-    assert len(body.findings) == 1
+    findings = [
+        finding
+        for finding in body.findings
+        if finding.finding_type is FindingType.MISSING_VERIFICATION_LINK
+    ]
+    assert len(findings) == 1
 
-    finding = body.findings[0]
+    finding = findings[0]
     item = expected[0]
     assert finding.rule_id == item.rule_id
     assert finding.finding_type == item.finding_type
@@ -58,9 +63,14 @@ def test_evaluate_matches_the_oracle_missing_verification_finding(
 
 def test_evaluate_does_not_count_proposals(client: TestClient) -> None:
     body = evaluate(client, "baseline-a")
-    assert [finding.artifact_ids for finding in body.findings] == [["REQ-002"]]
-    assert not [finding for finding in body.findings if "REQ-001" in finding.artifact_ids]
-    assert not [finding for finding in body.findings if "REQ-003" in finding.artifact_ids]
+    missing = [
+        finding
+        for finding in body.findings
+        if finding.finding_type is FindingType.MISSING_VERIFICATION_LINK
+    ]
+    assert [finding.artifact_ids for finding in missing] == [["REQ-002"]]
+    assert not [finding for finding in missing if "REQ-001" in finding.artifact_ids]
+    assert not [finding for finding in missing if "REQ-003" in finding.artifact_ids]
 
 
 def test_evaluate_leaves_a_covered_requirement_alone(client: TestClient) -> None:

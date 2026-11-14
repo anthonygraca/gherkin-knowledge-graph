@@ -1,6 +1,6 @@
 # Canonical M0 acceptance specification; migrated from M0-foundation.md.
-# Verification uses the existing pytest checks mapped in that document.
-# These scenarios are not currently bound to or executed by a Gherkin runner.
+# Verification uses the existing pytest checks mapped in that document and, from M2 onward, the
+# Cucumber suite under bdd/.
 @FT-01 @issue-18 @M0
 Feature: FT-01: Labeled fixture repository and baseline oracle
   As a developer, I want labeled fixture repos and baseline oracles so I can test without external systems.

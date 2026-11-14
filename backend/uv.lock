@@ -66,6 +66,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
+    { name = "gherkin-official" },
     { name = "httpx" },
     { name = "pydantic" },
     { name = "pyyaml" },
@@ -82,6 +83,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.115,<1" },
+    { name = "gherkin-official", specifier = ">=43.0.0" },
     { name = "httpx", specifier = ">=0.27,<1" },
     { name = "pydantic", specifier = ">=2.9,<3" },
     { name = "pyyaml", specifier = ">=6,<7" },
@@ -111,6 +113,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/60/39/7435269dcabb3c1b4ce1b9b03b40dae919415c258e1caa27160c22f55b9a/fastapi-0.162.4.tar.gz", hash = "sha256:4abdb1ef367090678d8bc664631df432ae7a1bfe7709c37547d3606e667650e3", size = 529374, upload-time = "2026-11-10T17:51:17.96Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/3f/6b/0537ac682ac728dbe91f75c16683a985d11812f9930f21a35b756d6df629/fastapi-0.162.4-py3-none-any.whl", hash = "sha256:f093bc306d3958278d30ffd14f3834ca3d9b144fbb898ab5c9b652cf6e75f869", size = 151685, upload-time = "2026-11-10T17:51:16.562Z" },
+]
+
+[[package]]
+name = "gherkin-official"
+version = "43.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5a/cf/974241bcfdeb0d9994b1268128b5d7c7d280b90c86eafc3af68f8d40f0a9/gherkin_official-43.0.0.tar.gz", hash = "sha256:a928f06282cd9d1f848eacd5b80dac39f318cbfc053187defa5122c8019b6e43", size = 36540, upload-time = "2026-11-13T01:07:45.661Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e4/c6/663271fd9bd4c28483e99546c9ea6fa107339383c36c30106bc205901767/gherkin_official-43.0.0-py3-none-any.whl", hash = "sha256:ec0e20c765c062cc457408a930ef376ccbbddd813f40e2bfedf3c72e481f96b2", size = 40021, upload-time = "2026-11-13T01:07:44.559Z" },
 ]
 
 [[package]]

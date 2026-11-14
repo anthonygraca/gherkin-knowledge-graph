@@ -3,8 +3,10 @@
 # https://github.com/anthonygraca/gherkin-knowledge-graph/issues/21 (verified 2026-11-13T02:01:06Z)
 # and roadmap §6 F-02. Failure and boundary scenarios were added during refinement; the two intake
 # scenarios keep their intent.
-# Verified by the pytest selectors mapped in DT-02.md. These scenarios are not currently bound
-# to or executed by a Gherkin runner.
+# Verified by the pytest selectors mapped in DT-02.md, and from M2 onward executed by the Cucumber
+# suite (bdd/). M2 repair: SCN-527's final step was split across two physical lines, which the
+# official Gherkin parser rejects; the wording is unchanged and the two lines were joined so the
+# scenario is syntactically executable.
 @DT-02 @issue-21 @M1
 Feature: DT-02: Source and test artifacts tied to path and Git revision
   A Python file declares itself as a source or test artifact with a first-line
@@ -56,5 +58,4 @@ Feature: DT-02: Source and test artifacts tied to path and Git revision
   Scenario: Every declared artifact matches the committed snapshot at both baselines
     Given the fixture repository built from its declarative history
     When each tagged baseline is ingested
-    Then the artifact ids, types, titles, locators, revisions, and content hashes equal
-      "fixtures/api-responses/snapshot.json" for that baseline
+    Then the artifact ids, types, titles, locators, revisions, and content hashes equal "fixtures/api-responses/snapshot.json" for that baseline

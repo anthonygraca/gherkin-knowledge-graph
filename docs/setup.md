@@ -123,6 +123,66 @@ Without `--live` the probe contacts nothing. Read
 isolation, MCP framing, sanitized reports, and the "index identity is unavailable" limitation.
 The injected hits are non-authoritative: they cannot create links, review decisions, or evidence.
 
+## Executable acceptance suite (Cucumber-JS)
+
+One-time install (Node 22 and the backend environment are already required):
+
+```bash
+npm ci --prefix bdd
+```
+
+Run CTA's own reviewed acceptance specifications (`docs/stories/*.feature`) and the strict
+step-resolution gate:
+
+```bash
+(cd frontend && npm ci && npm run build)   # the browser scenarios load the built dashboard
+(cd bdd && npm run bdd)
+node bdd/tools/step-resolution.mjs bdd/reports/cucumber-messages.ndjson
+```
+
+The browser scenarios start an isolated `uvicorn` process with the built fixture repository and a
+small static/proxy server, then drive the real dashboard with `playwright-core`. They require a
+Chromium/Chrome executable; the harness looks in the usual system locations and honours
+`CTA_CHROME_PATH`. No browser download is performed. Set `CTA_UI_DISABLED=1` only to skip the
+browser scenarios deliberately (they are then reported as not executed, not as passing).
+
+The gate fails on an undefined, ambiguous, or pending step and on any scenario that never started,
+even when Cucumber's own exit code is zero. Two deliberately broken probe suites and one failing
+probe are under `bdd/probes/`; GT-01 executes them to prove the gate works.
+
+Exclusions are tag-based and recorded in `docs/feature-inventory.json`: `@FT-03` (process criteria
+verified by inspection), `@AI-06` (M3 slice), `@superseded-by-AS-01` (M0 501 contract implemented in
+M1), `@ui-component` (dashboard rendering verified by Vitest plus a recorded browser demonstration),
+and `@migration-pending` (SETUP-01, verified by mapped pytest checks). No excluded feature is counted
+as executed.
+
+## Portable repository indexing (read-only)
+
+Point CTA at any local Git repository; it reads the pinned commit, never the working tree, writes
+nothing, and runs no hooks or test commands:
+
+```bash
+uv run --project backend python -m app.cli index /path/to/repo --repo-id my-repo --ref HEAD
+uv run --project backend python -m app.cli scenarios /path/to/repo --repo-id my-repo --ref HEAD
+uv run --project backend python -m app.cli steps /path/to/repo --repo-id my-repo --ref HEAD --scenario '<key>'
+```
+
+When a Cucumber Messages NDJSON report already exists, import it against the exact tested commit.
+The import additionally requires a provenance sidecar (JSON with `tested_commit` and optionally
+`repository_id`) because a messages stream alone cannot say which revision its definitions and
+implementation belonged to; an import without it is refused:
+
+```bash
+cat > report.meta.json <<'JSON'
+{"repository_id": "my-repo", "tested_commit": "<sha>"}
+JSON
+uv run --project backend python -m app.cli definitions /path/to/repo --repo-id my-repo --ref <sha> \
+  --report report.ndjson --metadata report.meta.json --tested-commit <sha>
+```
+
+Without a report, step resolution answers `not_available` ("unknown, not undefined"). The same
+surface is available over HTTP; see `docs/api-contracts.md`.
+
 ## Quality gates
 
 ```bash

@@ -3,8 +3,8 @@
 # https://github.com/anthonygraca/gherkin-knowledge-graph/issues/22 (verified 2026-11-13T02:50:26Z)
 # and roadmap §6 F-03. Failure scenarios were added during refinement; the two intake scenarios
 # keep their wording.
-# Verified by the pytest selectors mapped in DT-03.md. These scenarios are not currently bound
-# to or executed by a Gherkin runner.
+# Verified by the pytest selectors mapped in DT-03.md and executed by the Cucumber suite (bdd/)
+# from M2 onward.
 @DT-03 @issue-22 @M1
 Feature: DT-03: Typed, provenance-aware traceability links with review state
   Links are directional claims: requirement --verified_by--> scenario,

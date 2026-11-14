@@ -21,6 +21,17 @@ GIT_READ_FLAGS = ("-c", "core.autocrlf=false")
 
 
 @dataclass(frozen=True)
+class TreeEntry:
+    """One ``git ls-tree -r -l`` row: a blob, symlink, or submodule at a path."""
+
+    mode: str
+    object_type: str
+    object_id: str
+    path: str
+    size: int | None
+
+
+@dataclass(frozen=True)
 class GitRepository:
     """A repository read at explicit revisions."""
 
@@ -40,6 +51,66 @@ class GitRepository:
         output = self._run("ls-tree", "-r", "-z", "--name-only", revision)
         paths = [entry.decode("utf-8") for entry in output.split(b"\0") if entry]
         return sorted(paths)
+
+    def list_tree(self, revision: str) -> list[TreeEntry]:
+        """Tree entries with mode, object id, and size, in one Git invocation.
+
+        The portable indexer needs the object id (to read blobs without re-resolving paths) and the
+        mode (to refuse symlinks and submodules instead of treating them as regular files).
+        """
+        output = self._run("ls-tree", "-r", "-z", "-l", revision)
+        entries: list[TreeEntry] = []
+        for record in output.split(b"\0"):
+            if not record:
+                continue
+            header, _, raw_path = record.partition(b"\t")
+            fields = header.decode("utf-8", "replace").split()
+            if len(fields) < 4:
+                raise IngestionError(f"unexpected `git ls-tree` record: {record!r}")
+            mode, object_type, object_id = fields[0], fields[1], fields[2]
+            size_field = fields[3]
+            entries.append(
+                TreeEntry(
+                    mode=mode,
+                    object_type=object_type,
+                    object_id=object_id,
+                    path=raw_path.decode("utf-8"),
+                    size=int(size_field) if size_field.isdigit() else None,
+                )
+            )
+        return sorted(entries, key=lambda entry: entry.path)
+
+    def read_object(self, object_id: str) -> bytes:
+        """Exact bytes of a blob object (the content hash is taken over these)."""
+        return self._run("cat-file", "blob", object_id)
+
+    def remote_url(self) -> str | None:
+        """``remote.origin.url``, or the first configured remote, without failing when absent."""
+        try:
+            output = self._run("config", "--get", "remote.origin.url")
+        except IngestionError:
+            return None
+        value = output.decode("utf-8", "replace").strip()
+        return value or None
+
+    def tags(self) -> dict[str, str]:
+        """Lightweight and annotated tags pinned to commits, as ``name -> commit``."""
+        output = self._run("for-each-ref", "--format=%(refname:short) %(objectname)", "refs/tags")
+        tags: dict[str, str] = {}
+        for line in output.decode("utf-8", "replace").splitlines():
+            name, _, object_id = line.partition(" ")
+            if not name:
+                continue
+            try:
+                tags[name] = self.resolve(name)
+            except IngestionError:
+                continue
+        return tags
+
+    def root_commits(self) -> list[str]:
+        """Root commit SHAs, used as a clone-stable identity when no remote is configured."""
+        output = self._run("rev-list", "--max-parents=0", "HEAD")
+        return [line.strip() for line in output.decode("utf-8", "replace").splitlines() if line]
 
     def read_blob(self, revision: str, path: str) -> bytes:
         """Exact bytes of ``path`` at ``revision`` (the content hash is taken over these)."""

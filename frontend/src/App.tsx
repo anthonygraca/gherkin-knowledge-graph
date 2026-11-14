@@ -28,6 +28,129 @@ function provenanceText(link: TraceLink): string {
   return [reviewer, decided].filter(Boolean).join(" · ");
 }
 
+const FINDING_MEANING: Record<string, string> = {
+  reverification_required:
+    "Reverification requested: relevant content changed after this recorded run. This is not a verification failure.",
+  verification_failed:
+    "Verification failed: a recorded execution at this baseline failed. Its failing step and run are named below.",
+  missing_verification_link:
+    "No accepted verification scenario is linked, so the requirement has no verification claim.",
+  missing_implementation_link:
+    "No accepted implementation link is recorded, so the scenario has no verified implementation claim.",
+  candidate_pending_review:
+    "A proposal exists and has not been reviewed. A proposal is not an accepted relationship.",
+  lifecycle_review_required:
+    "The requirement is superseded but still carries accepted relationships; a lifecycle decision is required.",
+  undefined_step: "The framework reported a Gherkin step with no matching definition.",
+  ambiguous_step: "The framework reported a Gherkin step matching more than one definition.",
+  execution_failed: "A recorded scenario execution failed.",
+};
+
+const FINDING_TONE: Record<string, string> = {
+  verification_failed: "bad",
+  execution_failed: "bad",
+  undefined_step: "bad",
+  ambiguous_step: "bad",
+  reverification_required: "warn",
+  missing_verification_link: "bad",
+  missing_implementation_link: "warn",
+  candidate_pending_review: "warn",
+  lifecycle_review_required: "warn",
+};
+
+export function FindingDrilldown({
+  finding,
+  evidence,
+  onSelect,
+  onOpen,
+}: {
+  finding: Finding;
+  evidence: Evidence[];
+  onSelect: (artifactId: string) => void;
+  onOpen: (finding: Finding) => void;
+}) {
+  const requirement = finding.artifact_ids.find((id) => id.startsWith("REQ-"));
+  const related = evidence.filter((item) => finding.evidence_ids.includes(item.evidence_id));
+  return (
+    <details
+      className="finding"
+      data-finding-id={finding.finding_id}
+      onToggle={(event) => {
+        if (event.currentTarget.open) onOpen(finding);
+      }}
+    >
+      <summary>
+        <span className={`badge ${FINDING_TONE[finding.finding_type] ?? "warn"}`}>
+          {finding.finding_type}
+        </span>{" "}
+        <code>{finding.rule_id}</code> · severity {finding.severity}
+        {requirement ? (
+          <>
+            <span> · {requirement} </span>
+            <button
+              type="button"
+              className="link-button"
+              onClick={(event) => {
+                event.preventDefault();
+                onSelect(requirement);
+              }}
+            >
+              Show thread for {requirement}
+            </button>
+          </>
+        ) : (
+          <span> · {finding.artifact_ids.join(", ")}</span>
+        )}
+      </summary>
+      <dl className="finding-detail">
+        <dt>Meaning</dt>
+        <dd>{FINDING_MEANING[finding.finding_type] ?? "Deterministic finding."}</dd>
+        <dt>Rule</dt>
+        <dd>
+          <code>{finding.rule_id}</code>
+        </dd>
+        <dt>Evaluated baseline</dt>
+        <dd>
+          <code>{finding.evaluated_baseline}</code>
+        </dd>
+        <dt>Artifacts and revisions</dt>
+        <dd>
+          <ul>
+            {finding.artifact_ids.map((artifactId) => (
+              <li key={artifactId}>
+                <code>{artifactId}</code>{" "}
+                <span className="commit">{finding.artifact_revisions[artifactId] ?? "unknown"}</span>
+              </li>
+            ))}
+          </ul>
+        </dd>
+        <dt>Evidence</dt>
+        <dd>
+          {finding.evidence_ids.length === 0 ? (
+            <span className="empty">No execution evidence applies.</span>
+          ) : related.length === 0 ? (
+            <span className="empty">
+              {finding.evidence_ids.join(", ")} — open the requirement thread to load the recorded
+              run.
+            </span>
+          ) : (
+            <ul>
+              {related.map((item) => (
+                <li key={item.evidence_id}>
+                  <code>{item.evidence_id}</code> {item.result} · tested commit{" "}
+                  <span className="commit">{item.tested_commit}</span> · executed {item.executed_at}
+                </li>
+              ))}
+            </ul>
+          )}
+        </dd>
+        <dt>Explanation</dt>
+        <dd>{finding.explanation}</dd>
+      </dl>
+    </details>
+  );
+}
+
 function LinksTable({ links }: { links: TraceLink[] }) {
   if (links.length === 0) return <p className="empty">None.</p>;
   return (
@@ -118,6 +241,9 @@ export function App({ api }: AppProps) {
   const [threadError, setThreadError] = useState<string | null>(null);
   const [summaryFailed, setSummaryFailed] = useState(false);
   const [threadFailed, setThreadFailed] = useState(false);
+  // Evidence is loaded per requirement when a finding is opened, so a finding never borrows
+  // another requirement's thread (AS-05).
+  const [evidenceCache, setEvidenceCache] = useState<Record<string, Evidence[]>>({});
 
   // Data is rendered only under the baseline/root it was requested for, so a slow response can
   // never leave one baseline's counts or one requirement's chain under another heading.
@@ -214,6 +340,43 @@ export function App({ api }: AppProps) {
     [artifacts],
   );
 
+  const loadFindingEvidence = (finding: Finding) => {
+    const requirements = finding.artifact_ids.filter((id) => id.startsWith("REQ-"));
+    for (const requirement of requirements) {
+      // Cache and in-flight keys are scoped by baseline: a response fetched for baseline-a must
+      // never satisfy a baseline-b finding, and a stale response must not overwrite the current
+      // selection.
+      const key = `${baseline}:${requirement}`;
+      if (evidenceCache[key] !== undefined) continue;
+      setEvidenceCache((current) => (current[key] !== undefined ? current : { ...current, [key]: [] }));
+      client
+        .thread(requirement, baseline)
+        .then((value) => {
+          setEvidenceCache((current) => ({ ...current, [key]: value.evidence }));
+        })
+        .catch(() => {
+          // Leave the empty marker removed so a later open retries; the finding still shows its
+          // evidence ids rather than claiming there is none.
+          setEvidenceCache((current) => {
+            const next = { ...current };
+            delete next[key];
+            return next;
+          });
+        });
+    }
+  };
+
+  const evidenceFor = (finding: Finding): Evidence[] => {
+    const collected = new Map<string, Evidence>();
+    for (const artifactId of finding.artifact_ids) {
+      for (const item of evidenceCache[`${baseline}:${artifactId}`] ?? []) {
+        collected.set(item.evidence_id, item);
+      }
+    }
+    if (collected.size > 0) return [...collected.values()];
+    return thread?.evidence ?? [];
+  };
+
   const baselineCommit =
     health?.baseline_commits[baseline] ?? thread?.artifacts[0]?.revision ?? "";
 
@@ -241,7 +404,7 @@ export function App({ api }: AppProps) {
             <span className="commit" title="Resolved commit">
               {baselineCommit ? baselineCommit.slice(0, 12) : ""}
             </span>
-            <span className="source-note">Findings: reviewed fixture sample</span>
+            <span className="source-note">Findings: evaluated rule set</span>
           </div>
         )}
       </header>
@@ -316,6 +479,25 @@ export function App({ api }: AppProps) {
               </tbody>
             </table>
           </>
+        )}
+      </section>
+
+      <section aria-labelledby="findings-heading">
+        <h2 id="findings-heading">Findings</h2>
+        {!summaryReady ? (
+          <p className="empty">Loading the findings drill-down…</p>
+        ) : findings.length === 0 ? (
+          <p className="empty">No findings at this baseline.</p>
+        ) : (
+          findings.map((finding) => (
+            <FindingDrilldown
+              key={finding.finding_id}
+              finding={finding}
+              evidence={evidenceFor(finding)}
+              onSelect={setSelected}
+              onOpen={loadFindingEvidence}
+            />
+          ))
         )}
       </section>
 

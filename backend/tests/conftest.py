@@ -26,6 +26,7 @@ TOOLS_DIR = REPO_ROOT / "tools"
 if str(TOOLS_DIR) not in sys.path:
     sys.path.insert(0, str(TOOLS_DIR))
 
+import external_fixture  # noqa: E402 — tools/ is added to sys.path above
 import fixturectl  # noqa: E402 — tools/ is added to sys.path above
 
 from app.domain.oracle import BaselinesManifest, FixtureSnapshot  # noqa: E402
@@ -141,3 +142,27 @@ def store(fixture_settings: Settings) -> IngestedStore:
 @pytest.fixture(scope="session")
 def client(fixture_settings: Settings) -> TestClient:
     return TestClient(create_app(fixture_settings))
+
+
+@dataclass(frozen=True)
+class ExternalRepo:
+    """A built external-style repository: no CTA tags, annotations, or requirement files."""
+
+    name: str
+    path: Path
+    tags: dict[str, str]
+
+
+@pytest.fixture(scope="session")
+def external_repos(tmp_path_factory: pytest.TempPathFactory) -> dict[str, ExternalRepo]:
+    """Materialize both independent fixtures once per session.
+
+    Built from the committed trees by ``tools/external_fixture.py``; the trees themselves are never
+    modified, and the builder runs no project code.
+    """
+    destination = tmp_path_factory.mktemp("external-fixtures")
+    refs = external_fixture.build_all(destination)
+    return {
+        name: ExternalRepo(name=name, path=destination / name, tags=tags)
+        for name, tags in refs.items()
+    }

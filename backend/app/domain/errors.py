@@ -80,3 +80,27 @@ class FeatureNotImplemented(DomainError):
         super().__init__(detail)
         self.story = story
         self.milestone = milestone
+
+
+class RepositoryNotIndexed(DomainError):
+    """A portable query named a repository or revision that has not been indexed."""
+
+    code = "repository-not-indexed"
+    title = "Repository not indexed"
+    status = 404
+
+
+class ReportNotApplicable(DomainError):
+    """A supplied execution report cannot be attributed to the requested repository revision."""
+
+    code = "report-not-applicable"
+    title = "Report not applicable"
+    status = 400
+
+
+class ScenarioNotFound(DomainError):
+    """A portable query named a scenario key that does not exist at the pinned revision."""
+
+    code = "scenario-not-found"
+    title = "Scenario not found"
+    status = 404

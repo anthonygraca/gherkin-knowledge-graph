@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "root_id": "REQ-001",
   "baseline": "baseline-b",
   "artifacts": [
@@ -9,7 +9,7 @@
       "title": "src/accounts.py",
       "source_uri": "fixture://banking-demo/src/accounts.py",
       "repository": "banking-demo",
-      "revision": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
+      "revision": "893c3b54ab035be491aaa737b9b13ba3677c5044",
       "content_hash": "sha256:0baefee8f4dc182521504365fdf9b698586eea5163ca2c9ea82e2253efe0f993",
       "locator": "src/accounts.py",
       "metadata": {}
@@ -20,7 +20,7 @@
       "title": "Instant withdrawal availability",
       "source_uri": "fixture://banking-demo/requirements/REQ-001.md",
       "repository": "banking-demo",
-      "revision": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
+      "revision": "893c3b54ab035be491aaa737b9b13ba3677c5044",
       "content_hash": "sha256:7f97fd8702c4b6456f6d3e57db82b78ede9103967d9fb29cbeb02843d0fd0b95",
       "locator": "requirements/REQ-001.md",
       "metadata": {
@@ -33,7 +33,7 @@
       "title": "Successful instant withdrawal",
       "source_uri": "fixture://banking-demo/features/withdrawals.feature",
       "repository": "banking-demo",
-      "revision": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
+      "revision": "893c3b54ab035be491aaa737b9b13ba3677c5044",
       "content_hash": "sha256:f0aa5fd8142558086324c19b2216375b9d6ef4445067791e134d37fee34eb9ad",
       "locator": "features/withdrawals.feature#SCN-001",
       "metadata": {}
@@ -44,7 +44,7 @@
       "title": "tests/test_accounts.py",
       "source_uri": "fixture://banking-demo/tests/test_accounts.py",
       "repository": "banking-demo",
-      "revision": "156ad72b01b361970cc22229e7a2b17f9d6bcb85",
+      "revision": "893c3b54ab035be491aaa737b9b13ba3677c5044",
       "content_hash": "sha256:b42df9febafa4a5e72ef581d833f9f329568024b5e96613c028de4747f164b92",
       "locator": "tests/test_accounts.py",
       "metadata": {}
@@ -104,7 +104,7 @@
       "test_id": "TEST-001",
       "scenario_id": "SCN-001",
       "result": "passed",
-      "tested_commit": "903977de5836fd45fa6e468d33560de2fb1d6eb1",
+      "tested_commit": "d29bafc3d37b4f467a434f02231223862696a1ee",
       "executed_at": "2026-10-01T09:12:00Z",
       "run_uri": "ci://banking-demo/runs/1001"
     }

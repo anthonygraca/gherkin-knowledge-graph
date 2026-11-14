@@ -17,6 +17,9 @@ RULE_DEFAULT_SEVERITY: dict[RuleId, Severity] = {
     RuleId.REVERIFICATION_REQUIRED: Severity.MEDIUM,
     RuleId.LIFECYCLE_SUPERSEDED: Severity.MEDIUM,
     RuleId.CANDIDATE_PENDING_REVIEW: Severity.LOW,
+    RuleId.UNDEFINED_STEP: Severity.HIGH,
+    RuleId.AMBIGUOUS_STEP: Severity.HIGH,
+    RuleId.EXECUTION_FAILED: Severity.HIGH,
 }
 
 #: Rule -> the finding type it emits. Rules emit exactly one finding type.
@@ -27,4 +30,7 @@ RULE_FINDING_TYPE: dict[RuleId, FindingType] = {
     RuleId.VERIFICATION_FAILED: FindingType.VERIFICATION_FAILED,
     RuleId.CANDIDATE_PENDING_REVIEW: FindingType.CANDIDATE_PENDING_REVIEW,
     RuleId.LIFECYCLE_SUPERSEDED: FindingType.LIFECYCLE_REVIEW_REQUIRED,
+    RuleId.UNDEFINED_STEP: FindingType.UNDEFINED_STEP,
+    RuleId.AMBIGUOUS_STEP: FindingType.AMBIGUOUS_STEP,
+    RuleId.EXECUTION_FAILED: FindingType.EXECUTION_FAILED,
 }

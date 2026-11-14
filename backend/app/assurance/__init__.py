@@ -5,6 +5,6 @@ severity/rule policy tables in :mod:`app.domain.policy`. Deterministic rules lan
 AS-01…AS-03 (C-PR1, M1) against the fixture oracle.
 """
 
-from app.assurance.sample_findings import SampleFindingsSource
+__all__ = ["DeterministicAssuranceEvaluator"]
 
-__all__ = ["SampleFindingsSource"]
+from app.assurance.rules import DeterministicAssuranceEvaluator  # noqa: E402

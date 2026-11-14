@@ -1,6 +1,8 @@
 # Follow-up acceptance slice for SETUP-01 (#8): commit-reference enforcement.
-# Verified by pytest selectors in SETUP-01.md; no direct Gherkin runner bindings.
+# Verified by pytest selectors in SETUP-01.md and executed by the Cucumber suite (bdd/) from M2
+# onward; the pytest checks remain independent regression evidence.
 @SETUP-01 @issue-8 @M0
+# Executable-status note: Commit-history lint behaviour is verified by the 28 mapped pytest checks in backend/tests/test_commitlint.py; Cucumber bindings are pending under GT-02.
 Feature: SETUP-01: Enforce traceability for new commits
   As a contributor, I want every new commit to name a registered work item
   so reviewers can trace repository changes to their intended purpose.

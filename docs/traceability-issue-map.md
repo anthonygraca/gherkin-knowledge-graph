@@ -50,6 +50,8 @@ Retrieval has AI-01 in M0 and AI-02/AI-03 in M3. Stories whose slice has no mile
 | F-08 | [#14](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/14) | Retrieval — one `CandidateDiscovery` contract, fake and local adapters |
 | F-09 | [#15](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/15) | Discovery — ranked proposals and measured retrieval quality |
 | F-10 | [#16](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/16) | Automation — revision-triggered assurance and baseline diff |
+| F-11 | [#58](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/58) | Executable Gherkin traceability — runtime, legacy migration, and executable graph |
+| F-12 | [#59](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/59) | Portable repository ingestion — read-only Gherkin indexing for external projects |
 
 ## User stories
 
@@ -80,9 +82,21 @@ Retrieval has AI-01 in M0 and AI-02/AI-03 in M3. Stories whose slice has no mile
 | AI-06 | [#56](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/56) | F-08 | M3 | A | CocoIndex Code semantic code-search capability and integration contract (implementation-approach story; not in roadmap §6) |
 | CI-01 | [#36](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/36) | F-10 | M4 | shared | Assurance runs when a repository revision changes |
 | CI-02 | [#37](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/37) | F-10 | M4 | shared | New, unchanged, and resolved findings between baselines |
+| GT-01 | [#60](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/60) | F-11 | M2 | shared | Cucumber runtime integration and executable acceptance harness |
+| GT-02 | [#61](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/61) | F-11 | M2 | shared | Migrate historical CTA acceptance specifications to executable Cucumber |
+| GT-03 | [#62](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/62) | F-11 | M2 | shared | Ingest step definitions, matches, and executions into the graph |
+| PG-01 | [#63](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/63) | F-12 | M2 | B | Portable read-only Gherkin ingestion and repository-scoped queries |
 
 `#33` is a closed duplicate of AI-03 (`#32`), created when a batch issue-creation call was
 interrupted after the request had already succeeded server-side.
+
+**F-11/F-12 and GT-01/GT-02/GT-03/PG-01** were created on 2026-11-13 from the owner's expanded-M2
+direction. They are new stories with distinct identities; `DT-05`, `DT-06`, `AS-02`, `AS-03`, and
+`AS-05` keep their original meanings. Their canonical criteria live in `docs/stories/<ID>.feature`.
+Refinement disposition: drafted by OMP against the repository lifecycle; independent acceptance
+review is required before any claim of approval. GT-02 currently records pending migration for
+`AS-04`, `AS-05`, and `SETUP-01` in `docs/feature-inventory.json`; the issue stays open until those
+bindings exist or an owner accepts the declared exclusions.
 
 **AI-06 (#56)** was created on 2026-11-13 by the RAG mission as an implementation-approach story
 under F-08. It is not a roadmap §6 backlog story: it adopts CocoIndex Code for semantic *code*

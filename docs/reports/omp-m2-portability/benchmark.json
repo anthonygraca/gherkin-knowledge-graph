@@ -1,0 +1,149 @@
+{
+  "fixture_commits": {
+    "external-recipes": {
+      "v1": "55d3d74a8359acf3b271abd830e0d1e531921cb8",
+      "v2": "d8e5903ee11533d30cf472e618a4b0fa00c52324"
+    },
+    "external-twin": {
+      "v1": "36c27b8f5f0467d7b4b4f81fd58bb95261d97560"
+    }
+  },
+  "framework_adapter": {
+    "with_report": {
+      "adapter": "cucumber-messages",
+      "availability": "available",
+      "coverage": {
+        "scenarios_executed": 4,
+        "scenarios_total": 4,
+        "scenarios_without_execution": 0,
+        "steps_executed": 15,
+        "steps_total": 15
+      },
+      "definitions": 13,
+      "executions": 5,
+      "matched_resolutions": 23,
+      "passed_executions": 5,
+      "resolutions": 23,
+      "runtime": "cucumber-js 13.3.0",
+      "tested_commit": "55d3d74a8359acf3b271abd830e0d1e531921cb8",
+      "undefined_findings": 0
+    },
+    "without_report": {
+      "availability": "not_available",
+      "definitions": 0,
+      "findings": 0,
+      "reason": "no trusted framework matching report has been imported for this revision; step matching is unknown, not undefined",
+      "resolutions": 0
+    }
+  },
+  "identity_isolation": {
+    "collisions": [],
+    "distinct_keys": true,
+    "shared_path": "features/browse.feature",
+    "shared_tag": "@SCN-001",
+    "twin_query_excludes_recipes": true
+  },
+  "measured_at": "2026-11-13T23:14:53.546421+00:00",
+  "repositories": {
+    "external-recipes": {
+      "indexed_by": "app.ingestion.portable.PortableIndexer",
+      "read_only": {
+        "files_modified": 0,
+        "git_status_unchanged": true,
+        "hooks_executed": false,
+        "tracked_files_unchanged": true
+      },
+      "refs": {
+        "v1": {
+          "commit": "55d3d74a8359acf3b271abd830e0d1e531921cb8",
+          "counts": {
+            "diagnostics": 0,
+            "example_instances": 2,
+            "features": 2,
+            "scenario_outlines": 1,
+            "scenarios": 4,
+            "steps": 15,
+            "untagged_scenarios": 3
+          },
+          "counts_match_hand_labels": true,
+          "diagnostics": [],
+          "hand_labeled": {
+            "example_instances": 2,
+            "features": 2,
+            "scenario_outlines": 1,
+            "scenarios": 4,
+            "steps": 15,
+            "untagged_scenarios": 3
+          },
+          "parser": "gherkin-official 43.0.0",
+          "reproducible": true,
+          "source_digest": "sha256:ce8199fe13b1cc5d90d2949e02d61b92fbd5e0c3e07b837f7e4bd72017bac74c",
+          "untagged_scenario_ratio": 0.75
+        },
+        "v2": {
+          "commit": "d8e5903ee11533d30cf472e618a4b0fa00c52324",
+          "counts": {
+            "diagnostics": 0,
+            "example_instances": 2,
+            "features": 3,
+            "scenario_outlines": 1,
+            "scenarios": 5,
+            "steps": 19,
+            "untagged_scenarios": 4
+          },
+          "counts_match_hand_labels": true,
+          "diagnostics": [],
+          "hand_labeled": {
+            "example_instances": 2,
+            "features": 3,
+            "scenario_outlines": 1,
+            "scenarios": 5,
+            "steps": 19,
+            "untagged_scenarios": 4
+          },
+          "parser": "gherkin-official 43.0.0",
+          "reproducible": true,
+          "source_digest": "sha256:58238c98b7e57874c992770cc15971418d7f90da1af892064558a7b6ea8ec484",
+          "untagged_scenario_ratio": 0.8
+        }
+      }
+    },
+    "external-twin": {
+      "indexed_by": "app.ingestion.portable.PortableIndexer",
+      "read_only": {
+        "files_modified": 0,
+        "git_status_unchanged": true,
+        "hooks_executed": false,
+        "tracked_files_unchanged": true
+      },
+      "refs": {
+        "v1": {
+          "commit": "36c27b8f5f0467d7b4b4f81fd58bb95261d97560",
+          "counts": {
+            "diagnostics": 0,
+            "example_instances": 0,
+            "features": 1,
+            "scenario_outlines": 0,
+            "scenarios": 1,
+            "steps": 2,
+            "untagged_scenarios": 0
+          },
+          "counts_match_hand_labels": true,
+          "diagnostics": [],
+          "hand_labeled": {
+            "example_instances": 0,
+            "features": 1,
+            "scenario_outlines": 0,
+            "scenarios": 1,
+            "steps": 2,
+            "untagged_scenarios": 0
+          },
+          "parser": "gherkin-official 43.0.0",
+          "reproducible": true,
+          "source_digest": "sha256:21165eca11bcb48ebeaeaa6d563477608faaa91e4b887fe118604b6638978f9e",
+          "untagged_scenario_ratio": 0.0
+        }
+      }
+    }
+  }
+}

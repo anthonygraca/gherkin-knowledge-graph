@@ -1,17 +1,25 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "fixture": "banking-demo",
   "baseline": "baseline-b",
   "notes": [
     "Case 4 (reverification, not failure): SCN-001 verification passed at baseline-a (EV-001); CODE-001 changed at baseline-b and no later evidence for SCN-001 exists. REQ-001 must be reported as reverification_required and must NOT be reported as verification_failed.",
     "Case 5 (confirmed failure): TEST-002 was tightened at baseline-b and its recorded run at baseline-b failed (EV-003), so SCN-003 and, through LNK-004, REQ-003 are confirmed failures at this baseline.",
     "Cases 2, 3, 6 and 7 persist unchanged from baseline-a.",
-    "TEST-001 was not re-run at baseline-b. Re-running it would fail, because tests/test_accounts.py::test_withdraw_allows_fractional_amounts contradicts the whole-dollar rule added in src/accounts.py. That absent run is exactly why the CODE-001 change is a reverification finding rather than a failure."
+    "TEST-001 was not re-run at baseline-b. Re-running it would fail, because tests/test_accounts.py::test_withdraw_allows_fractional_amounts contradicts the whole-dollar rule added in src/accounts.py. That absent run is exactly why the CODE-001 change is a reverification finding rather than a failure.",
+    "Schema 0.3.0 (M2): additive portable/executable contracts; these expectations are unchanged."
   ],
   "healthy_artifact_ids": [],
   "change_summary": {
-    "changed_paths": ["evidence/verification-runs.json", "src/accounts.py", "tests/test_transfers.py"],
-    "changed_artifact_ids": ["CODE-001", "TEST-002"],
+    "changed_paths": [
+      "evidence/verification-runs.json",
+      "src/accounts.py",
+      "tests/test_transfers.py"
+    ],
+    "changed_artifact_ids": [
+      "CODE-001",
+      "TEST-002"
+    ],
     "unchanged_artifact_ids": [
       "CODE-002",
       "REQ-001",
@@ -29,7 +37,9 @@
       "finding_type": "missing_verification_link",
       "severity": "high",
       "status": "open",
-      "artifact_ids": ["REQ-002"],
+      "artifact_ids": [
+        "REQ-002"
+      ],
       "evidence_ids": [],
       "explanation": "REQ-002 has no accepted verification scenario at baseline-b."
     },
@@ -38,7 +48,9 @@
       "finding_type": "missing_implementation_link",
       "severity": "medium",
       "status": "open",
-      "artifact_ids": ["SCN-002"],
+      "artifact_ids": [
+        "SCN-002"
+      ],
       "evidence_ids": [],
       "explanation": "SCN-002 has no accepted implementation link at baseline-b."
     },
@@ -47,7 +59,10 @@
       "finding_type": "candidate_pending_review",
       "severity": "low",
       "status": "open",
-      "artifact_ids": ["REQ-002", "SCN-002"],
+      "artifact_ids": [
+        "REQ-002",
+        "SCN-002"
+      ],
       "evidence_ids": [],
       "explanation": "Proposed link LNK-007 (REQ-002 verified_by SCN-002) has not been reviewed."
     },
@@ -56,7 +71,9 @@
       "finding_type": "lifecycle_review_required",
       "severity": "medium",
       "status": "open",
-      "artifact_ids": ["REQ-003"],
+      "artifact_ids": [
+        "REQ-003"
+      ],
       "evidence_ids": [],
       "explanation": "REQ-003 is superseded but still has accepted relationships; a lifecycle review is required."
     },
@@ -65,8 +82,14 @@
       "finding_type": "reverification_required",
       "severity": "medium",
       "status": "open",
-      "artifact_ids": ["CODE-001", "REQ-001", "SCN-001"],
-      "evidence_ids": ["EV-001"],
+      "artifact_ids": [
+        "CODE-001",
+        "REQ-001",
+        "SCN-001"
+      ],
+      "evidence_ids": [
+        "EV-001"
+      ],
       "explanation": "SCN-001 verification passed at baseline-a (EV-001). CODE-001 changed at baseline-b and no later evidence for SCN-001 exists, so reverification is required. This is not a verification failure."
     },
     {
@@ -74,8 +97,14 @@
       "finding_type": "verification_failed",
       "severity": "high",
       "status": "open",
-      "artifact_ids": ["REQ-003", "SCN-003", "TEST-002"],
-      "evidence_ids": ["EV-003"],
+      "artifact_ids": [
+        "REQ-003",
+        "SCN-003",
+        "TEST-002"
+      ],
+      "evidence_ids": [
+        "EV-003"
+      ],
       "explanation": "EV-003 recorded a failing run of TEST-002 at baseline-b; TEST-002 exercises SCN-003, which verifies REQ-003."
     }
   ]

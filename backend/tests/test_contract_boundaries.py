@@ -141,22 +141,23 @@ def test_thread_is_served_without_example_files(fixture_settings: Settings, tmp_
 # ------------------------------------------------- R4: unsupported contract versions
 
 
-@pytest.mark.parametrize(
-    ("relative_path", "url"),
-    [
-        ("findings.baseline-a.json", "/api/findings?baseline=baseline-a"),
-    ],
-)
 def test_served_responses_reject_an_unsupported_schema_version(
-    fixture_settings: Settings, tmp_path: Path, relative_path: str, url: str
+    fixture_settings: Settings, tmp_path: Path
 ) -> None:
+    """R4 regression: a contract-bearing fixture file with a foreign version is refused.
+
+    The findings endpoint no longer serves a fixture file (M2 evaluates the rule set), so the
+    probe targets the candidate index the fake discovery provider loads.
+    """
     fixtures = fixture_copy(fixture_settings, tmp_path)
-    path = fixtures / "api-responses" / relative_path
+    path = fixtures / "banking-demo" / "expected" / "candidate-links.json"
     payload = json.loads(path.read_text(encoding="utf-8"))
     payload["schema_version"] = "999.0.0"
     path.write_text(json.dumps(payload), encoding="utf-8")
 
-    response = app_over(fixture_settings, fixtures).get(url)
+    response = app_over(fixture_settings, fixtures).post(
+        "/api/discovery", json={"artifact_id": "SCN-001"}
+    )
     assert response.status_code == 500
     problem = response.json()
     assert problem["code"] == "fixture-data-invalid"

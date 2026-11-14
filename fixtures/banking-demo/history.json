@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "fixture": "banking-demo",
   "commits": [
     {
@@ -14,7 +14,9 @@
       "message": "Record baseline A verification evidence",
       "date": "2026-10-01T09:20:00+00:00",
       "overlay": "changes/02-baseline-a-evidence",
-      "tags": ["baseline-a"]
+      "tags": [
+        "baseline-a"
+      ]
     },
     {
       "id": "baseline-b-change",
@@ -28,7 +30,9 @@
       "message": "Record baseline B verification evidence",
       "date": "2026-10-15T14:20:00+00:00",
       "overlay": "changes/04-baseline-b-evidence",
-      "tags": ["baseline-b"]
+      "tags": [
+        "baseline-b"
+      ]
     }
   ]
 }
