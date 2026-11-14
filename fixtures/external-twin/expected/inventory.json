@@ -1,0 +1,30 @@
+{
+  "fixture": "external-twin",
+  "hand_labeled": true,
+  "hand_labeled_at": "2026-11-13",
+  "method": "Counted by reading tree/features/browse.feature.",
+  "cta_annotations": [],
+  "refs": {
+    "v1": {
+      "features": 1,
+      "scenario_outlines": 0,
+      "example_instances": 0,
+      "steps": 2,
+      "untagged_scenarios": 0,
+      "scenario_inventory": [
+        {
+          "path": "features/browse.feature",
+          "line": 4,
+          "name": "A twin scenario that reuses an identifier",
+          "kind": "scenario",
+          "tags": [
+            "@SCN-001"
+          ],
+          "step_count": 2,
+          "instance_count": 0
+        }
+      ],
+      "scenarios": 1
+    }
+  }
+}

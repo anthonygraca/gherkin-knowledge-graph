@@ -7,9 +7,10 @@ This file records what M0 includes, who owns it, and which command proves each e
 [FT-02.feature](FT-02.feature) contain the canonical Gherkin criteria, with stable scenario
 IDs and the existing AC labels. Their scenario wording was extracted unchanged from this
 document. This index retains scope, rationale and the [verification map](#acceptance-verification-map).
-The files are specifications verified by the existing pytest checks; no Gherkin runner or step
-bindings are configured. A documentation migration does not constitute a new independent review
-or retroactively add scenario IDs to historical execution records. Follow
+The files are specifications verified by the existing pytest checks and, from M2 onward, executed
+by the Cucumber suite under `bdd/` (see `docs/feature-inventory.json`). A documentation migration
+does not constitute a new independent review or retroactively add scenario IDs to historical
+execution records. Follow
 [the development lifecycle](../development-lifecycle.md) for new stories.
 
 **Backlog mapping.** M0 reuses the roadmap's own foundation stories — **FT-01** and **FT-02**

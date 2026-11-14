@@ -65,6 +65,60 @@ jobs:
       - name: Format check
         run: uv run --project backend ruff format --check .
 
+  bdd:
+    name: Cucumber acceptance suite and step-resolution gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: bdd/package-lock.json
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend dependencies
+        run: uv sync --project backend --frozen
+
+      - name: Install BDD harness dependencies
+        working-directory: bdd
+        run: npm ci
+
+      - name: Build the dashboard for browser acceptance
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Materialize the fixture repository used by the steps
+        run: uv run --project backend python tools/fixturectl.py build
+
+      - name: Run the acceptance suite (Cucumber Messages captured)
+        working-directory: bdd
+        env:
+          CTA_BDD_PYTHON: ${{ github.workspace }}/backend/.venv/bin/python
+          CTA_CHROME_PATH: /usr/bin/google-chrome
+        run: npm run bdd
+
+      - name: Strict step-resolution gate
+        working-directory: bdd
+        run: node tools/step-resolution.mjs reports/cucumber-messages.ndjson
+
+      - name: Upload the Cucumber report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-messages
+          path: bdd/reports/cucumber-messages.ndjson
+
   frontend:
     name: Frontend build and component tests
     runs-on: ubuntu-latest

@@ -3,8 +3,8 @@
 # https://github.com/anthonygraca/gherkin-knowledge-graph/issues/2 (verified 2026-11-13T03:56:41Z)
 # and roadmap §6 F-05. Boundary and failure scenarios were added during refinement; the intake
 # scenario keeps its wording.
-# Verified by the pytest selectors mapped in AS-01.md. These scenarios are not currently bound
-# to or executed by a Gherkin runner.
+# Verified by the pytest selectors mapped in AS-01.md and executed by the Cucumber suite (bdd/)
+# from M2 onward.
 @AS-01 @issue-2 @M1
 Feature: AS-01: Missing coverage/link findings
   A requirement is missing verification when it has no accepted `verified_by` link to an existing

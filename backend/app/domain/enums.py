@@ -66,6 +66,11 @@ class FindingType(StrEnum):
     VERIFICATION_FAILED = "verification_failed"
     CANDIDATE_PENDING_REVIEW = "candidate_pending_review"
     LIFECYCLE_REVIEW_REQUIRED = "lifecycle_review_required"
+    #: Framework-confirmed executability defects (portable/executable surface, schema 0.3.0).
+    #: Never emitted from missing metadata: a report must establish the condition.
+    UNDEFINED_STEP = "undefined_step"
+    AMBIGUOUS_STEP = "ambiguous_step"
+    EXECUTION_FAILED = "execution_failed"
 
 
 class FindingStatus(StrEnum):
@@ -91,6 +96,9 @@ class RuleId(StrEnum):
     VERIFICATION_FAILED = "RULE-VERIFICATION-FAILED"
     CANDIDATE_PENDING_REVIEW = "RULE-CANDIDATE-PENDING-REVIEW"
     LIFECYCLE_SUPERSEDED = "RULE-LIFECYCLE-SUPERSEDED"
+    UNDEFINED_STEP = "RULE-UNDEFINED-STEP"
+    AMBIGUOUS_STEP = "RULE-AMBIGUOUS-STEP"
+    EXECUTION_FAILED = "RULE-EXECUTION-FAILED"
 
 
 #: Allowed ``(source type, target type)`` for each relation. Ingestion rejects a link whose

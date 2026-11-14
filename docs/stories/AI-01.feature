@@ -1,7 +1,7 @@
 # Canonical acceptance specification for AI-01, extracted unchanged from issue #30.
 # AI-01 was closed with the fake-provider slice; the real CandidateDiscovery adapter remains
 # a later story. PR 1 serves the provider boundary and does not claim these scenarios.
-# They are verified by the mapped pytest checks in AI-01.md; no Gherkin runner is configured.
+# Executed by the Cucumber suite (bdd/) from M2 onward; the mapped pytest checks remain.
 @AI-01 @issue-30 @M0
 Feature: AI-01: Fake and real CandidateDiscovery implementations behind one interface
   As a developer, I want fake and real CandidateDiscovery implementations behind one

@@ -81,7 +81,7 @@ For each story, maintain:
 
 Initial issue intake may contain draft Gherkin. Once a file exists, link it at the reviewed commit from the issue/PR rather than maintaining another independent normative copy. Historical inline criteria in roadmap/review records remain historical references. If current wording disagrees, resolve the discrepancy in a reviewed change; do not silently pick the convenient version.
 
-Do not add a runner/framework merely to store the specifications. Current M0 scenarios are checked through an explicit mapping to existing pytest tests; the `.feature` files are not yet executed by a Gherkin runner. Future direct step bindings need a scoped work item, an ADR selecting tooling, and real execution reporting. Unbound/pending scenarios must never be reported as executed passes. No unit-test duplication is required when a substantive existing test already verifies the criterion.
+Do not add a runner/framework merely to store the specifications. From M2 onward the reviewed CTA acceptance features execute through Cucumber-JS (ADR 0009), with the strict step-resolution gate and Cucumber Messages evidence. Features that still have no bindings (AS-04/AS-05 browser behaviour, SETUP-01 commit history) are declared `not_executed` with reasons in `docs/feature-inventory.json`; a mapping to pytest is never reported as executed Gherkin. No unit-test duplication is required when a substantive existing test already verifies the criterion.
 
 ## A story's development loop
 

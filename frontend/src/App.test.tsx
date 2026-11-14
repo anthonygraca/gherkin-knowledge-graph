@@ -156,7 +156,7 @@ describe("findings summary", () => {
     expect(screen.getByText("Loading findings for this baseline…")).toBeInTheDocument();
 
     pending.resolve(readFixture<FindingsResponse>("findings.baseline-b.json"));
-    await screen.findByText("reverification_required");
+    await screen.findAllByText("reverification_required");
     expect(within(summaryRegion()).getByText("baseline-b")).toBeInTheDocument();
   });
 
@@ -207,6 +207,67 @@ describe("findings summary", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText("missing_verification_link")).toBeNull();
     expect(screen.queryByText("No findings at this baseline.")).toBeNull();
+  });
+});
+
+describe("findings drill-down (AS-05)", () => {
+  async function findingsRegion(): Promise<HTMLElement> {
+    return screen.findByRole("region", { name: "Findings" });
+  }
+
+  function findingDetails(type: string, region: HTMLElement): HTMLDetailsElement {
+    const badge = within(region).getAllByText(type)[0];
+    const details = badge.closest("details");
+    if (!details) throw new Error(`no drill-down for ${type}`);
+    return details;
+  }
+
+  it("shows the rule, baseline, changed artifact and tested evidence for reverification (SCN-2041)", async () => {
+    render(<App api={fakeApi()} />);
+    await selectBaseline("baseline-b");
+    const region = await findingsRegion();
+    const reverification = findingDetails("reverification_required", region);
+    const expected = readFixture<FindingsResponse>("findings.baseline-b.json").findings.find(
+      (finding) => finding.finding_type === "reverification_required",
+    )!;
+
+    fireEvent.click(within(reverification).getByRole("button", { name: "Show thread for REQ-001" }));
+    await screen.findByRole("region", { name: /Thread for REQ-001/ });
+
+    expect(within(reverification).getAllByText("RULE-REVERIFICATION-REQUIRED")).toHaveLength(2);
+    expect(within(reverification).getAllByText(expected.evaluated_baseline).length).toBeGreaterThan(0);
+    expect(within(reverification).getAllByText(/CODE-001/).length).toBeGreaterThan(0);
+    expect((await within(reverification).findAllByText(/EV-001/)).length).toBeGreaterThan(0);
+    const thread = readFixture<ThreadResponse>("threads/REQ-001.baseline-b.json");
+    const evidence = thread.evidence.find((item) => item.evidence_id === "EV-001")!;
+    expect(within(reverification).getAllByText(evidence.tested_commit).length).toBeGreaterThan(0);
+    expect(within(reverification).getAllByText(/not a verification failure/i).length).toBeGreaterThan(0);
+  });
+
+  it("presents a confirmed failure differently from reverification (SCN-2042)", async () => {
+    render(<App api={fakeApi()} />);
+    await selectBaseline("baseline-b");
+    const region = await findingsRegion();
+    const failure = findingDetails("verification_failed", region);
+    const expected = readFixture<FindingsResponse>("findings.baseline-b.json").findings.find(
+      (finding) => finding.finding_type === "verification_failed",
+    )!;
+
+    // Opening the finding loads its own evidence; the selected thread stays REQ-001.
+    fireEvent.click(within(failure).getByText("verification_failed"));
+    await within(failure).findAllByText(/EV-003/);
+
+    expect(within(failure).getAllByText("RULE-VERIFICATION-FAILED")).toHaveLength(2);
+    expect(within(failure).getAllByText(expected.evaluated_baseline).length).toBeGreaterThan(0);
+    expect((await within(failure).findAllByText(/EV-003/)).length).toBeGreaterThan(0);
+    expect(within(failure).getByText(/Verification failed/i)).toBeInTheDocument();
+    expect(within(failure).queryByText(/not a verification failure/i)).not.toBeInTheDocument();
+    const thread = readFixture<ThreadResponse>("threads/REQ-003.baseline-b.json");
+    await within(failure).findByText(
+      thread.evidence.find((item) => item.evidence_id === "EV-003")!.tested_commit,
+    );
+    // The selected thread is still REQ-001; the failure's evidence came from its own lookup.
+    expect(screen.getByRole("region", { name: /Thread for REQ-001/ })).toBeInTheDocument();
   });
 });
 
@@ -290,3 +351,29 @@ describe("thread view", () => {
     expect(screen.queryByRole("alert")).toBeNull();
   });
 });
+
+
+  it("does not reuse one baseline's evidence for another baseline (AS-05)", async () => {
+    render(<App api={fakeApi()} />);
+    await selectBaseline("baseline-a");
+    const regionA = await screen.findByRole("region", { name: "Findings" });
+    const detailsFor = (type: string, region: HTMLElement): HTMLDetailsElement => {
+      const badge = within(region).getAllByText(type)[0];
+      const element = badge.closest("details");
+      if (!element) throw new Error(`no drill-down for ${type}`);
+      return element;
+    };
+    const lifecycle = detailsFor("lifecycle_review_required", regionA);
+    fireEvent.click(within(lifecycle).getByText("lifecycle_review_required"));
+    await within(lifecycle).findAllByText(/EV-/).catch(() => []);
+
+    await selectBaseline("baseline-b");
+    const regionB = await screen.findByRole("region", { name: "Findings" });
+    const failure = detailsFor("verification_failed", regionB);
+    fireEvent.click(within(failure).getByText("verification_failed"));
+    const thread = readFixture<ThreadResponse>("threads/REQ-003.baseline-b.json");
+    await within(failure).findByText(
+      thread.evidence.find((item) => item.evidence_id === "EV-003")!.tested_commit,
+    );
+    expect(within(failure).getAllByText(/EV-003/).length).toBeGreaterThan(0);
+  });

@@ -109,10 +109,10 @@ response), `score` (0..1), `discovery_provider`, `model_version`, `index_revisio
 Severity and type come from the policy tables in `app/domain/policy.py`; the oracle is asserted
 against those tables, so changing the policy is a deliberate, reviewed edit.
 
-M1 implements `RULE-MISSING-VERIFICATION-LINK` in `POST /api/assurance/evaluate`; the remaining
-rules are specified here and implemented with AS-02/AS-03 (M2). `GET /api/findings` keeps replaying
-the reviewed sample findings until that rule set is complete, so M2 findings are not silently
-dropped.
+M2 implements all six rules. `GET /api/findings` and `POST /api/assurance/evaluate` evaluate the
+same rule set over the ingested revision; neither replays a recorded sample. The evaluator is
+compared field-by-field with the hand-labeled oracle (`backend/tests/test_m2_assurance.py`),
+including explanation text, severity policy, artifact revisions, and fingerprints.
 
 **Fingerprint.** `finding_id = "FND-" + sha256(rule_id | finding_type | sorted artifact_ids)[:16]`
 with `sha256` truncated to 16 hex characters. It deliberately excludes the baseline, the evidence
@@ -125,7 +125,29 @@ manufacture a new finding.
 baseline field: the evaluated baseline is the finding's, the previously verified revision is the
 referenced evidence's `tested_commit`.
 
-### Freshness rule as intended for M2 (assumptions declared)
+### Evidence state model and precedence (M2, implemented)
+
+Inputs: the evaluated baseline and its resolved commit; accepted links at that baseline; evidence
+records with `result`, `tested_commit`, `executed_at`, and `run_uri`; and artifact content hashes at
+both the evaluated baseline and each evidence record's `tested_commit`.
+
+| State | Meaning | Finding |
+| --- | --- | --- |
+| No accepted verification link | The requirement has no accepted scenario | `missing_verification_link` |
+| No execution evidence | Nothing has run for the scenario | none; coverage absence is visible in counts, not a defect |
+| Confirmed failure | A run that applies to the evaluated content failed (latest run for the scenario) | `verification_failed` |
+| Reverification required | The latest run passed, relevant content changed since `tested_commit`, no later run | `reverification_required` |
+| Current / applicable evidence | Latest run passed and relevant content hashes match | none |
+| Unknown applicability | The tested commit cannot be read, or the graph is incomplete | none; never converted into a failure |
+
+Precedence: for one scenario, an applicable failing latest run wins and suppresses
+`reverification_required`. A stale pass is never reported as a failure, and a missing link is
+independent of evidence. Applicability is decided by **content hashes**, not SHA equality: a run
+recorded at a source commit applies to the later evidence-only commit because the artifact bytes are
+identical. `label_of(commit)` maps a source commit to its baseline name by content equality so prose
+says "passed at baseline-a", not a bare SHA.
+
+### Freshness rule as implemented (assumptions declared)
 
 ```text
 for each scenario S with an accepted chain:
@@ -163,6 +185,9 @@ All errors are RFC 9457 problem documents: `type` (`urn:cta:error:<code>`), `tit
 | `request-validation` | 422 | Body/path/query failed schema validation |
 | `not-implemented` | 501 | Contract frozen, implementation belongs to a later milestone (names `story`, `milestone`) |
 | `fixture-data-missing` / `fixture-data-invalid` | 500 | Server-side fixture problem; message says how to regenerate |
+| `repository-not-indexed` | 404 | Portable query named a repository or revision that is not indexed |
+| `scenario-not-found` | 404 | Portable scenario key absent at the pinned revision |
+| `report-not-applicable` | 400 | Report's parsed feature content does not match the indexed revision |
 | `internal-error` | 500 | Unhandled error; logged with traceback |
 
 ## Fixture file schemas
@@ -183,3 +208,48 @@ All errors are RFC 9457 problem documents: `type` (`urn:cta:error:<code>`), `tit
 Template tokens inside fixture overlays: `{{COMMIT:<commit-id>}}`,
 `{{DISCOVERY_PROVIDER}}`, `{{DISCOVERY_MODEL_VERSION}}`, `{{DISCOVERY_INDEX_REVISION}}`.
 Unknown tokens fail the build rather than rendering literally.
+
+## Portable repository contracts (schema 0.3.0, additive)
+
+These models live in `app/domain/portable.py` and are deliberately separate from CTA's strict
+fixture artifacts. An external repository needs no `@SCN-nnn` tag, no `# cta:artifact` annotation,
+no YAML front matter, and no accepted links to be indexed.
+
+| Model | Required information |
+| --- | --- |
+| `PortableSnapshot` | repository id, identity strategy, resolved commit, tree digest, parser identity, features, diagnostics, `annotation_dependency=false` |
+| `PortableFeature` | repository-scoped feature key, path, line, language, tags, background steps, scenarios, file content hash |
+| `PortableScenario` | scenario key (`<repo>:<path>#SCN-L<line>`), keyword, kind (`scenario`/`scenario_outline`), tags, rule name, steps, example instances |
+| `PortableStep` | step key (`<repo>:<path>#STEP-L<line>`), keyword, text, location, `from_background`, doc string, data table |
+| `PortableScenarioInstance` | outline instance key (`.../EX-<n>`), example values, interpolated steps |
+| `StepDefinitionRecord` | definition key, framework id, pattern, pattern type, source path/line, runtime |
+| `StepResolutionRecord` | scenario/instance/step keys, status (`matched`, `undefined`, `ambiguous`, `unknown`, `not_available`), definition keys |
+| `ScenarioExecutionRecord` | execution key, scenario/instance keys, outcome, tested commit, executed time, runtime, report URI/digest, per-step executions |
+| `ExecutionImportRequest` | report path, provenance sidecar path, tested commit, adapter |
+| `ReportProvenance` | report URI/digest, metadata URI/digest, adapter, runtime, protocol version, tested commit, import time |
+
+Identity rules: `repository_id` is explicit, derived from a normalized remote URL, or derived from
+the root commit; the strategy is returned. Scenario identity is the pinned commit plus the source
+locator, and it is not claimed to survive edits, moves, or renames. Runtime-generated Cucumber
+message ids are provenance only. Equal paths and tags in two repositories never collide because
+every key is repository-prefixed.
+
+**Honesty rules.** No report imported → `availability=not_available` and an explicit reason;
+`UNDEFINED`/`AMBIGUOUS` require the framework's own `stepDefinitionIds`; an import requires a
+provenance sidecar naming the tested commit (and optionally the repository), and the request's
+commit must equal it. A report is attributed only when every `source` envelope hash matches the
+indexed feature content, and the same report bytes cannot be rebound to another revision. A missing
+report never yields an undefined-step finding or a fabricated execution. Scenario outcomes include
+hook results; a missing step result is `UNKNOWN`, never a pass.
+
+## Executable relations (schema 0.3.0, additive)
+
+`ExecutableRelation(relation, origin, source_key, target_key, provenance)` with origins
+`extracted` (Gherkin AST), `matched` (framework resolution), and `observed` (a trusted report).
+Relations: `HAS_STEP`, `EXPANDS_TO`, `MATCHES_DEFINITION`, `HAS_STEP_EXECUTION`,
+`EXECUTED_DEFINITION`. `HAS_STEP_EXECUTION` and `EXECUTED_DEFINITION` are emitted only for invoked
+steps (`PASSED`/`FAILED`); `SKIPPED`, `PENDING`, `UNDEFINED`, and `AMBIGUOUS` are recorded but are
+not observed execution. Coverage counts follow the same rule. `INVOKES`/`CALLS`/`EXERCISED_IN` are **not** emitted: M2 has no validated
+production-call extraction, and a matched step definition is not production-code coverage.
+Executability findings (`undefined_step`, `ambiguous_step`, `execution_failed`) are separate from
+requirement findings and carry portable artifact keys, not `REQ-/SCN-/CODE-/TEST-` ids.

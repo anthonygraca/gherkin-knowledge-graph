@@ -1,0 +1,7 @@
+{
+  "fixture": "external-recipes",
+  "repository_id": "external-recipes",
+  "tested_commit": "55d3d74a8359acf3b271abd830e0d1e531921cb8",
+  "generated_at": "2026-11-13T23:10Z",
+  "note": "Provenance sidecar for the captured Cucumber Messages report. The tested commit is the checkout the suite ran in; CTA refuses imports without it."
+}

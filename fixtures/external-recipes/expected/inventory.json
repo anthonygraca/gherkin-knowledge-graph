@@ -1,0 +1,116 @@
+{
+  "fixture": "external-recipes",
+  "hand_labeled": true,
+  "hand_labeled_at": "2026-11-13",
+  "method": "Counted by reading tree/features/*.feature and changes/02-ratings/features/*.feature. No value here was produced by the indexer.",
+  "cta_annotations": [],
+  "cta_requirement_files": 0,
+  "cta_acceptance_links": 0,
+  "refs": {
+    "v1": {
+      "features": 2,
+      "scenario_outlines": 1,
+      "example_instances": 2,
+      "steps": 15,
+      "untagged_scenarios": 3,
+      "scenario_inventory": [
+        {
+          "path": "features/browse.feature",
+          "line": 10,
+          "name": "Published recipes are listed",
+          "kind": "scenario",
+          "tags": [],
+          "step_count": 4,
+          "instance_count": 0
+        },
+        {
+          "path": "features/browse.feature",
+          "line": 16,
+          "name": "Draft recipes stay hidden",
+          "kind": "scenario",
+          "tags": [
+            "@SCN-001"
+          ],
+          "step_count": 4,
+          "instance_count": 0
+        },
+        {
+          "path": "features/browse.feature",
+          "line": 21,
+          "name": "Search by <term>",
+          "kind": "scenario_outline",
+          "tags": [],
+          "step_count": 6,
+          "instance_count": 2
+        },
+        {
+          "path": "features/publish.feature",
+          "line": 3,
+          "name": "Publishing a recipe requires a title",
+          "kind": "scenario",
+          "tags": [],
+          "step_count": 3,
+          "instance_count": 0
+        }
+      ],
+      "scenarios": 4
+    },
+    "v2": {
+      "features": 3,
+      "scenario_outlines": 1,
+      "example_instances": 2,
+      "steps": 19,
+      "untagged_scenarios": 4,
+      "scenario_inventory": [
+        {
+          "path": "features/browse.feature",
+          "line": 10,
+          "name": "Published recipes are listed",
+          "kind": "scenario",
+          "tags": [],
+          "step_count": 4,
+          "instance_count": 0
+        },
+        {
+          "path": "features/browse.feature",
+          "line": 16,
+          "name": "Draft recipes stay hidden",
+          "kind": "scenario",
+          "tags": [
+            "@SCN-001"
+          ],
+          "step_count": 4,
+          "instance_count": 0
+        },
+        {
+          "path": "features/browse.feature",
+          "line": 21,
+          "name": "Search by <term>",
+          "kind": "scenario_outline",
+          "tags": [],
+          "step_count": 6,
+          "instance_count": 2
+        },
+        {
+          "path": "features/publish.feature",
+          "line": 3,
+          "name": "Publishing a recipe requires a title",
+          "kind": "scenario",
+          "tags": [],
+          "step_count": 3,
+          "instance_count": 0
+        },
+        {
+          "path": "features/ratings.feature",
+          "line": 2,
+          "name": "A visitor rates a recipe once",
+          "kind": "scenario",
+          "tags": [],
+          "step_count": 4,
+          "instance_count": 0
+        }
+      ],
+      "scenarios": 5
+    }
+  }
+}

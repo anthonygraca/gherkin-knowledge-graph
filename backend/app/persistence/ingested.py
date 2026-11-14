@@ -78,6 +78,9 @@ class IngestedStore:
     def list_artifacts(self, baseline: str) -> list[Artifact]:
         return list(self._revision(baseline)[1].artifacts)
 
+    def artifacts_at(self, revision: str) -> list[Artifact]:
+        return list(self._ingest(revision).artifacts)
+
     def list_links(
         self, baseline: str, *, review_state: ReviewState | None = None
     ) -> list[TraceLink]:
@@ -105,6 +108,19 @@ class IngestedStore:
             if current.get(artifact_id) != before.get(artifact_id)
         )
 
+    def impacted_links(self, baseline: str, previous: str) -> list[TraceLink]:
+        changed = set(self.changed_artifacts(baseline, previous))
+        return sorted(
+            (
+                link
+                for link in self.list_links(
+                    self.resolve_baseline(baseline), review_state=ReviewState.ACCEPTED
+                )
+                if link.source_id in changed or link.target_id in changed
+            ),
+            key=lambda link: link.link_id,
+        )
+
     # ------------------------------------------- fixture-facing read helpers
 
     def baseline_commits(self) -> dict[str, str]:
@@ -112,7 +128,34 @@ class IngestedStore:
         return dict(self.manifest.tags)
 
     def label_of(self, commit: str) -> str:
-        return next((name for name, value in self.manifest.tags.items() if value == commit), commit)
+        """Baseline name for a commit, by tag or by content-equivalent artifact set.
+
+        Evidence is pinned to the commit that was actually tested, which is usually the source
+        commit of a two-commit baseline. Reporting that SHA in prose ("passed at 903977de…") is
+        accurate but unreadable, so a commit whose artifact content equals a baseline is labelled
+        with that baseline. Content equality — never SHA equality — is the criterion.
+        """
+        exact = next((name for name, value in self.manifest.tags.items() if value == commit), None)
+        if exact is not None:
+            return exact
+        try:
+            current = {
+                artifact.artifact_id: artifact.content_hash
+                for artifact in self._ingest(commit).artifacts
+            }
+        except Exception:  # noqa: BLE001 - an unreadable revision has no label
+            return commit
+        for name, value in self.manifest.tags.items():
+            try:
+                candidate = {
+                    artifact.artifact_id: artifact.content_hash
+                    for artifact in self._ingest(value).artifacts
+                }
+            except Exception:  # noqa: BLE001
+                continue
+            if candidate == current:
+                return name
+        return commit
 
     def thread(self, root_id: str, *, baseline: str | None = None) -> ThreadResponse:
         canonical, revision = self._revision(baseline)

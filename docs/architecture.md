@@ -44,7 +44,6 @@ Two rules explain most of the layout:
 | `app/discovery/ai_http.py` | OpenAI-compatible chat and embedding adapters with timeout, bounded retry, schema validation, redaction | Implemented; live path not exercised without configuration |
 | `app/discovery/capabilities.py` | Synthetic-canary capability probe used by the CLI and tests | Implemented; offline/mocked evidence only in CI |
 | `app/assurance/rules.py` | `DeterministicAssuranceEvaluator` (M1: missing-verification rule) | Working implementation (M1 subset) |
-| `app/assurance/sample_findings.py` | Replay of reviewed sample findings for `GET /api/findings` | Mock service (full rule set in M2) |
 | `app/api/` | Routes, dependencies, RFC 9457 problem documents | Working |
 | `app/ingestion/` | Revision-pinned parsing: requirements/Gherkin (DT-01), source/test (DT-02), links (DT-03), evidence + thread assembly (DT-04) | Implemented |
 | `frontend/` | React + TypeScript + Vite dashboard: baseline selector, findings summary, coverage, thread view; Vitest component tests | Implemented (AS-04) |
@@ -79,11 +78,13 @@ writes the responses. `verify` does all of that into a temporary directory and d
 | Git history, tags, and revisions | Real. Four commits, fixed SHAs, verified reproducible. |
 | Artifact identity, content hashes, revisions | Real, computed from git blobs. |
 | Fixture tests passing/failing as labeled | Real: the suite runs the fixture's own tests at both tags. |
-| Findings | **Not computed.** Reviewed sample responses generated from the hand-labeled oracle. |
+| Findings | Computed by `app/assurance/rules.py` (six deterministic rules) and compared field-by-field with the hand-labeled oracle. `GET /api/findings` and `POST /api/assurance/evaluate` evaluate the same rule set. |
 | Retrieval quality | **Not measured.** Candidate scores are fixture labels, never model output. |
 | Optional AI providers | The typed chat/embedding boundary, fake adapters, and OpenAI-compatible HTTP adapters exist and are offline-tested with mocked transports. No live endpoint is configured in CI or the default suite; a live probe is explicitly opt-in and its result is `NOT RUN` when configuration is absent. The adapters cannot accept links, write evidence, or change assurance policy. |
 | Ingestion from a real repository | Requirements, scenarios, source, test, link, and evidence declarations are parsed from the nested fixture repository at a pinned revision; threads are assembled from that data (`POST /api/ingestion/run` reports counts). General non-fixture repositories remain a later capability. |
 | Link review and audit history | Not implemented; `POST /api/links/{id}/review` returns 501 naming AS-06. |
+| Portable repository indexing | `app/ingestion/portable.py` parses a pinned commit with the official Gherkin parser; queries are repository-scoped and read-only. |
+| Executable report ingestion | `app/ingestion/cucumber_messages.py` maps Cucumber Messages into definitions, matches, and executions with provenance. |
 
 This is why the `contract-only` endpoints return 501 instead of plausible-looking data: the
 project's whole premise is that a reader can tell facts, proposals, and verification apart.

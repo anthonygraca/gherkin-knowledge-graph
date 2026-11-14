@@ -30,15 +30,31 @@ everything afterwards is offline.
 | --- | --- |
 | One artifact at one baseline | `GET /api/artifacts/REQ-001?baseline=baseline-a` |
 | Digital thread with accepted links, proposals kept separate, and evidence | `GET /api/threads/REQ-001?baseline=baseline-b` |
-| Sample assurance findings for a baseline | `GET /api/findings?baseline=baseline-b` |
+| Evaluated assurance findings for a baseline | `GET /api/findings?baseline=baseline-b` |
 | Candidate link proposals (fixture provider; never auto-accepted) | `POST /api/discovery` |
 | Reproducible fixture Git history with tags `baseline-a` / `baseline-b` | `tools/fixturectl.py build` |
 | Offline contract, oracle, and API tests | `pytest backend/tests` |
 
-The endpoints `POST /api/ingestion/run`, `POST /api/links/{link_id}/review`, and
-`POST /api/assurance/evaluate` exist as **frozen contracts** and answer `501` with the owning
-story and milestone. They are not silently stubbed, and no rule engine runs yet: `GET
-/api/findings` replays reviewed sample findings generated from the hand-labeled oracle.
+`POST /api/ingestion/run` and `POST /api/assurance/evaluate` are implemented; both evidence
+endpoints evaluate the same deterministic rule set over the ingested revision. `GET /api/findings`
+no longer replays a recorded sample. `POST /api/links/{link_id}/review` remains a frozen contract
+and answers `501` naming AS-06. Findings are compared field-by-field with the hand-labeled oracle
+in `fixtures/banking-demo/expected/`.
+
+Executable acceptance specifications live in `docs/stories/*.feature` and run through Cucumber-JS:
+
+```bash
+npm ci --prefix bdd
+(cd bdd && npm run bdd)
+node bdd/tools/step-resolution.mjs bdd/reports/cucumber-messages.ndjson
+```
+
+Any local Git repository can be indexed read-only without CTA tags or requirements:
+
+```bash
+uv run --project backend python -m app.cli index /path/to/repo --repo-id my-repo --ref HEAD
+uv run --project backend python -m app.cli scenarios /path/to/repo --repo-id my-repo --ref HEAD
+```
 
 ## The demonstration the project is aiming at
 

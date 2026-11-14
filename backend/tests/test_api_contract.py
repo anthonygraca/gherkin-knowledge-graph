@@ -33,6 +33,18 @@ CONTRACTED_PATHS = {
     "/api/ingestion/run",
     "/api/links/{link_id}/review",
     "/api/assurance/evaluate",
+    # Portable repository surface (schema 0.3.0): read-only, repository-scoped.
+    "/api/repositories",
+    "/api/repositories/index",
+    "/api/repositories/{repository_id}/scenarios",
+    "/api/repositories/{repository_id}/scenario",
+    "/api/repositories/{repository_id}/steps",
+    "/api/repositories/{repository_id}/bindings",
+    "/api/repositories/{repository_id}/unresolved-steps",
+    "/api/repositories/{repository_id}/reports",
+    "/api/repositories/{repository_id}/executions",
+    "/api/repositories/{repository_id}/relations",
+    "/api/repositories/{repository_id}/executable-findings",
 }
 
 

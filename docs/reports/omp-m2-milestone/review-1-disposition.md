@@ -1,0 +1,24 @@
+# Disposition of independent review 1 (submission 1 of 7)
+
+Verdict: **REQUEST_CHANGES** (`review-1.md`, `gpt-6.1-sol`, high reasoning, finished
+2026-11-13T22:57:26Z). The reviewer inspected the uncommitted working tree, not the base commit.
+Submission 2 is the repaired tree; review budget used: **2 of 7** after that submission.
+
+| Finding | Severity | Disposition | Repair and evidence |
+| --- | --- | --- | --- |
+| M2-R01 snapshot hashes stale | major | **repaired** | `review-packet-1-errata.md` records the two edits that post-dated the hash table (id renumbering, header comments). Packet 2 carries current feature hashes and `dirty-tree-manifest.txt` (every changed/untracked file with SHA-256, produced by `tools/dirty_manifest.py`). |
+| M2-R02 changed tests/scenarios suppress reverification | major | **repaired** | `rules.py` no longer gates a passing run on current test/scenario hashes; reverification compares the whole relevant set (scenario, implementations, tests). New tests: `test_a_changed_test_still_requires_reverification`, `test_a_changed_scenario_still_requires_reverification`. |
+| M2-R03 old failure reported at changed implementation | major | **repaired** | Failure applicability now requires every relevant artifact (scenario, implementations, tests) to match the tested commit. New test: `test_an_old_failure_is_not_current_after_implementation_change` (old EV-001 failure at baseline-a + changed CODE-001 at baseline-b yields neither failure nor reverification). |
+| M2-R04 report attributed to a commit it did not test | major | **repaired** | Imports now require a provenance sidecar (`metadata_path`) naming `tested_commit` (and optionally `repository_id`); a mismatch is refused. Reports are keyed by `(tested_commit, digest)`; the same report bytes cannot be rebound to another revision. Evidence reports and sidecars were regenerated at the current fixture commits; the manifest records the new SHAs. Tests: `test_report_without_provenance_is_rejected`, `test_same_report_cannot_be_rebased_onto_another_commit`, `test_report_for_a_different_revision_is_rejected`. |
+| M2-R05 skipped matches promoted to observed execution | major | **repaired** | `EXECUTED_DEFINITION`/`HAS_STEP_EXECUTION` and coverage counts now require `PASSED`/`FAILED` (invoked) outcomes. Test: `test_skipped_run_is_not_observed_execution` (dry-run-shaped report: 0 executed steps/scenarios, no observed edges). |
+| M2-R06 hook failure imported as pass | major | **repaired** | Scenario outcome folds in every test-step result, including Before/After hooks; a missing result is `UNKNOWN`, not a pass. Test: `test_hook_failure_fails_the_scenario`. |
+| M2-R07 gate accepts dry run, hides definitions | major | **repaired** | Gate rejects `SKIPPED`/`UNKNOWN` in addition to `UNDEFINED`/`AMBIGUOUS`/`PENDING`, and prints each competing definition's `uri:line` and pattern. New GT-01 scenario `SCN-2105` runs a real `--dry-run` and asserts rejection. |
+| M2-R08 GT-02 incomplete | major | **not repaired — blocker** | AS-04, AS-05, and SETUP-01 still have no Cucumber bindings. They remain explicitly `not_executed` in the evidence-derived inventory. Completing them requires browser-level bindings and commit-history bindings; no owner disposition accepting the exclusions is recorded. This alone prevents an expanded-M2 APPROVE. |
+| M2-R09 inventory status hand-assigned | major | **repaired** | `tools/feature_inventory.py` now reads the messages report and derives `cucumber_status`, `execution_result`, `executed_scenarios`, and `failed_scenarios`; it fails if a declared-executed feature is absent or has unstarted cases, or if a non-executed feature starts. GT-02 SCN-2113 reconciles every executed entry against case starts/outcomes and every non-executed entry against zero starts. |
+| M2-R10 paths with spaces abort indexing | major | **repaired** | Key pattern allows any non-newline character; new test indexes and queries `features/user login.feature`. |
+| M2-R11 drill-down borrows another thread's evidence | major | **repaired** | Opening a finding fetches evidence for its own requirement(s) and caches it; the test opens the failure finding while REQ-001 remains selected and still sees EV-003 with its tested commit. |
+| M2-R12 human review of new oracles unestablished | major | **not repaired — owner action** | The external inventories are agent-produced hand counts. The existing owner attestation covers only the three historical banking files. The repository owner must review and hash-attest `fixtures/external-recipes/expected/inventory.json` and `fixtures/external-twin/expected/inventory.json`; agent inspection cannot supply it. |
+
+**Not claimed.** No approval, no human stakeholder validation, no human acceptance of semantic
+links, and no expanded-M2 completion. The original five M2 stories' engineering evidence is
+repaired, but GT-02's incompleteness (R08) and the missing human oracle review (R12) remain.

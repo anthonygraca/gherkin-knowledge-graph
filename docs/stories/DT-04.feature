@@ -3,8 +3,8 @@
 # https://github.com/anthonygraca/gherkin-knowledge-graph/issues/23 (verified 2026-11-13T03:12:49Z)
 # and roadmap §6 F-03. Failure, boundary, and cutover scenarios were added during refinement; the
 # two intake scenarios keep their wording.
-# Verified by the pytest selectors mapped in DT-04.md. These scenarios are not currently bound
-# to or executed by a Gherkin runner.
+# Verified by the pytest selectors mapped in DT-04.md and executed by the Cucumber suite (bdd/)
+# from M2 onward.
 @DT-04 @issue-23 @M1
 Feature: DT-04: Retrieve the thread associated with a requirement
   A thread is assembled from the ingested revision: the requirement, the accepted links reachable

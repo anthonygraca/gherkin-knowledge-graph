@@ -10,11 +10,12 @@ from __future__ import annotations
 from fastapi import FastAPI
 
 from app.api.errors import register_exception_handlers
+from app.api.portable_routes import router as portable_router
 from app.api.routes import router
 from app.assurance.rules import DeterministicAssuranceEvaluator
-from app.assurance.sample_findings import SampleFindingsSource
 from app.discovery.registry import ProviderRegistry
 from app.persistence.ingested import IngestedStore
+from app.persistence.portable import PortableRegistry
 from app.settings import Settings, load_settings
 from app.version import PACKAGE_VERSION
 
@@ -56,6 +57,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             },
             {"name": "discovery", "description": "Candidate proposals only; never writes links."},
             {
+                "name": "portable",
+                "description": "Read-only repository-scoped queries for external Gherkin projects.",
+            },
+            {
                 "name": "contract-only",
                 "description": "Frozen shape, implementation in a later milestone (501).",
             },
@@ -63,11 +68,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = resolved
     app.state.store = IngestedStore.from_settings(resolved)
-    app.state.findings_source = SampleFindingsSource.from_settings(resolved)
     app.state.evaluator = DeterministicAssuranceEvaluator(app.state.store)
     app.state.providers = ProviderRegistry(resolved)
+    app.state.portable = PortableRegistry()
     register_exception_handlers(app)
     app.include_router(router)
+    app.include_router(portable_router)
     return app
 
 

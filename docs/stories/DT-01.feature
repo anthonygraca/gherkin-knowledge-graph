@@ -3,8 +3,8 @@
 # https://github.com/anthonygraca/gherkin-knowledge-graph/issues/20 (verified 2026-11-13T00:52:26Z)
 # and roadmap §6 F-02. Failure and boundary scenarios were added during refinement; the two
 # intake scenarios keep their original wording.
-# Verified by the pytest selectors mapped in DT-01.md. These scenarios are not currently bound
-# to or executed by a Gherkin runner.
+# Verified by the pytest selectors mapped in DT-01.md and executed by the Cucumber suite (bdd/)
+# from M2 onward.
 @DT-01 @issue-20 @M1
 Feature: DT-01: Requirements and Gherkin scenarios parsed into stable artifacts
   A requirement document declares its identity in YAML front matter. A Gherkin scenario

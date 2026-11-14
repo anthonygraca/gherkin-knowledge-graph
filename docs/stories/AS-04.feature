@@ -2,9 +2,10 @@
 # Source criteria: the GitHub story intake at
 # https://github.com/anthonygraca/gherkin-knowledge-graph/issues/26 (verified 2026-11-13T04:13:19Z)
 # and roadmap §6 F-06. Boundary scenarios were added during refinement; the two intake scenarios
-# keep their wording. Verified by frontend component tests plus a recorded browser demonstration;
-# the scenarios are not executed by a Gherkin runner.
-@AS-04 @issue-26 @M1
+# keep their wording. Executed by the Cucumber browser suite under bdd/ from M2 onward; the
+# Vitest component tests remain independent regression evidence.
+@AS-04 @browser @issue-26 @M1
+# Executable-status note: Dashboard rendering is verified by Vitest component tests and a recorded browser demonstration; browser-level Cucumber bindings are pending under GT-02.
 Feature: AS-04: Summary of findings and coverage counts
   The dashboard shows, for the selected baseline, how many findings of each type exist and which
   requirements are covered. Counts come from the findings response. Proposals are displayed as

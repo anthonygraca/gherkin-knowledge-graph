@@ -1,0 +1,1 @@
+{"status":"ok","package_version":"0.1.0","schema_version":"0.3.0","fixture":"banking-demo","baselines":["baseline-a","baseline-b"],"baseline_commits":{"baseline-a":"c8b20dce30155f6728c8ee685cb016b4206e74c3","baseline-b":"893c3b54ab035be491aaa737b9b13ba3677c5044"},"discovery_providers":["fake"]}

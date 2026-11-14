@@ -65,6 +65,15 @@ class ArtifactRepository(Protocol):
 
     def list_artifacts(self, baseline: str) -> list[Artifact]: ...
 
+    def artifacts_at(self, revision: str) -> list[Artifact]:
+        """Artifact versions at an arbitrary immutable commit (evidence's tested revision).
+
+        Evidence is pinned to the commit that was tested, which is usually *not* a tagged
+        baseline: the evidence-only commit has a different SHA but identical content. Comparing
+        content hashes requires reading the tested commit itself.
+        """
+        ...
+
     def list_links(
         self, baseline: str, *, review_state: ReviewState | None = None
     ) -> list[TraceLink]: ...
@@ -73,6 +82,14 @@ class ArtifactRepository(Protocol):
 
     def changed_artifacts(self, baseline: str, previous: str) -> list[str]:
         """Artifact ids whose content hash differs between two baselines."""
+        ...
+
+    def impacted_links(self, baseline: str, previous: str) -> list[TraceLink]:
+        """Accepted links whose either endpoint changed between the two baselines.
+
+        Impact is scoped to the accepted graph: proposals are not dependencies, and the rule
+        engine must not re-implement change detection (DT-06 owns it).
+        """
         ...
 
 

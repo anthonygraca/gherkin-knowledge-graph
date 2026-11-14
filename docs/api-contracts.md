@@ -18,7 +18,7 @@ with a tag and with that tag's SHA returns identical bodies. Version-pinning fie
 {
   "status": "ok",
   "package_version": "0.1.0",
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "fixture": "banking-demo",
   "baselines": ["baseline-a", "baseline-b"],
   "baseline_commits": {
@@ -37,7 +37,7 @@ coverage without hard-coded identities.
 
 ```json
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "baseline": "baseline-a",
   "artifacts": [
     {
@@ -83,7 +83,7 @@ it does not read the generated example files.
 
 ```json
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "root_id": "REQ-002",
   "baseline": "baseline-a",
   "artifacts": [
@@ -128,7 +128,7 @@ findings are not silently dropped from this response.
 
 ```json
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "baseline": "baseline-b",
   "findings": [
     {
@@ -203,7 +203,7 @@ Response:
 
 ```json
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "baseline": "baseline-a",
   "findings": [
     {
@@ -245,7 +245,7 @@ Response (abridged; `fixtures/api-responses/discovery.SCN-001.json` is the full 
 
 ```json
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "artifact_id": "SCN-001",
   "provider": "fake",
   "model_version": "fake-fixture-v1",
@@ -299,3 +299,56 @@ first, so the contract is real even though the behaviour is not implemented:
 * Treat 501 as "not yet", not as an error to retry.
 * Read proposals only from `proposed_links` / `candidates`; never treat them as accepted.
 * Do not cache findings across baselines: `evaluated_baseline` is part of their meaning.
+
+
+## Portable repository endpoints (schema 0.3.0, additive)
+
+All responses are repository- and revision-scoped. Omitted `revision` means the most recently
+indexed commit for that repository; an unindexed repository or revision is 404
+`repository-not-indexed`, never an implicit index of another ref.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| POST | `/api/repositories/index` | Index a local Git repository at a pinned commit (read-only; no hooks) |
+| GET | `/api/repositories` | Indexed repositories and their pinned revisions |
+| GET | `/api/repositories/{id}/scenarios?revision=&path=&tag=` | Scenarios with source locators and outline instances |
+| GET | `/api/repositories/{id}/scenario?scenario_key=` | One scenario |
+| GET | `/api/repositories/{id}/steps?scenario_key=&text=` | Steps |
+| GET | `/api/repositories/{id}/bindings` | Registered definitions and framework resolutions, or `not_available` |
+| GET | `/api/repositories/{id}/unresolved-steps` | Undefined/ambiguous steps from a trusted report |
+| POST | `/api/repositories/{id}/reports` | Import a Cucumber Messages report plus its provenance sidecar for the indexed commit |
+| GET | `/api/repositories/{id}/executions` | Observed scenario executions and coverage counts |
+| GET | `/api/repositories/{id}/relations` | Extracted/matched/observed relations |
+| GET | `/api/repositories/{id}/executable-findings` | Executability findings |
+
+Example (`GET /api/repositories/external-recipes/bindings?revision=v1`) before any report exists:
+
+```json
+{
+  "schema_version": "0.3.0",
+  "repository_id": "external-recipes",
+  "revision": "4851146c92d4c02b1be5e3989a3947fb89997993",
+  "availability": "not_available",
+  "reason": "no trusted framework matching report has been imported for this revision; step matching is unknown, not undefined",
+  "step_definitions": [],
+  "resolutions": []
+}
+```
+
+CLI equivalents (one JSON document each; exit 2 on failure):
+
+```bash
+python -m app.cli index ../repo --repo-id repo --ref v1
+python -m app.cli scenarios ../repo --repo-id repo --ref v1 [--tag SCN-001]
+python -m app.cli steps ../repo --repo-id repo --ref v1 --scenario <key>
+python -m app.cli definitions ../repo --repo-id repo --ref v1 --report report.ndjson --tested-commit <sha>
+python -m app.cli unresolved ../repo --repo-id repo --ref v1 --report report.ndjson --tested-commit <sha>
+python -m app.cli executions ../repo --repo-id repo --ref v1
+python -m app.cli findings ../repo --repo-id repo --ref v1
+```
+
+
+An import request carries `report_path`, `metadata_path`, and `tested_commit`. The metadata sidecar
+must name the same `tested_commit` and, when present, the same `repository_id`; a report whose exact
+bytes were already attributed to another revision is refused (`report-not-applicable`). Duplicate
+imports of the same report at the same revision are idempotent (`imported: false`).

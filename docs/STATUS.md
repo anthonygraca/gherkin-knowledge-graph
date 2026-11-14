@@ -2,18 +2,19 @@
 
 ```text
 Date:                2026-11-13
-Current branch:      main at a674fb9 (RAG PR 1 hosted-provider slice merged); local task
-                     branch feat/56-cocoindex-code based on a674fb9
-Milestone:           M0 — exit gate SATISFIED by re-review round 2 (historical record below)
+Current branch:      main at 4659e01 (AI-06 CocoIndex slice merged); M2 slice is uncommitted
+                     work on main (no branch/PR created in this session)
+Milestone:           M2 — exit gate SATISFIED by independent review 7 (expanded scope); see APPROVAL.md
                      M1 — exit gate SATISFIED by independent review round 2 at e1497cf;
                      no open major finding
-                     M2 — not implemented
+                     M2 — implemented locally (five original stories + GT-01/02/03 + PG-01);
+                     expanded-M2 engineering gate APPROVED at submission 7 of 7
                      M3 — AI-06 PR 1 (CocoIndex capability/contract/live smoke) implemented
                      locally; review 1 REQUEST_CHANGES (8), review 2 REQUEST_CHANGES (3),
                      review 3 REQUEST_CHANGES (R2/R5), review 4 REQUEST_CHANGES (R2/R5), all repaired;
                      review 5 APPROVE (submission 5 of 7); AI06-R9 minor metadata repaired;
                      AI-02/AI-03/AI-05 open
-Active task:         AI-06 (#56) CocoIndex Code capability and integration contract (M3)
+Active task:         Expanded M2 — continuous assurance, executable Cucumber, portable ingestion
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
                      docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
                      NEEDS_INPUT; R1–R7 all repaired; AC-1.1…AC-1.8 and AC-2.1…AC-2.5 all PASS;
@@ -50,7 +51,12 @@ Historical (SETUP-01, 2026-11-12): the commit-reference slice landed via PR #42;
                      had 107 passed; the SETUP-01 tree then had 135 passed (also under an
                      OS-level network denial). Outstanding owner actions: #18/#19 closure, the
                      FT-03/project-definition reviews, the required-check ruleset, README work item.
-Tests executed:      AI-06 repaired snapshot (local branch): 402 backend passed, 3 opt-in skips
+Tests executed:      Expanded-M2 slice (after review-3 repairs): backend 443 passed / 3 opt-in skips; frontend 13 passed;
+                     fixturectl verify exit 0; ruff check + format clean; `git diff --check` clean.
+                     93 Cucumber scenarios passed (396 Gherkin steps + 372 hook steps); strict gate ok;
+                     messages report sha256 18b5a60e… (docs/reports/omp-m2-bdd/evidence/).
+                     Portable benchmark: exact hand-label match, 0 modifications, 0 collisions.
+                     AI-06 repaired snapshot (local branch): 402 backend passed, 3 opt-in skips
                      (default suite); CocoIndex contract module 117 passed; opt-in live test
                      1 passed; fixturectl verify exit 0; ruff, format, and `git diff --check`
                      clean; network-denied suite 402 passed. Live probe: all six steps ok; search
@@ -74,7 +80,7 @@ Tests executed:      AI-06 repaired snapshot (local branch): 402 backend passed,
                      hosted checks passing; issue #21 closed.
                      DT-01 approved snapshot: 183 passed; PR #44 merged as 26a25d0 with both
                      hosted checks passing; issue #20 closed.
-Current API/schema version: 0.2.0 (unchanged by AI-06: no API/domain/fixture shape change)
+Current API/schema version: 0.3.0 (M2 additive portable/executable contracts; fixtures regenerated)
 Tracker:             docs/traceability-issue-map.md (features → user stories → tasks)
 Run records:         docs/reports/omp-m0-rereview/, docs/reports/omp-setup-01-commitlint/,
                      docs/reports/omp-m1-milestone/, docs/reports/omp-rag-pr1/, and the six
@@ -85,7 +91,44 @@ Environment:         Python ≥3.11, uv, git ≥2.28; no GPU, LLM, vector store,
                      during tests
 ```
 
-## Roadmap execution — M1 (active)
+## Expanded M2 — local implementation (unreviewed)
+
+Run started 2026-11-13 under the expanded-M2 intake. GitHub issues created with the run's
+issue-write authority: F-11 [#58](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/58),
+F-12 [#59](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/59),
+GT-01 [#60](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/60),
+GT-02 [#61](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/61),
+GT-03 [#62](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/62),
+PG-01 [#63](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/63). No branch was
+pushed, no PR opened, no issue closed, and two local commits were not created: the slice is
+uncommitted at the approval snapshot; review 7 approved the engineering gate, so an issue-linked
+local commit may now be created. Publication still requires an explicit owner grant.
+
+| Work item | Issue | Canonical feature | State | Evidence |
+| --- | --- | --- | --- | --- |
+| DT-05 tested-commit evidence | [#24](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/24) | `DT-05.feature` | approved (review 7) | `test_m2_assurance.py`, Cucumber |
+| DT-06 change set + impact | [#25](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/25) | `DT-06.feature` | approved (review 7) | `test_m2_assurance.py`, Cucumber |
+| AS-02 reverification | [#3](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/3) | `AS-02.feature` | approved (review 7) | `test_m2_assurance.py` |
+| AS-03 evidence distinctions | [#4](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/4) | `AS-03.feature` | approved (review 7) | `test_m2_assurance.py` |
+| AS-05 drill-down | [#27](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/27) | `AS-05.feature` | approved (review 7); browser + component tests | `App.test.tsx`, `evidence/browser/` |
+| GT-01 runtime + harness | [#60](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/60) | `GT-01.feature` | approved (review 7) | `bdd/probes/`, strict gate |
+| GT-02 legacy migration | [#61](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/61) | `GT-02.feature` | approved (review 7); 19 feature files executed | `feature-inventory.json` |
+| GT-03 executable graph | [#62](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/62) | `GT-03.feature` | approved (review 7) | portable relations + Cucumber |
+| PG-01 portability | [#63](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/63) | `PG-01.feature` | approved (review 7) | `benchmark.json`, Cucumber |
+
+**Milestone status: SATISFIED — expanded-M2 engineering gate APPROVED.**
+Reviews 1–6 returned REQUEST_CHANGES; every finding was repaired and counterexample-tested, and
+review 7 returned **APPROVE** with no blocking finding (`review-7.md`, submission 7 of 7). The two long-standing blockers are closed locally: **R08** — SETUP-01,
+AS-04, and AS-05 now execute through Cucumber (browser suite for the dashboard), so all 19
+applicable M0/M1/M2 acceptance features are migrated; **R12** — the owner's hash-tied attestation
+for both external inventories is recorded in `docs/reviews/M2-external-oracle-owner-review.md`.
+The final local suite: **93 scenarios passed (396 Gherkin steps + 372 hook steps)**, strict gate
+`ok` (93 test cases), report `sha256:7dcff8da…`. Original M2 assurance matches the hand-labeled
+oracle; the portable benchmark is clean. The approval covers the engineering gate only; human stakeholder
+validation, semantic-link acceptance, and publication remain owner gates. The reviewed slice is committed as `37980aa`; the approval record is
+`docs/reports/omp-m2-milestone/APPROVAL.md`.
+
+## Roadmap execution — M1 (historical)
 
 Run started 2026-11-13T00:44Z from `e18cdcf` in roadmap mode with the milestone ceiling at M1.
 GitHub authority for this run: scoped issue updates, branch pushes, PR creation, and merges after

@@ -1,0 +1,292 @@
+base_commit 4659e011c7adbe56940c71891f857d6225a5df10
+deleted backend/app/assurance/sample_findings.py
+file .github/workflows/ci.yml sha256:0722befd6f67636f05c1a0cae00abbda43c587c444ecf2dc9ea82f8c33dfc4bf
+file .gitignore sha256:74a27a15b80919319b02727d7028fdc55679b64e8bc89cedcab3f16e0a7ffa87
+file README.md sha256:84fc32b26191a3dbd33aff18ff02f6b22a98093b7cb16f57455318b8a8a85c88
+file backend/app/api/deps.py sha256:97f4270831064a63378208cd87b123e2fcaa133725e625f4897809aaeefb228d
+file backend/app/api/portable_routes.py sha256:53dd7940d12f9e58aac8d649125540bdef78800808c365822e83cad55640ecff
+file backend/app/api/routes.py sha256:812b60b69dcbe1b7091fe79b8f01ed76f36854dba412b0f2a93a317f4ed65dfb
+file backend/app/assurance/__init__.py sha256:9e835844793fb26cf7096911b98315491b764d6dca13a20cfa7cb9e748ae23c2
+file backend/app/assurance/executable_rules.py sha256:f65afb11f998216063a38e178560867809f5d2f427c19a4547eeba84f305b668
+file backend/app/assurance/rules.py sha256:1e27336c69b94f244e8024c47a1ff611a51a498d21398f23b0a475f8b69ff470
+file backend/app/cli.py sha256:d0e116a4a31324c373077a0e5f5b480c7568434479645d62b5047d189ca5c5a6
+file backend/app/domain/enums.py sha256:54a1c07b1069e07a91b2a948d3f09dd58ab23fd397063fedcc5829f1d8536e35
+file backend/app/domain/errors.py sha256:94c97e9ed3ffbd24da7f4b13add7673074c0ffeef41f50b331178d222e14d1dc
+file backend/app/domain/executable.py sha256:6662bab800994209ac46d650927528202817324e8c0b3abaaa54d0ac6a19b5ad
+file backend/app/domain/policy.py sha256:140d3a1f19d6c151db5d05c53cd54965ce621e19bd8ff5f5440631f6ae8b9fc0
+file backend/app/domain/portable.py sha256:083aaa9dea6a144920e030c51166bd18f47a7156c99344cb34d79dd0da927ab6
+file backend/app/domain/ports.py sha256:2248c9610c92c5f1f20eef9e5805223364cb744aa5939233c2c3580edd81efcb
+file backend/app/ingestion/cucumber_messages.py sha256:95bcc9fa4193652e0ddaf769ca2a2969755b46046e3e4e372ad685bf21bf0dd6
+file backend/app/ingestion/portable.py sha256:f7fa79b74d43ffb4fd85605dbd80983a26da53426c8ade702b07a0fbbfec3541
+file backend/app/ingestion/repository.py sha256:27cf7f080a265cffc1be292e35d27650c1184d0f5357f66314e5f91a42d87b84
+file backend/app/main.py sha256:2381a93952b1348d0ce4cd9e71cc3b1b687bb188575538d22cab285a4decd8c3
+file backend/app/persistence/ingested.py sha256:4d2591d56b4ee09c2e99e18c728ed38fa52b19b8fe6f1cd64ae36de483eba0a6
+file backend/app/persistence/portable.py sha256:7cf7e8ce0862e371f40c1d51384134c21d0d6ce541197e1b7aba8d763b00e56d
+file backend/app/version.py sha256:d6752a49f8c3105d2826b323a690a4686a64a76f289c0f4cd9480735bd632071
+file backend/pyproject.toml sha256:df4db6012ca3494f4c9bd521bec809f4e65ec644201f435b9f46de19878c51ed
+file backend/tests/conftest.py sha256:7f39b9b290c777ec033c90ee02c92cd1e9f2a16f6eaf2f438d3c560a2f100422
+file backend/tests/test_api_contract.py sha256:7fa900f9c9a08d9764b7bd00bd148313ea3576bab2b080dc1f04322f9a9a1aa9
+file backend/tests/test_assurance_rules.py sha256:d3987c9ad9f0cc73702cbcae9e537acdf864defde66a4539d656aa51bf8176d5
+file backend/tests/test_contract_boundaries.py sha256:2a09b1e780e1a814a6b0ba5c2a8bc123e57643072f11001f1d9a46c448f4311c
+file backend/tests/test_cucumber_report_honesty.py sha256:028d9507fa5b7f5ecb8ac059626d9ea115692d886aae41d3c7ea0a1abcabe611
+file backend/tests/test_m2_assurance.py sha256:d97453a4f3e77394d015877d7242d5dfbb3f9b0a6ec42dfa121d224f0d426ab6
+file backend/tests/test_portable_api.py sha256:90b44138eba973ce48e83fefc6cad89bb27f48e67ecd3173043405afb2a41fc6
+file backend/tests/test_portable_ingestion.py sha256:0244269f767972153c0373ec3a65a8d53fa36379fc85cb969f1f881b5186dded
+file backend/uv.lock sha256:e3613a196268413f95482a27478498a551fe342625687ed3dcb75184d940d184
+file bdd/cucumber.mjs sha256:db48363495e3e822b80d41d2d02facd1f24a631c9aa2ed611e09beb1bde57b4d
+file bdd/package-lock.json sha256:9997239481ba48a6150f5043098e1ba2141a489ac50f43cfacfe02529251cfe6
+file bdd/package.json sha256:6acc0cf4e8aa463d1917860462075f9f0b69a0a24b74e8cd150a683e29c8040b
+file bdd/probes/ambiguous/feature.feature sha256:720b11ac7cf17a8ee450c4f5d4616bff6831ef90f8ed9f95b14cf52786208118
+file bdd/probes/ambiguous/steps.js sha256:8e9e7cc5a869345890c7476e4bca72a6341acb9635f35ea35fd36150f0671415
+file bdd/probes/cucumber.mjs sha256:b14e79a4e08423a45bdd9188fe4b6c843739ebd5b7e6d9a55929ab8a39320388
+file bdd/probes/failing/feature.feature sha256:d145b0516f48d08c6e07d9b3b3caf72bdc9345ad8281ff3fd39e426cfec0d91b
+file bdd/probes/failing/steps.js sha256:fc0a74710b899b5bb6bc0316b09dca2f09dd55064536bfa9c1fc1df1f47ca4c2
+file bdd/probes/passing/feature.feature sha256:b267b9f9b0a642b07acbf2f7746107774134da3c4103231a90ee330c9fd1a5db
+file bdd/probes/passing/steps.js sha256:9974631421d4b5f77659392d910a709795871f05d97f69d5c5bfb0e736b16425
+file bdd/probes/undefined/feature.feature sha256:79e72f94536887406d16652476fdfa6793b977fa5eb78a8cf2079bc0ffee6e53
+file bdd/probes/undefined/steps.js sha256:9974631421d4b5f77659392d910a709795871f05d97f69d5c5bfb0e736b16425
+file bdd/step_definitions/api.steps.js sha256:b52a1996fe5e1b38f19335477c1b35bb8873384f842213cf9ca0f2879653fc69
+file bdd/step_definitions/assurance.steps.js sha256:888df31cdca5cde3bfe58d4f93410c45e43d039094fd446c26b56a05ced7f7a2
+file bdd/step_definitions/commitlint.steps.js sha256:3238cd698762267474b8615fcccafbd2bbe1ef41cb9d7bd8d6d7f93f93b82414
+file bdd/step_definitions/fixture.steps.js sha256:3c06acc075ca88d5e9d1edcf4e03b64a636b55cc63a8c54aef039ab5f6f1cb7f
+file bdd/step_definitions/harness.steps.js sha256:36bf261a314c6798b8051cc3ac5c56d1bd14428ad5d7df84e8a19bb2824ecada
+file bdd/step_definitions/ingestion.steps.js sha256:6a2a48669efd51fc1185cd1657dba287c5a9c0c0c453c27cccbd69e96667e728
+file bdd/step_definitions/links.steps.js sha256:379402365e05b5ac94f3c5d1df46bea94f09b11b378802ca2772747b219a790c
+file bdd/step_definitions/m2.steps.js sha256:6c88874bd8d6bc0b06c7753bbd895c4428a154ba12ef376b72e475eb08abef65
+file bdd/step_definitions/portable.steps.js sha256:30d40e9256455bf32b488e8b82e88f81fb7dfde714b5e4c84fa2d721d690bb71
+file bdd/step_definitions/thread.steps.js sha256:146e7aa98607a10bbef56bc0d9c3c0b79649c393c42d7eb96318419b9ffc01ba
+file bdd/step_definitions/ui.steps.js sha256:b94d22774145a63da2beb31dbb8cb9282d6645b3b36b52b33bee24efb370f7f6
+file bdd/support/cta_bridge.py sha256:6cecb7f204aece7159e6b6eb7c83f1e31801a9929129b82150920977ba686a6e
+file bdd/support/ui.js sha256:fe79d03380b3ea315e5e87f318712a75dcf1ee9457d3d8eed554c8b8b8f8e039
+file bdd/support/world.js sha256:5c9d1d4c67e397646fcb186c6b5b90f3073a747cb2a1a7ea721f8201240544e8
+file bdd/tools/step-resolution.mjs sha256:e38994dd29a551e588009409202c1f8ba2f9948baf7c9407f077f3933bda481f
+file docs/STATUS.md sha256:5f266cba845e23da4efdf16f84701309de53b3bff1e7c85c93fc5d612d138942
+file docs/adr/0009-cucumber-runtime-and-portable-gherkin.md sha256:4e35320cc103fcefa0850f98e144c79fe65192594f24e9b7f3a49a36fa36fb2d
+file docs/api-contracts.md sha256:5346d922fb3d10573d1dbec1727f891f6edbe0fb74a3f3c67c416d1b7ce599c1
+file docs/architecture.md sha256:515dabb472679601cc1b3976c98b2ae9745e9bc14b1c7e66ec71402f1301c49d
+file docs/development-lifecycle.md sha256:122841631e99ef71871cb53b2a80bfa3f19e2f9c41e452a8b3cfa0f6484401b1
+file docs/domain-contracts.md sha256:ee8d8be2c4b25a66a78bf0dc4ee3ece0a674a5134068f1623160281caf1ffe13
+file docs/feature-inventory.json sha256:303d8111692de68945a2e2cb3ef526b705b220d8d61ea9c4cd2e033b7c6a5ddc
+file docs/feature-inventory.md sha256:38e26dfb4fa77b9b3350993e3b4169169cd673d4d79cd9add88d30a13ef9fa3a
+file docs/reports/omp-m2-assurance/IMPLEMENTATION.md sha256:f82562425c1473dc9a1e1abc879c65361253579d679a57c52c2e0480e45ed2f9
+file docs/reports/omp-m2-assurance/METRICS.md sha256:c9e5b84e82fcc9d792fab413dd4c09680f888f0b5dcd24952b7b5f2d0f2e7bf5
+file docs/reports/omp-m2-assurance/PROMPT_LOG.md sha256:4d1d6ae79ae279b65159a00798baae08cc52e07e2d91de3280eeb7dabfd7ed1f
+file docs/reports/omp-m2-assurance/RETROSPECTIVE.md sha256:c994075a317bb3abc75b7ce08d14240f8c7ab6004b625059f4b9f907bf0e7a9f
+file docs/reports/omp-m2-bdd/IMPLEMENTATION.md sha256:7063859cdea2784cf0514b877c93bc5065de0c50d600c28bb5f7809e3b7a59cc
+file docs/reports/omp-m2-bdd/METRICS.md sha256:5aa2609d0d8609b8a773ab23fd74b33a430ffbb4d11e2fcb28cfbe15d38c2a18
+file docs/reports/omp-m2-bdd/PROMPT_LOG.md sha256:4d1d6ae79ae279b65159a00798baae08cc52e07e2d91de3280eeb7dabfd7ed1f
+file docs/reports/omp-m2-bdd/RETROSPECTIVE.md sha256:10715212f0761842bfc126b239540504a57332fed52701bb615b439e67013f2a
+file docs/reports/omp-m2-bdd/evidence/browser/README.md sha256:f35b2d145c11d6776b4f17618660462e447bcfcd163c6edc7bf20ac70ffae0a2
+file docs/reports/omp-m2-bdd/evidence/browser/baseline-b-drilldown.png sha256:d2e3bdad4c67346bbf9c192daf249dd72a9024c61c413bc4c33006e2dd4ab9f2
+file docs/reports/omp-m2-bdd/evidence/cucumber-messages.ndjson sha256:7dcff8dabf0690244d7b17cfa6a43dcf1c56d20852c450b01257e07520f15df8
+file docs/reports/omp-m2-bdd/evidence/http/api_findings_baseline_baseline-a.json sha256:e6573f4eccf9be0b456cd7f4774a3f7d0ebf2327d3a157768a7169a3d4ebba59
+file docs/reports/omp-m2-bdd/evidence/http/api_findings_baseline_baseline-b.json sha256:93ff90c699150102bf312566946a5cc079d05bca249be0209deb9023e1dacea1
+file docs/reports/omp-m2-bdd/evidence/http/api_threads_REQ-001_baseline_baseline-b.json sha256:2759db650536b82bc26e13c03a8537d94651c4af1fa775616e74cb1dcc8f8ba4
+file docs/reports/omp-m2-bdd/evidence/http/evaluate-baseline-b.json sha256:93ff90c699150102bf312566946a5cc079d05bca249be0209deb9023e1dacea1
+file docs/reports/omp-m2-bdd/evidence/http/health.json sha256:104c2a86dc254c1d0101be7e7c080bac90ea0095cb93acc76e1bf2ffb09508fc
+file docs/reports/omp-m2-bdd/evidence/http/uvicorn-8000.log sha256:fe4d7ef439165d3e2567bee20407268e93150b7453e7cfd80197194f5a32fb95
+file docs/reports/omp-m2-bdd/evidence/http/uvicorn.log sha256:d3452365c17fed9928d9fd8388b11839d50fff5f8114a13885b40f3f8898c8ee
+file docs/reports/omp-m2-bdd/evidence/http/vite.log sha256:52febfb1d485bb1ee9632d0b6ee0e44757e61806036d94f73bae58a0536c8ce5
+file docs/reports/omp-m2-milestone/APPROVAL.md sha256:b864aa16131cc00fc0a39717dc20cfdf13f1e226e455146c06e057d175a1c6fb
+file docs/reports/omp-m2-milestone/IMPLEMENTATION.md sha256:eed4478a98d5da9c49e875228c0b7ffb34fad9f574c01d8a9bb52d2b4c465564
+file docs/reports/omp-m2-milestone/METRICS.md sha256:73f04fa0b25e111bd7a65e89761cc88bef4e963925bdd48749a55ddd4673ee2f
+file docs/reports/omp-m2-milestone/RETROSPECTIVE.md sha256:d6f14b7c103b1e7d196c75402c76b7dcbd0507ba745e054625288f3cac117856
+file docs/reports/omp-m2-milestone/review-1-disposition.md sha256:5ee199d306452ee971d83c030a9e5a705019cf9600ba72f6a9485bf921466fff
+file docs/reports/omp-m2-milestone/review-1.md sha256:cb7193a51199365d7d463ab9f10c70ab60955ea7f8aadeaf1a3423dcc04961d8
+file docs/reports/omp-m2-milestone/review-2-disposition.md sha256:d07e47c94ef799dd74ccb8cce868f3f6a2b47c289d1197555a34a96adeddc0fc
+file docs/reports/omp-m2-milestone/review-2.md sha256:deea4ccfb196a213fc250e730f514c155759c247dcf886672fe4f68edc96e9c0
+file docs/reports/omp-m2-milestone/review-3-disposition.md sha256:5e346b9134017899f77795375f57109ef0b26994daf1322e4d70f109ec97f0f8
+file docs/reports/omp-m2-milestone/review-3.md sha256:4ad5b61503ac50e15d3d48c4ff6d0b888a2dc599365bd3be75da2a889f65eeda
+file docs/reports/omp-m2-milestone/review-4-disposition.md sha256:61537affc30fae8df8ed8ccd1a54cadc8e168d3005c6bf6ceb0cb9c56c905d00
+file docs/reports/omp-m2-milestone/review-4.md sha256:012d0fb46823851ebae760823f7ff6eee543e4adbc34cf0532c6bba0393847ff
+file docs/reports/omp-m2-milestone/review-5-disposition.md sha256:fb24236db7fd4ccc02d99d3b218d0f7f684e63910c6d18a268c5a448aa43425c
+file docs/reports/omp-m2-milestone/review-5.md sha256:6ea78a05d27450fdca9833cf6e7d361883106110a10466b1fe55c778918c4219
+file docs/reports/omp-m2-milestone/review-6-disposition.md sha256:233f9df4dff1126caa515bf17b7e7bde74b939b165af703d395e370bf462e3d7
+file docs/reports/omp-m2-milestone/review-6.md sha256:9fcd9ca50c597ab739fad72c0e73a549e11e64f41d21d237d972a734c10eaf9f
+file docs/reports/omp-m2-milestone/review-7.md sha256:8ab4642c34c146468b92662c8e880f913c69877e37fc5e24e34a3aa2798e3a88
+file docs/reports/omp-m2-milestone/review-packet-1-errata.md sha256:949900c64dc32f38e34e70a23a411a30545c8456cfc139aefc6a983c788e39cb
+file docs/reports/omp-m2-milestone/review-prompt-1.md sha256:608663434ad4ca98d192b9ed2157ce1e19aa6b5026833fd8cb5ebea58613b9ee
+file docs/reports/omp-m2-milestone/review-prompt-2.md sha256:395acee10f30bb8197f99e7e727901e43c33860d0b1c8deb6b643515368b311a
+file docs/reports/omp-m2-milestone/review-prompt-3.md sha256:14c9d238040e814ba3b157c137d4676e96243b0376af3a295cff75b393b6e15e
+file docs/reports/omp-m2-milestone/review-prompt-4.md sha256:3daeff008884d8f10bc680674ef8e84229f302f6bb10b53f52366cacb5c1ddf3
+file docs/reports/omp-m2-milestone/review-prompt-5.md sha256:88929d92e1da48b3fef7a4d91d2c9c51b31dc76ae53b4241d27bd80a83062268
+file docs/reports/omp-m2-milestone/review-prompt-6.md sha256:8dd79e07377939e04355b108bbb144c788b3f166258e068cefb505740f0cbf40
+file docs/reports/omp-m2-milestone/review-prompt-7.md sha256:aef398b4fa4aedb05f84841ba7e404866036008c5998b427850d616a75072995
+file docs/reports/omp-m2-portability/IMPLEMENTATION.md sha256:af5de6b545b4fb307b800a1c143a537adbcd484a2ae9733defeae63a07ac626b
+file docs/reports/omp-m2-portability/METRICS.md sha256:4e17d290cfb559d6d0ca26e402f0dc3e543aec55c9e2099668b0d39474f7d0fb
+file docs/reports/omp-m2-portability/PROMPT_LOG.md sha256:4d1d6ae79ae279b65159a00798baae08cc52e07e2d91de3280eeb7dabfd7ed1f
+file docs/reports/omp-m2-portability/RETROSPECTIVE.md sha256:ddac179a6f10dbbd19f45686e41aefd24767075c2e8fe42e141f277129f08221
+file docs/reports/omp-m2-portability/benchmark.json sha256:380bbd96db9d1a7ea07cdf68ddd0ad4c2257237ab6fadb235d3a06b3b947deee
+file docs/reports/omp-m2-portability/evidence/cucumber-report.v1.meta.json sha256:c4bcc859ba1580479da6a5e019adaebd1bcdcf64253fc7c891d4de3021e1c677
+file docs/reports/omp-m2-portability/evidence/cucumber-report.v1.ndjson sha256:3e17c5f46b2c7ab3882fa79683beb39c30cf98b1993addafbeb32dd4f8830e05
+file docs/reports/omp-m2-portability/evidence/cucumber-report.v2.meta.json sha256:7c57aa001f623c59e7673aa0b99814393186b2ccf2c26672475df8bfdadee326
+file docs/reports/omp-m2-portability/evidence/cucumber-report.v2.ndjson sha256:7291c843fd624c5a42041cd761f200bd78535f09576e6f3f08cf60f309c3af32
+file docs/reports/omp-m2-portability/evidence/report-manifest.json sha256:13a936eabacc5072cfb598595f006c6b1781a9d1aa4ba4b49b8ddef25f4a87e6
+file docs/reviews/M2-external-oracle-owner-review.md sha256:ab1b9e91d1f68e3381cdb311c0db76915e97bebd302ab453adff25e4881fdfa0
+file docs/setup.md sha256:1c339c902a4b135d48643f2b903987267deb97094f20cc0af6aebcf44ad421eb
+file docs/stories/AI-01.feature sha256:381663033f88f4915481f292c912e94041774497aa74d22bb41a34b17276ef67
+file docs/stories/AS-01.feature sha256:bb214629f16293b719ce42a23a67ee21735163d5f1ad13861507086cdf6592b2
+file docs/stories/AS-02.feature sha256:4ea37ca50432b92113e4272826d7b75555677aaf3ff01cb91a46b1d4c29ede78
+file docs/stories/AS-03.feature sha256:320cfdc2e32625e9dc4b6da11d6f1594e227eb3971ff17f8974d963b30ed00ee
+file docs/stories/AS-04.feature sha256:4137e2ea33d18612904d0e2f54a217c53b8a17ecc627da6927c162edf38b4974
+file docs/stories/AS-05.feature sha256:e064ae2217112d1257145f47e149d3b019c7cfb5a568807f0eafb27b876a139a
+file docs/stories/DT-01.feature sha256:7c597f70673654a0e048ec923cc04073b9b424fd7c54b7254b635b4936b3b5e8
+file docs/stories/DT-02.feature sha256:4e9ff5c1891763ea4160ab4bf7b55a86ddacdf0a7765cfa6dcd5b7694ffc3774
+file docs/stories/DT-03.feature sha256:4c581fc95949e64ece04bfacadb6aa59a61358921ca58c2a9159aad0a1a193dc
+file docs/stories/DT-04.feature sha256:3d525a0a7bdb2dbfc8a555e3e57e88a28f5574667b6f043b2903361d1c68d64a
+file docs/stories/DT-05.feature sha256:f348df16d5bb28945e6a16bbab116fb40cf5f6cb2ceeb69fe26ef2c4b36ece20
+file docs/stories/DT-06.feature sha256:8b6630b2408e5ced946ec69fc97a014c45fcdf5e3c31eeb9a8603f007de703cd
+file docs/stories/FT-01.feature sha256:d58eeec05ce2072b81fd656531369ae2d329a9fcc09975688d2750fc044c217a
+file docs/stories/FT-02.feature sha256:bdf55dafaa3fa498242c5fd5d3e27961281679ea612766dce207542cb7cacae8
+file docs/stories/GT-01.feature sha256:aac42c24723aa02166d9f534946750e6d49c74f14db7c7ae8bcfe1790a6ba8bf
+file docs/stories/GT-02.feature sha256:7706223c5355fccbe3b05c37494b0ea48c2beda3bec0db07367a5d4f3d73af69
+file docs/stories/GT-03.feature sha256:f81b51c4891e4a98da7bf02956ca9fc1a376f46df0ac4325f925d0a14432a85d
+file docs/stories/M0-foundation.md sha256:271a0b792aef524a3a57b50e5fbfdb4b802e00d034ad888310b08191a98f4ff9
+file docs/stories/PG-01.feature sha256:4739afda0c627835524126bddd5d8db2abee2565f155b668ee80348a460ad766
+file docs/stories/SETUP-01.feature sha256:d4f447b658563bd1c7750aafe5153fda42879b82b797619fe8186aca5799f3d2
+file docs/traceability-issue-map.md sha256:84db9c6387e61bc778a4c3ba6b26b97085789d795bd74d8dea5207f9ecb88eb3
+file fixtures/api-responses/discovery.REQ-002.json sha256:1a48fff60893f14a2fd4f0cbe3dcebec98877cfb028255a218413e98fb18b877
+file fixtures/api-responses/discovery.SCN-001.json sha256:d939ccad1bdfa4695aaef370e602f1985b73839b6af5d7a2bbdb06bc1405e1c0
+file fixtures/api-responses/discovery.SCN-002.json sha256:1bab95d7bf3a5e4b9f8c23a9ba662fdbaecd69bd6aa15ec933f3a360fa475036
+file fixtures/api-responses/discovery.SCN-003.json sha256:4656886005a361d2d2793dbd63ecbb625100352dd5987a04a5bbced3b354c637
+file fixtures/api-responses/findings.baseline-a.json sha256:8b4da80c9960a996bbb6d531ce82c1be3a43c333112f5d06f9c432a6ad43b8fd
+file fixtures/api-responses/findings.baseline-b.json sha256:b600259c918e20c7183770e5eb457f5115c2365ed2a59ef9f47d0207c85afcb8
+file fixtures/api-responses/snapshot.json sha256:cb5457a0c1bc27a8e96d35f1d2c6784ea6689228fc8af9f25554960703591816
+file fixtures/api-responses/threads/REQ-001.baseline-a.json sha256:db8df97b66cd5ba03bd1e5fc10087af45949c15b0955e9b4180363828dc5fc55
+file fixtures/api-responses/threads/REQ-001.baseline-b.json sha256:a4fbd68289fdfbba0b8a83523eec4ae7bbf376cefd766afebbca8efea62fad5b
+file fixtures/api-responses/threads/REQ-002.baseline-a.json sha256:acd549971a1f0429685bf22edf5e9826f8894385de75ed1a18a85a9ea0ba5964
+file fixtures/api-responses/threads/REQ-002.baseline-b.json sha256:449f81170fa07bb21f22c15a758d118c6b205410817192931ae296b9b65039b0
+file fixtures/api-responses/threads/REQ-003.baseline-a.json sha256:8495868bc80d4299b95ace6c5f32a30cc6c2fa0af2271330b6057be6f080a789
+file fixtures/api-responses/threads/REQ-003.baseline-b.json sha256:bd7adfa7c6de72d71f7bb6b3a170825c212f8f8170d2afe6adfd2bb9c2f7ae21
+file fixtures/banking-demo/changes/02-baseline-a-evidence/evidence/verification-runs.json sha256:5e650eec1a0cd416a3012c24e6f0b16590a5b5b24a4734fa620efcb4af596abc
+file fixtures/banking-demo/changes/04-baseline-b-evidence/evidence/verification-runs.json sha256:87c1d9386d4403f40a39100741f8155656729797ad1e436ee1e8e628d47520cc
+file fixtures/banking-demo/expected/baseline-a.json sha256:8f6a1f71115154deb47c9895ee910d26e117e8b130876435882f39625b6fc744
+file fixtures/banking-demo/expected/baseline-b.json sha256:cff840af03828713fd0810bf886903267bee5f8e7ef2c63fa1817cb73ffffa73
+file fixtures/banking-demo/expected/baselines.json sha256:b2134f4b6c80a5ffe8865552297706c38d5416e4e5b74842e017e0c4a9efaea2
+file fixtures/banking-demo/expected/candidate-links.json sha256:085fd1dd3c355ad18cd1a1abf9cbed65618dce8fa6f062b9b193abef674e9267
+file fixtures/banking-demo/history.json sha256:8601fcf8226edbd7ea7b8ba4f65a1cfe19f8c96c470359d8547b7b095a8e2c6d
+file fixtures/banking-demo/tree/evidence/accepted-links.json sha256:b25469035bbf1418862fc8f884e3c2c8b6687e76fe4265c67de30309851e6e3d
+file fixtures/banking-demo/tree/evidence/proposed-links.json sha256:b9582648fc26996e62251fba13f40962ee4a7508fda2039d6eb3336149435c63
+file fixtures/external-recipes/README.md sha256:136a2f98ec8bc1c57e9ed4228d30f789f175e987837a4a490c18be526c7f9726
+file fixtures/external-recipes/changes/02-ratings/features/ratings.feature sha256:c0463d8c508f1c6d36f998edb58c7c29f9c00f17eb633123e2db39eb6dba9a5d
+file fixtures/external-recipes/expected/inventory.json sha256:652de56b4ebe421a517827bad43829d14e9337dfe5cef0c46bee04183058e214
+file fixtures/external-recipes/history.json sha256:e7887deb9698e2e9ef868926870ca89ac144851d341d78ad79deeaf4802e0e37
+file fixtures/external-recipes/tree/features/browse.feature sha256:885b41dcb623f8ae76fab7e0f4dd7d14eab6bc82f7be2210be0758b5c50b4473
+file fixtures/external-recipes/tree/features/publish.feature sha256:0d3ff34f98f133fb0e7954679b6c0a15f32dc81020ee92574775d3aeed914a0e
+file fixtures/external-recipes/tree/src/catalog.js sha256:daf4a0bd1c2d011936c3c1a96052486062768d51706ef46798fdd5c1378f279e
+file fixtures/external-recipes/tree/steps/browse_steps.js sha256:f6ef43bb75d0def23673149889fe6e07218c59b0fbf2a9de6a2e3f888ca8bb77
+file fixtures/external-recipes/tree/steps/publish_steps.js sha256:4b820fdae9293b47ff1cd353dfcadd89c7313f5a3b30b624b497a2fe595f19e7
+file fixtures/external-twin/README.md sha256:4c1de6128d2fbf53947f0f4e7d107da9aebd089b5d86e785af64ba4ac2ebf66b
+file fixtures/external-twin/expected/inventory.json sha256:870056361277005d82b97a94e604ab39920c8c53ee5beda2db563ecabd7f387f
+file fixtures/external-twin/history.json sha256:4d9d35d997a75f8232a3edd7cccc5c4d02908908a6cd7e860f2ea3282cfd5755
+file fixtures/external-twin/tree/features/browse.feature sha256:aed599440e1cd980d1be0da0ac6e267ef85ab3069d29437c9be66c68aec563fd
+file fixtures/external-twin/tree/steps/browse_steps.js sha256:07f0f3ef31323c869078da6f650e95b26335aa18342a79be68ebd86f6335b42f
+file frontend/src/App.test.tsx sha256:a4642aa4c5655300f39a3d77b61cb2a01a0fd713e3c96a543f0114d7a1bea5db
+file frontend/src/App.tsx sha256:df61f146664681e845d917c0776a47bf234bbd20f70790987fc97e39f6bf5ff7
+file tools/dirty_manifest.py sha256:6c183b8c464514268ed96cd5d1254aa3b490b9ff84ee82c770010a3f41676cdf
+file tools/external_fixture.py sha256:897c31b0d800ce239c58ccaf038a81ddea7eb963d3a6edf8c9e76e1fc57d33a1
+file tools/feature_inventory.py sha256:240c8d72c891b1f25ed17b19db84d6d7282c1b498b8f38880860bf423336d7d0
+file tools/portable_benchmark.py sha256:4b6df5ed578154a6fecf0473eca675fb795796b54d2440d3b27551c3631114dc
+state M .github/workflows/ci.yml
+ M .gitignore
+ M README.md
+ M backend/app/api/deps.py
+ M backend/app/api/routes.py
+ M backend/app/assurance/__init__.py
+ M backend/app/assurance/rules.py
+ D backend/app/assurance/sample_findings.py
+ M backend/app/domain/enums.py
+ M backend/app/domain/errors.py
+ M backend/app/domain/policy.py
+ M backend/app/domain/ports.py
+ M backend/app/ingestion/repository.py
+ M backend/app/main.py
+ M backend/app/persistence/ingested.py
+ M backend/app/version.py
+ M backend/pyproject.toml
+ M backend/tests/conftest.py
+ M backend/tests/test_api_contract.py
+ M backend/tests/test_assurance_rules.py
+ M backend/tests/test_contract_boundaries.py
+ M backend/uv.lock
+ M docs/STATUS.md
+ M docs/api-contracts.md
+ M docs/architecture.md
+ M docs/development-lifecycle.md
+ M docs/domain-contracts.md
+ M docs/setup.md
+ M docs/stories/AI-01.feature
+ M docs/stories/AS-01.feature
+ M docs/stories/AS-04.feature
+ M docs/stories/DT-01.feature
+ M docs/stories/DT-02.feature
+ M docs/stories/DT-03.feature
+ M docs/stories/DT-04.feature
+ M docs/stories/FT-01.feature
+ M docs/stories/FT-02.feature
+ M docs/stories/M0-foundation.md
+ M docs/stories/SETUP-01.feature
+ M docs/traceability-issue-map.md
+ M fixtures/api-responses/discovery.REQ-002.json
+ M fixtures/api-responses/discovery.SCN-001.json
+ M fixtures/api-responses/discovery.SCN-002.json
+ M fixtures/api-responses/discovery.SCN-003.json
+ M fixtures/api-responses/findings.baseline-a.json
+ M fixtures/api-responses/findings.baseline-b.json
+ M fixtures/api-responses/snapshot.json
+ M fixtures/api-responses/threads/REQ-001.baseline-a.json
+ M fixtures/api-responses/threads/REQ-001.baseline-b.json
+ M fixtures/api-responses/threads/REQ-002.baseline-a.json
+ M fixtures/api-responses/threads/REQ-002.baseline-b.json
+ M fixtures/api-responses/threads/REQ-003.baseline-a.json
+ M fixtures/api-responses/threads/REQ-003.baseline-b.json
+ M fixtures/banking-demo/changes/02-baseline-a-evidence/evidence/verification-runs.json
+ M fixtures/banking-demo/changes/04-baseline-b-evidence/evidence/verification-runs.json
+ M fixtures/banking-demo/expected/baseline-a.json
+ M fixtures/banking-demo/expected/baseline-b.json
+ M fixtures/banking-demo/expected/baselines.json
+ M fixtures/banking-demo/expected/candidate-links.json
+ M fixtures/banking-demo/history.json
+ M fixtures/banking-demo/tree/evidence/accepted-links.json
+ M fixtures/banking-demo/tree/evidence/proposed-links.json
+ M frontend/src/App.test.tsx
+ M frontend/src/App.tsx
+?? .agents/
+?? .omp/
+?? backend/app/api/portable_routes.py
+?? backend/app/assurance/executable_rules.py
+?? backend/app/cli.py
+?? backend/app/domain/executable.py
+?? backend/app/domain/portable.py
+?? backend/app/ingestion/cucumber_messages.py
+?? backend/app/ingestion/portable.py
+?? backend/app/persistence/portable.py
+?? backend/tests/test_cucumber_report_honesty.py
+?? backend/tests/test_m2_assurance.py
+?? backend/tests/test_portable_api.py
+?? backend/tests/test_portable_ingestion.py
+?? bdd/
+?? docs/adr/0009-cucumber-runtime-and-portable-gherkin.md
+?? docs/feature-inventory.json
+?? docs/feature-inventory.md
+?? docs/reports/omp-m2-assurance/
+?? docs/reports/omp-m2-bdd/
+?? docs/reports/omp-m2-milestone/
+?? docs/reports/omp-m2-portability/
+?? docs/reviews/M2-external-oracle-owner-review.md
+?? docs/stories/AS-02.feature
+?? docs/stories/AS-03.feature
+?? docs/stories/AS-05.feature
+?? docs/stories/DT-05.feature
+?? docs/stories/DT-06.feature
+?? docs/stories/GT-01.feature
+?? docs/stories/GT-02.feature
+?? docs/stories/GT-03.feature
+?? docs/stories/PG-01.feature
+?? fixtures/external-recipes/
+?? fixtures/external-twin/
+?? skills-lock.json
+?? tools/dirty_manifest.py
+?? tools/external_fixture.py
+?? tools/feature_inventory.py
+?? tools/portable_benchmark.py

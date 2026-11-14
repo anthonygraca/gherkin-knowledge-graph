@@ -1,6 +1,9 @@
 # Canonical M0 acceptance specification; migrated from M0-foundation.md.
-# Verification uses the existing pytest checks mapped in that document.
-# These scenarios are not currently bound to or executed by a Gherkin runner.
+# From M2 onward executed by the Cucumber suite (bdd/). SCN-205 asserted the M0 501 contract for
+# POST /api/assurance/evaluate; AS-01 implemented that endpoint in M1, which superseded the
+# contract-only state. The scenario keeps its approved wording and is tagged @superseded-by-AS-01
+# so the executable suite does not assert the obsolete 501; the supersession is recorded in
+# STATUS.md and the M2 feature inventory.
 @FT-02 @issue-19 @M0
 Feature: FT-02: Versioned contracts and mock responses
   As a developer, I want versioned API/domain contracts plus mock responses so I can build independently.
@@ -35,7 +38,7 @@ Feature: FT-02: Versioned contracts and mock responses
     And the candidate carries no link identifier or review state
     And no accepted link is created or modified
 
-  @SCN-205 @AC-2.5
+  @SCN-205 @AC-2.5 @superseded-by-AS-01
   Scenario: Contract-only endpoints in M0
     When "POST /api/assurance/evaluate" is called
     Then the status is 501

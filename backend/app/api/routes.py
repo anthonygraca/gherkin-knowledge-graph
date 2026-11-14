@@ -18,7 +18,6 @@ from fastapi import APIRouter, Path, Query
 
 from app.api.deps import (
     EvaluatorDep,
-    FindingsDep,
     ProvidersDep,
     RepositoryDep,
     SettingsDep,
@@ -144,19 +143,24 @@ def get_thread(
     responses={404: _PROBLEM_404},
     summary="Assurance findings for a baseline",
     description=(
-        "M1 replays the reviewed sample findings committed under `fixtures/api-responses/`, "
-        "generated from the hand-labeled oracle in `fixtures/banking-demo/expected/`. "
-        "`POST /api/assurance/evaluate` runs the implemented M1 rule subset (missing verification "
-        "links); the remaining rules arrive with AS-02/AS-03. `GET` keeps the reviewed "
-        "sample until the rule set is implemented, so M2 findings are not silently dropped."
+        "Both endpoints evaluate the deterministic rule set over the ingested revision: coverage "
+        "gaps, unreviewed proposals, lifecycle review, confirmed execution failures, and "
+        "change-driven reverification. Findings are compared against the hand-labeled oracle in "
+        "`fixtures/banking-demo/expected/`; this endpoint no longer replays a recorded sample."
     ),
 )
 def get_findings(
     repository: RepositoryDep,
-    findings: FindingsDep,
+    evaluator: EvaluatorDep,
     baseline: Annotated[str | None, BASELINE_QUERY] = None,
 ) -> FindingsResponse:
-    return findings.findings(repository.resolve_baseline(baseline))
+    """Evaluated by the deterministic rule set, not replayed from a recorded sample."""
+    canonical = repository.resolve_baseline(baseline)
+    return FindingsResponse(
+        schema_version=SCHEMA_VERSION,
+        baseline=canonical,
+        findings=evaluator.evaluate(canonical),
+    )
 
 
 @router.post(
