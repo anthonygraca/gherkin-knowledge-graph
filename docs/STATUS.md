@@ -277,6 +277,18 @@ passed all four jobs. The issue remains open by owner disposition.
 * AI-06 (#56), AI-02 (#31), AI-03 (#32), AI-05 (#35) remain open. PR 3 (GraphRAG) and PR 4
   (evaluation) briefs are in `docs/reports/omp-cocoindex-pr2/NEXT-SLICES.md` (mission prompt).
 
+## Close-out refinement (2026-11-14) — six remaining stories
+
+Codex (`gpt-6.1-sol`, high) advised on AS-06, AS-07, AI-02, AI-03, CI-01, and CI-02; the refinement
+record is `docs/reports/omp-closeout/REFINEMENT.md`. Six canonical feature drafts and companions now
+exist, tagged `@refinement-draft` and excluded from execution; proposed cross-cutting decisions are in
+`docs/adr/0012-closeout-scope-decisions.md` (status **Proposed**).
+
+**Owner decisions before implementation:** AS-06 trusted-local-operator identity; AI-02 concrete
+local model/licence/hardware; AI-03 snapshot/cache re-scope; CI two-scope framing and portable
+comparison limitation. No draft is approved or executed; the suite remains 115 scenarios / 957
+results with drafts excluded.
+
 ## M3 — AI-08/PR 3 GraphRAG and AI-09/PR 4 benchmark (merged)
 
 **As of 2026-11-14T06:11Z**, AI-08 [#69] and AI-09 [#70] are independently **APPROVE** at combined

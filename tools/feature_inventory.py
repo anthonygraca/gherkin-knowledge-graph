@@ -51,6 +51,30 @@ DISPOSITIONS: dict[str, dict[str, str]] = {
     },
     "docs/stories/SETUP-01.feature": {"status": "executed", "reason": ""},
     "docs/stories/AI-01.feature": {"status": "executed", "reason": ""},
+    "docs/stories/AS-06.feature": {
+        "status": "refinement",
+        "reason": "Refinement draft; owner decision on trusted-local-operator identity and journal design; implementation pending.",
+    },
+    "docs/stories/AS-07.feature": {
+        "status": "refinement",
+        "reason": "Refinement draft; ready after specification review; depends on AS-06 proposal UI.",
+    },
+    "docs/stories/AI-02.feature": {
+        "status": "refinement",
+        "reason": "Refinement draft; blocked on owner acceptance of a concrete local model/licence/runtime/hardware manifest.",
+    },
+    "docs/stories/AI-03.feature": {
+        "status": "refinement",
+        "reason": "Refinement draft; requires owner adoption of the proposed retrieval snapshot/cache re-scope.",
+    },
+    "docs/stories/CI-01.feature": {
+        "status": "refinement",
+        "reason": "Refinement draft; M4 implementation gated by M3 exit and owner acceptance of the two-scope framing.",
+    },
+    "docs/stories/CI-02.feature": {
+        "status": "refinement",
+        "reason": "Refinement draft; M4 implementation follows CI-01; portable locator comparison needs owner disposition.",
+    },
     "docs/stories/AI-05.feature": {"status": "executed", "reason": ""},
     "docs/stories/AI-07.feature": {"status": "executed", "reason": ""},
     "docs/stories/AI-08.feature": {"status": "executed", "reason": ""},
