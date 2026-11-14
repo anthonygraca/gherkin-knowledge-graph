@@ -1,0 +1,102 @@
+{
+  "schema_version": "1",
+  "fixture": "banking-demo",
+  "hand_labeled": true,
+  "hand_labeled_at": "2026-11-14",
+  "method": "Relevant artifacts are the accepted implementation/test links where the fixture oracle has them; CR-002 has no accepted implementation link, so its CODE-002 label is a semantic relevance judgment for evaluation, not a claim that the link is accepted. No label was produced by the retriever.",
+  "cases": [
+    {
+      "id": "CR-001",
+      "baseline": "baseline-a",
+      "artifact_id": "SCN-001",
+      "relevant": [
+        {
+          "artifact_id": "CODE-001",
+          "relation_type": "implemented_by"
+        },
+        {
+          "artifact_id": "TEST-001",
+          "relation_type": "exercised_by"
+        }
+      ],
+      "negative": [
+        "CODE-002",
+        "TEST-002"
+      ],
+      "basis": "accepted_links"
+    },
+    {
+      "id": "CR-002",
+      "baseline": "baseline-a",
+      "artifact_id": "SCN-002",
+      "relevant": [
+        {
+          "artifact_id": "CODE-002",
+          "relation_type": "implemented_by"
+        }
+      ],
+      "negative": [
+        "CODE-001",
+        "TEST-001"
+      ],
+      "basis": "semantic_relevance"
+    },
+    {
+      "id": "CR-003",
+      "baseline": "baseline-a",
+      "artifact_id": "SCN-003",
+      "relevant": [
+        {
+          "artifact_id": "CODE-002",
+          "relation_type": "implemented_by"
+        },
+        {
+          "artifact_id": "TEST-002",
+          "relation_type": "exercised_by"
+        }
+      ],
+      "negative": [
+        "CODE-001"
+      ],
+      "basis": "accepted_links"
+    },
+    {
+      "id": "CR-004",
+      "baseline": "baseline-b",
+      "artifact_id": "SCN-001",
+      "relevant": [
+        {
+          "artifact_id": "CODE-001",
+          "relation_type": "implemented_by"
+        },
+        {
+          "artifact_id": "TEST-001",
+          "relation_type": "exercised_by"
+        }
+      ],
+      "negative": [
+        "CODE-002"
+      ],
+      "basis": "accepted_links"
+    },
+    {
+      "id": "CR-005",
+      "baseline": "baseline-b",
+      "artifact_id": "SCN-003",
+      "relevant": [
+        {
+          "artifact_id": "CODE-002",
+          "relation_type": "implemented_by"
+        },
+        {
+          "artifact_id": "TEST-002",
+          "relation_type": "exercised_by"
+        }
+      ],
+      "negative": [
+        "CODE-001"
+      ],
+      "basis": "accepted_links"
+    }
+  ]
+}

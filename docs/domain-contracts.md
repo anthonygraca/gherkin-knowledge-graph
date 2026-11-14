@@ -209,7 +209,7 @@ Template tokens inside fixture overlays: `{{COMMIT:<commit-id>}}`,
 `{{DISCOVERY_PROVIDER}}`, `{{DISCOVERY_MODEL_VERSION}}`, `{{DISCOVERY_INDEX_REVISION}}`.
 Unknown tokens fail the build rather than rendering literally.
 
-## Portable repository contracts (schema 0.3.0, additive)
+## Portable repository contracts (schema 0.4.0, additive)
 
 These models live in `app/domain/portable.py` and are deliberately separate from CTA's strict
 fixture artifacts. An external repository needs no `@SCN-nnn` tag, no `# cta:artifact` annotation,
@@ -242,7 +242,7 @@ indexed feature content, and the same report bytes cannot be rebound to another 
 report never yields an undefined-step finding or a fabricated execution. Scenario outcomes include
 hook results; a missing step result is `UNKNOWN`, never a pass.
 
-## Executable relations (schema 0.3.0, additive)
+## Executable relations (schema 0.4.0, additive)
 
 `ExecutableRelation(relation, origin, source_key, target_key, provenance)` with origins
 `extracted` (Gherkin AST), `matched` (framework resolution), and `observed` (a trusted report).
@@ -253,3 +253,32 @@ not observed execution. Coverage counts follow the same rule. `INVOKES`/`CALLS`/
 production-call extraction, and a matched step definition is not production-code coverage.
 Executability findings (`undefined_step`, `ambiguous_step`, `execution_failed`) are separate from
 requirement findings and carry portable artifact keys, not `REQ-/SCN-/CODE-/TEST-` ids.
+
+
+## Code retrieval contracts (schema 0.4.0, additive; AI-07)
+
+`CodeRetrievalRequest` = `artifact_id`, optional `baseline`, `top_k` (1..50), optional `method`
+(`lexical`/`cocoindex`; null selects CocoIndex when configured, else lexical), optional
+`relation_types`, `include_unresolved`.
+
+`CodeRetrievalResponse` = `schema_version`, `artifact_id`, `baseline`, `revision`, `status`
+(`ok`/`not_available`), `method`, `provider`, `model_version`, `index_binding`, `hits`,
+`unresolved`, `latency_ms`, `limitations`.
+
+`RetrievalHit` = rank, clamped `score`, `raw_score`, canonical `artifact_id`, `relation_type`,
+`path`, `start_line`, `end_line`, authoritative `revision` and `content_hash`, `method`.
+`UnresolvedHit` = path, line range, raw score, reason.
+
+Rules:
+
+* Hits are proposals. No field carries a link id, review state, evidence id, or finding.
+* A hit resolves only when the path is a source/test artifact at the requested commit and the
+  committed blob hash equals the artifact hash. Otherwise it is unresolved.
+* `index_binding` is `snapshot:sha256:<digest>` over repository, commit, eligible paths, and their
+  authoritative hashes. It is **not** a CocoIndex-reported index revision (0.2.43 exposes none).
+* `score` is the reported value clamped to 0..1 for the existing candidate contract; `raw_score` is
+  the reported value. Neither is a calibrated probability.
+* A configured live CocoIndex project must be checked out at the requested commit; otherwise the
+  request fails explicitly rather than returning cross-baseline hits.
+* The lexical method is a deterministic comparator over the same snapshot; it is not a research
+  claim about semantic retrieval quality.

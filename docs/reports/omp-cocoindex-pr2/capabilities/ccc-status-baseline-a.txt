@@ -1,0 +1,11 @@
+Project: <snapshot-a>
+Settings: <snapshot-a>/.cocoindex_code/settings.yml
+Index DB: <snapshot-a>/.cocoindex_code/target_sqlite.db
+
+Index stats:
+  Chunks: 16
+  Files:  12
+  Languages:
+    python: 7 chunks
+    json: 6 chunks
+    markdown: 3 chunks

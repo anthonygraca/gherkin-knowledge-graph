@@ -81,6 +81,7 @@ class FakeCandidateDiscovery:
         *,
         top_k: int = 5,
         relation_types: Sequence[RelationType] | None = None,
+        baseline: str | None = None,
     ) -> list[TraceCandidate]:
         if top_k < 1:
             raise ValueError("top_k must be >= 1")

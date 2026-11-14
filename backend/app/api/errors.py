@@ -13,6 +13,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app.discovery.cocoindex import CocoIndexError
+from app.discovery.code_index import CrossBaselineError, SnapshotError
 from app.domain.api import ProblemDetails
 from app.domain.errors import DomainError, FeatureNotImplemented
 
@@ -69,6 +71,36 @@ def register_exception_handlers(app: FastAPI) -> None:
             code=exc.code,
             title=exc.title,
             detail=exc.detail,
+            instance=request.url.path,
+        )
+
+    @app.exception_handler(CocoIndexError)
+    async def _cocoindex_error(request: Request, exc: CocoIndexError) -> JSONResponse:
+        return problem_response(
+            status=503,
+            code=exc.code,
+            title="CocoIndex retrieval unavailable",
+            detail=str(exc),
+            instance=request.url.path,
+        )
+
+    @app.exception_handler(CrossBaselineError)
+    async def _cross_baseline_error(request: Request, exc: CrossBaselineError) -> JSONResponse:
+        return problem_response(
+            status=409,
+            code="cross-baseline",
+            title="Cross-baseline retrieval refused",
+            detail=str(exc),
+            instance=request.url.path,
+        )
+
+    @app.exception_handler(SnapshotError)
+    async def _snapshot_error(request: Request, exc: SnapshotError) -> JSONResponse:
+        return problem_response(
+            status=422,
+            code="snapshot-invalid",
+            title="Retrieval snapshot invalid",
+            detail=str(exc),
             instance=request.url.path,
         )
 
