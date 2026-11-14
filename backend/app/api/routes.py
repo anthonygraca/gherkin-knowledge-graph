@@ -181,13 +181,24 @@ def post_discovery(
         payload.artifact_id,
         top_k=payload.top_k,
         relation_types=payload.relation_types,
+        baseline=payload.baseline,
     )
     return DiscoveryResponse(
         schema_version=SCHEMA_VERSION,
         artifact_id=payload.artifact_id,
         provider=provider.provider_name,
         model_version=provider.model_version,
-        index_revision=provider.index_revision,
+        # Prefer the per-candidate binding for the requested baseline when one exists; the
+        # provider-level attribute is only a construction-time default.
+        index_revision=(
+            candidates[0].index_revision
+            if candidates
+            else (
+                provider.binding_for(payload.baseline)
+                if hasattr(provider, "binding_for")
+                else provider.index_revision
+            )
+        ),
         candidates=candidates,
     )
 

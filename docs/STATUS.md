@@ -255,6 +255,27 @@ criterion is not satisfied by the external Ollama runtime used for the smoke.
   criteria advisory (REVISE, incorporated) is under
   `docs/reports/omp-cocoindex-pr1/reviews/`. No approval is claimed.
 
+## M3 — AI-07 artifact-aware code discovery (PR 2)
+
+**As of 2026-11-14T03:36Z**, AI-07 [#66] is implemented locally on base `e4bbd82` and independently
+**APPROVE** at submission 5 of 7 (`docs/reviews/AI-07-review-5.md`). No files were merged at the
+time of this record.
+
+* `POST /api/retrieval/code` returns baseline-bound source/test proposals with path, lines,
+  revision, content hash, method, model identity, and a CTA snapshot binding; mapping validates the
+  committed chunk bytes and line range. Unconfigured CocoIndex is `not_available`; configured
+  failures and cross-baseline checkouts are typed problem documents.
+* The `cocoindex` `CandidateDiscovery` provider appears only when configured/opted in; the default
+  remains offline `fake`. No accepted link, review state, evidence, or finding is written.
+* Schema `0.4.0` (additive); fixtures regenerated.
+* Evidence: 466 backend passed / 3 skipped; 101 Cucumber scenarios / 834 results; strict gate ok
+  (report `sha256:781ea2ff…`); live CocoIndex on synthetic baseline-a/b snapshots.
+* **Measured result:** on the four-artifact banking corpus, CocoIndex did not improve Recall@1 over
+  lexical (0.6667/0.5000 both) and returned more false candidates at ~1 s/query. Negative result
+  recorded; no general claim.
+* AI-06 (#56), AI-02 (#31), AI-03 (#32), AI-05 (#35) remain open. PR 3 (GraphRAG) and PR 4
+  (evaluation) briefs are in `docs/reports/omp-cocoindex-pr2/NEXT-SLICES.md` (mission prompt).
+
 ## M0 tracker closure (2026-11-13T06:49:39Z)
 
 The M0 engineering gate was already independently approved at `bca69cf`

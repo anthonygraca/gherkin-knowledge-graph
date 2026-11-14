@@ -596,6 +596,68 @@ def op_shallow_clone(args: dict) -> dict:
     return {"path": str(destination)}
 
 
+def op_code_retrieval(args: dict) -> dict:
+    from app.discovery.cocoindex import (
+        CocoIndexSearchClient,
+        FakeCocoIndexTransport,
+    )
+    from app.discovery.code_index import CodeDiscovery, configured_model_version
+    from app.domain.retrieval import CodeRetrievalRequest
+    from app.ingestion.repository import GitRepository
+
+    store = _store()
+    built = _fixture_repo()
+    git = GitRepository(built)
+    client = None
+    project_root = built if args.get("require_live_root") else Path("/snapshot")
+    if args.get("captured"):
+        client = CocoIndexSearchClient(
+            FakeCocoIndexTransport.from_fixture(Path(args["captured"]), project_root=project_root)
+        )
+    elif args.get("payload"):
+        client = CocoIndexSearchClient(
+            FakeCocoIndexTransport(args["payload"], project_root=project_root)
+        )
+    discovery = CodeDiscovery(
+        repository=store,
+        git=git,
+        repository_name="banking-demo",
+        client=client,
+        model_version=args.get("model_version", configured_model_version()),
+        require_live_root=bool(args.get("require_live_root", False)),
+    )
+    from app.assurance.rules import DeterministicAssuranceEvaluator
+
+    canonical = store.resolve_baseline(args["request"].get("baseline"))
+    evaluator = DeterministicAssuranceEvaluator(store)
+
+    def capture() -> dict:
+        return {
+            "links": _jsonable(store.list_links(canonical)),
+            "evidence": _jsonable(store.list_evidence(canonical)),
+            "artifacts": _jsonable(store.list_artifacts(canonical)),
+            "findings": _jsonable(evaluator.evaluate(canonical)),
+        }
+
+    before = capture()
+    try:
+        response = discovery.retrieve(CodeRetrievalRequest.model_validate(args["request"]))
+    except Exception as exc:  # noqa: BLE001 - rejection path is part of the audit
+        if not args.get("capture_rejection"):
+            raise
+        after = capture()
+        audit = {key: before[key] == after[key] for key in before}
+        audit["all_unchanged"] = all(audit.values())
+        return {
+            "rejected": {"type": type(exc).__name__, "detail": str(exc)},
+            "audit": audit,
+        }
+    after = capture()
+    audit = {key: before[key] == after[key] for key in before}
+    audit["all_unchanged"] = all(audit.values())
+    return {"response": _jsonable(response), "audit": audit}
+
+
 def op_hashes(args: dict) -> dict:
     state = _load_state()
     path = Path(args["path"]) if args.get("path") else _repo_path(state, args.get("name", "repo"))
@@ -641,6 +703,7 @@ OPS = {
     "build_fixture": op_build_fixture,
     "fixture_tests": op_fixture_tests,
     "commitlint": op_commitlint,
+    "code_retrieval": op_code_retrieval,
     "hashes": op_hashes,
     "shallow_clone": op_shallow_clone,
     "external_build": op_external_build,

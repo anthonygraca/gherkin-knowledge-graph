@@ -11,6 +11,7 @@ from fastapi import FastAPI
 
 from app.api.errors import register_exception_handlers
 from app.api.portable_routes import router as portable_router
+from app.api.retrieval_routes import router as retrieval_router
 from app.api.routes import router
 from app.assurance.rules import DeterministicAssuranceEvaluator
 from app.discovery.registry import ProviderRegistry
@@ -69,11 +70,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = resolved
     app.state.store = IngestedStore.from_settings(resolved)
     app.state.evaluator = DeterministicAssuranceEvaluator(app.state.store)
-    app.state.providers = ProviderRegistry(resolved)
+    app.state.providers = ProviderRegistry(resolved, app.state.store)
     app.state.portable = PortableRegistry()
     register_exception_handlers(app)
     app.include_router(router)
     app.include_router(portable_router)
+    app.include_router(retrieval_router)
     return app
 
 

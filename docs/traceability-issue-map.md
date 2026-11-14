@@ -80,6 +80,7 @@ Retrieval has AI-01 in M0 and AI-02/AI-03 in M3. Stories whose slice has no mile
 | AI-04 | [#34](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/34) | F-09 | M0 | A | Ranked candidate links labelled as proposals |
 | AI-05 | [#35](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/35) | F-09 | M3 | A | Labeled precision/recall and recall@k evaluation |
 | AI-06 | [#56](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/56) | F-08 | M3 | A | CocoIndex Code semantic code-search capability and integration contract (implementation-approach story; not in roadmap §6) |
+| AI-07 | [#66](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/66) | F-08 | M3 | A | Artifact-aware code discovery using CocoIndex Code (PR 2; additive retrieval contract) |
 | CI-01 | [#36](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/36) | F-10 | M4 | shared | Assurance runs when a repository revision changes |
 | CI-02 | [#37](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/37) | F-10 | M4 | shared | New, unchanged, and resolved findings between baselines |
 | GT-01 | [#60](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/60) | F-11 | M2 | shared | Cucumber runtime integration and executable acceptance harness |
@@ -97,6 +98,10 @@ Refinement disposition: drafted by OMP against the repository lifecycle; indepen
 review is required before any claim of approval. GT-02 currently records pending migration for
 `AS-04`, `AS-05`, and `SETUP-01` in `docs/feature-inventory.json`; the issue stays open until those
 bindings exist or an owner accepts the declared exclusions.
+
+**AI-07 (#66)** was created on 2026-11-14 for PR 2 of the owner's RAG/CocoIndex mission. It is an
+additive M3 capability: snapshot-bound code proposals, a lexical comparator, and a provenance-rich
+retrieval endpoint. It does not close AI-02/AI-03/AI-05/AI-06 and does not claim GraphRAG.
 
 **AI-06 (#56)** was created on 2026-11-13 by the RAG mission as an implementation-approach story
 under F-08. It is not a roadmap §6 backlog story: it adopts CocoIndex Code for semantic *code*

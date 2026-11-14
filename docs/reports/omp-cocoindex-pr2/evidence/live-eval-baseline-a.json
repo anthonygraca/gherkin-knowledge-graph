@@ -1,0 +1,172 @@
+{
+  "cases": 3,
+  "cocoindex_live": {
+    "aggregate": {
+      "false_candidate_rate": 0.5833,
+      "mrr": 1.0,
+      "precision_at_5": 0.4167,
+      "recall_at_1": 0.6667,
+      "recall_at_5": 1.0
+    },
+    "cases": [
+      {
+        "artifact_id": "SCN-001",
+        "baseline": "baseline-a",
+        "case": "CR-001",
+        "false_candidate_rate": 0.5,
+        "index_binding": "snapshot:sha256:3a8ea30ca7b39b768ebeea7aa1b59fb44b5246a1b129a75b2c9682145d0b0a25",
+        "latency_ms": 940.04,
+        "mrr": 1.0,
+        "precision_at_5": 0.5,
+        "ranked": [
+          "CODE-001",
+          "TEST-001",
+          "CODE-002",
+          "TEST-002"
+        ],
+        "recall_at_1": 0.5,
+        "recall_at_5": 1.0,
+        "relevant": [
+          "CODE-001",
+          "TEST-001"
+        ],
+        "status": "ok",
+        "unresolved": []
+      },
+      {
+        "artifact_id": "SCN-002",
+        "baseline": "baseline-a",
+        "case": "CR-002",
+        "false_candidate_rate": 0.75,
+        "index_binding": "snapshot:sha256:3a8ea30ca7b39b768ebeea7aa1b59fb44b5246a1b129a75b2c9682145d0b0a25",
+        "latency_ms": 943.519,
+        "mrr": 1.0,
+        "precision_at_5": 0.25,
+        "ranked": [
+          "CODE-002",
+          "TEST-002",
+          "CODE-001",
+          "TEST-001"
+        ],
+        "recall_at_1": 1.0,
+        "recall_at_5": 1.0,
+        "relevant": [
+          "CODE-002"
+        ],
+        "status": "ok",
+        "unresolved": []
+      },
+      {
+        "artifact_id": "SCN-003",
+        "baseline": "baseline-a",
+        "case": "CR-003",
+        "false_candidate_rate": 0.5,
+        "index_binding": "snapshot:sha256:3a8ea30ca7b39b768ebeea7aa1b59fb44b5246a1b129a75b2c9682145d0b0a25",
+        "latency_ms": 969.181,
+        "mrr": 1.0,
+        "precision_at_5": 0.5,
+        "ranked": [
+          "CODE-002",
+          "TEST-002",
+          "CODE-001",
+          "TEST-001"
+        ],
+        "recall_at_1": 0.5,
+        "recall_at_5": 1.0,
+        "relevant": [
+          "CODE-002",
+          "TEST-002"
+        ],
+        "status": "ok",
+        "unresolved": []
+      }
+    ],
+    "mean_latency_ms": 950.913,
+    "method": "cocoindex",
+    "model_version": "cocoindex-code 0.2.43; embedding=ollama/embeddinggemma-2:270m-q8_0-text"
+  },
+  "fixture": "banking-demo",
+  "labels": "fixtures/banking-demo/expected/code-retrieval.json",
+  "lexical": {
+    "aggregate": {
+      "false_candidate_rate": 0.4444,
+      "mrr": 1.0,
+      "precision_at_5": 0.5556,
+      "recall_at_1": 0.6667,
+      "recall_at_5": 1.0
+    },
+    "cases": [
+      {
+        "artifact_id": "SCN-001",
+        "baseline": "baseline-a",
+        "case": "CR-001",
+        "false_candidate_rate": 0.3333333333333333,
+        "index_binding": "snapshot:sha256:3a8ea30ca7b39b768ebeea7aa1b59fb44b5246a1b129a75b2c9682145d0b0a25",
+        "latency_ms": 0.744,
+        "mrr": 1.0,
+        "precision_at_5": 0.6666666666666666,
+        "ranked": [
+          "CODE-001",
+          "CODE-002",
+          "TEST-001"
+        ],
+        "recall_at_1": 0.5,
+        "recall_at_5": 1.0,
+        "relevant": [
+          "CODE-001",
+          "TEST-001"
+        ],
+        "status": "ok",
+        "unresolved": []
+      },
+      {
+        "artifact_id": "SCN-002",
+        "baseline": "baseline-a",
+        "case": "CR-002",
+        "false_candidate_rate": 0.6666666666666666,
+        "index_binding": "snapshot:sha256:3a8ea30ca7b39b768ebeea7aa1b59fb44b5246a1b129a75b2c9682145d0b0a25",
+        "latency_ms": 0.6,
+        "mrr": 1.0,
+        "precision_at_5": 0.3333333333333333,
+        "ranked": [
+          "CODE-002",
+          "TEST-002",
+          "CODE-001"
+        ],
+        "recall_at_1": 1.0,
+        "recall_at_5": 1.0,
+        "relevant": [
+          "CODE-002"
+        ],
+        "status": "ok",
+        "unresolved": []
+      },
+      {
+        "artifact_id": "SCN-003",
+        "baseline": "baseline-a",
+        "case": "CR-003",
+        "false_candidate_rate": 0.3333333333333333,
+        "index_binding": "snapshot:sha256:3a8ea30ca7b39b768ebeea7aa1b59fb44b5246a1b129a75b2c9682145d0b0a25",
+        "latency_ms": 0.57,
+        "mrr": 1.0,
+        "precision_at_5": 0.6666666666666666,
+        "ranked": [
+          "CODE-002",
+          "TEST-002",
+          "CODE-001"
+        ],
+        "recall_at_1": 0.5,
+        "recall_at_5": 1.0,
+        "relevant": [
+          "CODE-002",
+          "TEST-002"
+        ],
+        "status": "ok",
+        "unresolved": []
+      }
+    ],
+    "mean_latency_ms": 0.638,
+    "method": "lexical",
+    "model_version": "deterministic-token-overlap-v1"
+  }
+}

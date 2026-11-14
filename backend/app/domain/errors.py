@@ -104,3 +104,11 @@ class ScenarioNotFound(DomainError):
     code = "scenario-not-found"
     title = "Scenario not found"
     status = 404
+
+
+class RetrievalUnavailable(DomainError):
+    """A configured optional retrieval provider could not be used."""
+
+    code = "retrieval-unavailable"
+    title = "Retrieval unavailable"
+    status = 503

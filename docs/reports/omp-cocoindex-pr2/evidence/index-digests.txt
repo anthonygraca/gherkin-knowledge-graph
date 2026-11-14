@@ -1,0 +1,2 @@
+9a5a80d7f8b0883abb8462114d86591b0a9f358291457f23dd468de0299ac353  /tmp/ai07-snapshot/.cocoindex_code/target_sqlite.db
+245d9d5a5ed66dffd0a534053b31d624007b16c55713fd1f2108412418bcdfcc  /tmp/ai07-snapshot-b/.cocoindex_code/target_sqlite.db

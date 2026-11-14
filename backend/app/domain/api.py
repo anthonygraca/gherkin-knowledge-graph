@@ -87,6 +87,10 @@ class DiscoveryRequest(BaseModel):
     provider: str | None = Field(
         default=None, description="Discovery provider name; null uses the configured default."
     )
+    baseline: str | None = Field(
+        default=None,
+        description="Baseline tag/SHA the provider must bind to; null uses the latest baseline.",
+    )
 
 
 class DiscoveryResponse(_FrozenModel):

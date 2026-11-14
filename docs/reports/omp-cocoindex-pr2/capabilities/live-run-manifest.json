@@ -1,0 +1,115 @@
+{
+  "captured_at": "2026-11-14T02:18:00Z",
+  "cocoindex": {
+    "model": "embeddinggemma-2:270m-q8_0-text",
+    "protocol": "2024-11-05",
+    "server_versions": [
+      "0.2.43"
+    ],
+    "version": "0.2.43"
+  },
+  "cta_revision": "e4bbd82c4bb70c6dc13d7d59554b5525177234c8",
+  "description": "Sanitized AI-07 PR 2 live CocoIndex evaluation. Raw indexes and daemon logs remain outside Git.",
+  "evaluation": {
+    "baseline-a": {
+      "cocoindex_live": {
+        "false_candidate_rate": 0.5833,
+        "mrr": 1.0,
+        "precision_at_5": 0.4167,
+        "recall_at_1": 0.6667,
+        "recall_at_5": 1.0
+      },
+      "cocoindex_mean_latency_ms": 950.913,
+      "index_binding": "snapshot:sha256:3a8ea30ca7b39b768ebeea7aa1b59fb44b5246a1b129a75b2c9682145d0b0a25",
+      "lexical": {
+        "false_candidate_rate": 0.4444,
+        "mrr": 1.0,
+        "precision_at_5": 0.5556,
+        "recall_at_1": 0.6667,
+        "recall_at_5": 1.0
+      },
+      "lexical_mean_latency_ms": 0.638
+    },
+    "baseline-b": {
+      "cocoindex_live": {
+        "false_candidate_rate": 0.5,
+        "mrr": 1.0,
+        "precision_at_5": 0.5,
+        "recall_at_1": 0.5,
+        "recall_at_5": 1.0
+      },
+      "cocoindex_mean_latency_ms": 1006.935,
+      "index_binding": "snapshot:sha256:2552a742277f1f714334c79a0b9720e49cd7ea58852771ef86f2bce6ce107da0",
+      "lexical": {
+        "false_candidate_rate": 0.3333,
+        "mrr": 1.0,
+        "precision_at_5": 0.6667,
+        "recall_at_1": 0.5,
+        "recall_at_5": 1.0
+      },
+      "lexical_mean_latency_ms": 0.805
+    },
+    "evidence": {
+      "baseline-a": {
+        "path": "docs/reports/omp-cocoindex-pr2/evidence/live-eval-baseline-a.json",
+        "sha256": "sha256:79ddbf780117f5729afc7a953670f89b05505731b83d0871e6a10a9d13208b50"
+      },
+      "baseline-b": {
+        "path": "docs/reports/omp-cocoindex-pr2/evidence/live-eval-baseline-b.json",
+        "sha256": "sha256:ce85e349a906a30b30e2517122fde37fb38cdcc49f46d924f9cb4de9ef0cead2"
+      }
+    },
+    "labels": "fixtures/banking-demo/expected/code-retrieval.json",
+    "labels_sha256": "sha256:694bba1aafe74d7cc9c50ec71f97a89d3b2dc27ade4d3cd0d94abf37f772a344"
+  },
+  "implementation_hashes": {
+    "backend/app/api/retrieval_routes.py": "sha256:ad8eedf41239212f33136743c059ef211edfb71b4913585467c5aec074494c98",
+    "backend/app/discovery/cocoindex.py": "sha256:7de622c65af9ce676f40805644ecf7d0a0276d3d13d15fdb4aff7f38dc958bc2",
+    "backend/app/discovery/cocoindex_mcp.py": "sha256:0913d9e02abd42287ab7c33606755c58c0320be7af274882f737ed93200aec1e",
+    "backend/app/discovery/code_index.py": "sha256:d3489a8b23eec9ab90ee7035e350b6b056ec40d01b370d7895a814c869e01ec2",
+    "backend/app/domain/retrieval.py": "sha256:5c39b4d70536679242fa9dc4a0eb15d9707bf5c63055c1879e1ff69cdb4df5b0",
+    "fixtures/banking-demo/expected/code-retrieval.json": "sha256:694bba1aafe74d7cc9c50ec71f97a89d3b2dc27ade4d3cd0d94abf37f772a344",
+    "tools/evaluate_code_retrieval.py": "sha256:6c6ba7ad15492da903c77650c27b8697b9d28e6e68d61d67af288326208b0b53"
+  },
+  "invocation": {
+    "captured_at": "2026-11-14T03:33:00Z",
+    "command": "uv run --project backend python tools/evaluate_code_retrieval.py --live --baseline <a|b> --out <external>/live-eval-baseline-<a|b>.json",
+    "environment_aliases": {
+      "COCOINDEX_CODE_DIR": "<ccc-state>",
+      "COCOINDEX_CODE_RUNTIME_DIR": "<ccc-runtime>",
+      "CTA_CCC_LIVE_OPT_IN": "1",
+      "CTA_CCC_PROJECT_ROOT": "<snapshot-a|snapshot-b>",
+      "OLLAMA_API_BASE": "http://localhost:11434"
+    },
+    "working_tree": "uncommitted PR 2 slice on base e4bbd82c4bb70c6dc13d7d59554b5525177234c8"
+  },
+  "notes": [
+    "Live CocoIndex was used only on the synthetic banking fixture.",
+    "Scores are CocoIndex-reported; Recall/Precision/MRR are computed against hand-labeled cases.",
+    "The same evaluation file records the deterministic lexical baseline.",
+    "The earlier PR 1 port-forward was already stopped; an Ollama endpoint on localhost:11434 with the pinned model was reachable during this run. No port-forward was started by this run.",
+    "Indexes are project-local and disposable; they are not committed."
+  ],
+  "repository": "anthonygraca/gherkin-knowledge-graph",
+  "schema_version": "1",
+  "snapshots": {
+    "baseline-a": {
+      "alias": "<snapshot-a>",
+      "chunks": 16,
+      "commit": "316057bb5c8d212dd917035c4bde8ad39f72e51e",
+      "files": 12,
+      "index_bytes": 9527296,
+      "index_file": "target_sqlite.db",
+      "index_sha256": "sha256:9a5a80d7f8b0883abb8462114d86591b0a9f358291457f23dd468de0299ac353"
+    },
+    "baseline-b": {
+      "alias": "<snapshot-b>",
+      "chunks": 17,
+      "commit": "14d02c5",
+      "files": 12,
+      "index_bytes": null,
+      "index_file": "target_sqlite.db",
+      "index_sha256": "sha256:245d9d5a5ed66dffd0a534053b31d624007b16c55713fd1f2108412418bcdfcc"
+    }
+  }
+}

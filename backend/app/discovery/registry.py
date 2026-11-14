@@ -13,7 +13,7 @@ from app.discovery.ai import ChatGenerationProvider, EmbeddingProvider
 from app.discovery.ai_fake import FakeChatGenerationProvider, FakeEmbeddingProvider
 from app.discovery.fake import FakeCandidateDiscovery
 from app.domain.errors import ProviderNotRegistered
-from app.domain.ports import CandidateDiscovery
+from app.domain.ports import ArtifactRepository, CandidateDiscovery
 from app.settings import Settings
 
 REGISTERED_PROVIDERS: tuple[str, ...] = ("fake",)
@@ -22,8 +22,9 @@ REGISTERED_PROVIDERS: tuple[str, ...] = ("fake",)
 class ProviderRegistry:
     """Builds providers on demand and caches them per process."""
 
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, settings: Settings, repository: ArtifactRepository | None = None) -> None:
         self._settings = settings
+        self._repository = repository
         self._cache: dict[str, CandidateDiscovery] = {}
         self._chat: ChatGenerationProvider | None = None
         self._embeddings: EmbeddingProvider | None = None
@@ -31,11 +32,14 @@ class ProviderRegistry:
 
     @property
     def registered(self) -> list[str]:
-        return list(REGISTERED_PROVIDERS)
+        providers = list(REGISTERED_PROVIDERS)
+        if self._settings.cocoindex_enabled:
+            providers.append("cocoindex")
+        return providers
 
     def get(self, name: str | None = None) -> CandidateDiscovery:
         resolved = name or self._settings.discovery_provider
-        if resolved not in REGISTERED_PROVIDERS:
+        if resolved not in self.registered:
             raise ProviderNotRegistered(
                 f"Unknown discovery provider '{resolved}'. Registered providers: "
                 f"{', '.join(REGISTERED_PROVIDERS)}. Code-search candidates arrive with AI-06 "
@@ -86,4 +90,27 @@ class ProviderRegistry:
     def _build(self, name: str) -> CandidateDiscovery:
         if name == "fake":
             return FakeCandidateDiscovery.from_fixture(self._settings.candidate_index_path)
+        if name == "cocoindex":
+            if self._repository is None:
+                raise ProviderNotRegistered(
+                    "the cocoindex provider requires an artifact repository; this registry was "
+                    "constructed without one"
+                )
+            from app.discovery.code_index import (
+                CocoIndexCandidateDiscovery,
+                CodeDiscovery,
+                configured_model_version,
+                live_client,
+            )
+            from app.ingestion.repository import GitRepository
+
+            discovery = CodeDiscovery(
+                repository=self._repository,
+                git=GitRepository(self._settings.fixture_repo),
+                repository_name=self._settings.fixture,
+                client=live_client(self._settings),
+                model_version=configured_model_version(self._settings),
+                require_live_root=True,
+            )
+            return CocoIndexCandidateDiscovery(discovery)
         raise AssertionError(f"provider '{name}' is listed as registered but has no builder")

@@ -46,6 +46,7 @@ class CandidateDiscovery(Protocol):
         *,
         top_k: int = 5,
         relation_types: Sequence[RelationType] | None = None,
+        baseline: str | None = None,
     ) -> list[TraceCandidate]: ...
 
 

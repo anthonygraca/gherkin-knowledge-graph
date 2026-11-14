@@ -18,7 +18,7 @@ with a tag and with that tag's SHA returns identical bodies. Version-pinning fie
 {
   "status": "ok",
   "package_version": "0.1.0",
-  "schema_version": "0.3.0",
+  "schema_version": "0.4.0",
   "fixture": "banking-demo",
   "baselines": ["baseline-a", "baseline-b"],
   "baseline_commits": {
@@ -37,7 +37,7 @@ coverage without hard-coded identities.
 
 ```json
 {
-  "schema_version": "0.3.0",
+  "schema_version": "0.4.0",
   "baseline": "baseline-a",
   "artifacts": [
     {
@@ -83,7 +83,7 @@ it does not read the generated example files.
 
 ```json
 {
-  "schema_version": "0.3.0",
+  "schema_version": "0.4.0",
   "root_id": "REQ-002",
   "baseline": "baseline-a",
   "artifacts": [
@@ -128,7 +128,7 @@ findings are not silently dropped from this response.
 
 ```json
 {
-  "schema_version": "0.3.0",
+  "schema_version": "0.4.0",
   "baseline": "baseline-b",
   "findings": [
     {
@@ -203,7 +203,7 @@ Response:
 
 ```json
 {
-  "schema_version": "0.3.0",
+  "schema_version": "0.4.0",
   "baseline": "baseline-a",
   "findings": [
     {
@@ -245,7 +245,7 @@ Response (abridged; `fixtures/api-responses/discovery.SCN-001.json` is the full 
 
 ```json
 {
-  "schema_version": "0.3.0",
+  "schema_version": "0.4.0",
   "artifact_id": "SCN-001",
   "provider": "fake",
   "model_version": "fake-fixture-v1",
@@ -301,7 +301,7 @@ first, so the contract is real even though the behaviour is not implemented:
 * Do not cache findings across baselines: `evaluated_baseline` is part of their meaning.
 
 
-## Portable repository endpoints (schema 0.3.0, additive)
+## Portable repository endpoints (schema 0.4.0, additive)
 
 All responses are repository- and revision-scoped. Omitted `revision` means the most recently
 indexed commit for that repository; an unindexed repository or revision is 404
@@ -325,7 +325,7 @@ Example (`GET /api/repositories/external-recipes/bindings?revision=v1`) before a
 
 ```json
 {
-  "schema_version": "0.3.0",
+  "schema_version": "0.4.0",
   "repository_id": "external-recipes",
   "revision": "4851146c92d4c02b1be5e3989a3947fb89997993",
   "availability": "not_available",
@@ -352,3 +352,57 @@ An import request carries `report_path`, `metadata_path`, and `tested_commit`. T
 must name the same `tested_commit` and, when present, the same `repository_id`; a report whose exact
 bytes were already attributed to another revision is refused (`report-not-applicable`). Duplicate
 imports of the same report at the same revision are idempotent (`imported: false`).
+
+
+## Code retrieval endpoint (schema 0.4.0, additive)
+
+`POST /api/retrieval/code` returns provenance-rich source/test proposals for one scenario at one
+baseline. It writes nothing.
+
+```json
+{
+  "artifact_id": "SCN-001",
+  "baseline": "baseline-a",
+  "top_k": 3,
+  "method": "lexical"
+}
+```
+
+Response (abridged):
+
+```json
+{
+  "schema_version": "0.4.0",
+  "artifact_id": "SCN-001",
+  "baseline": "baseline-a",
+  "revision": "<commit>",
+  "status": "ok",
+  "method": "lexical",
+  "provider": "lexical",
+  "model_version": "deterministic-token-overlap-v1",
+  "index_binding": "snapshot:sha256:<digest>",
+  "hits": [
+    {
+      "rank": 1,
+      "score": 0.2857,
+      "raw_score": 0.2857,
+      "artifact_id": "CODE-001",
+      "relation_type": "implemented_by",
+      "path": "src/accounts.py",
+      "start_line": 1,
+      "end_line": 3,
+      "revision": "<commit>",
+      "content_hash": "sha256:<hash>",
+      "method": "lexical"
+    }
+  ],
+  "unresolved": [],
+  "latency_ms": 0.7,
+  "limitations": ["CocoIndex Code indexes code/test chunks, not Gherkin scenarios."]
+}
+```
+
+Explicit `method: "cocoindex"` without configuration returns `status: "not_available"` with no
+hits and a reason; it is not an empty success. A configured provider error is a 503 problem document
+with the adapter's typed code (`cocoindex-*`). `POST /api/discovery` accepts an optional `baseline`
+for the `cocoindex` provider; the default `fake` provider remains offline.

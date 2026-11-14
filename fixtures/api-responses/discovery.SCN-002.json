@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.3.0",
+  "schema_version": "0.4.0",
   "artifact_id": "SCN-002",
   "provider": "fake",
   "model_version": "fake-fixture-v1",
