@@ -125,8 +125,8 @@ for both external inventories is recorded in `docs/reviews/M2-external-oracle-ow
 The final local suite: **93 scenarios passed (396 Gherkin steps + 372 hook steps)**, strict gate
 `ok` (93 test cases), report `sha256:7dcff8da…`. Original M2 assurance matches the hand-labeled
 oracle; the portable benchmark is clean. The approval covers the engineering gate only; human stakeholder
-validation, semantic-link acceptance, and publication remain owner gates. The reviewed snapshot is
-recorded in `docs/reports/omp-m2-milestone/APPROVAL.md`.
+validation, semantic-link acceptance, and publication remain owner gates. The reviewed slice is committed as `37980aa`; the approval record is
+`docs/reports/omp-m2-milestone/APPROVAL.md`.
 
 ## Roadmap execution — M1 (historical)
 
