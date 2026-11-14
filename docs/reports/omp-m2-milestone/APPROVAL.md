@@ -6,6 +6,7 @@
 **Record:** `docs/reports/omp-m2-milestone/review-7.md`; submission **7 of 7**; finished
 2026-11-14T00:54:30Z; exit code 0.
 **Implemented snapshot commit:** `37980aa0112e4cbc3a61450a2c7bf59e3f9648cc`.
+**Merged:** PR [#64](https://github.com/anthonygraca/gherkin-knowledge-graph/pull/64) → `de4f37a119fd5b962a78bc22bf15a185927cb731` on 2026-11-14T01:16:00Z; main CI run `43539537437` passed all four jobs.
 **Reviewed execution evidence:** `docs/reports/omp-m2-bdd/evidence/cucumber-messages.ndjson`,
 sha256 `7dcff8dabf0690244d7b17cfa6a43dcf1c56d20852c450b01257e07520f15df8`.
 **Reviewed feature set:** 19 canonical feature files; all supplied hashes matched.
