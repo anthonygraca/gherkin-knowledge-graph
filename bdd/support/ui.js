@@ -29,7 +29,9 @@ function freePort() {
 }
 
 function builtFixturePath() {
-  const state = fs.mkdtempSync(path.join(ROOT, 'bdd', '.cache', 'ui-state-'));
+  const cache = path.join(ROOT, 'bdd', '.cache');
+  fs.mkdirSync(cache, { recursive: true });
+  const state = fs.mkdtempSync(path.join(cache, 'ui-state-'));
   const stdout = execFileSync(PYTHON, [BRIDGE], {
     input: JSON.stringify({ op: 'fixture_repo', args: {} }),
     env: { ...process.env, CTA_BDD_STATE: state },
