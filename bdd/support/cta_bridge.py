@@ -658,6 +658,41 @@ def op_code_retrieval(args: dict) -> dict:
     return {"response": _jsonable(response), "audit": audit}
 
 
+def op_rag_benchmark(args: dict) -> dict:
+    import contextlib
+    import io
+
+    import evaluate_rag
+
+    state = _state_dir()
+    output = state / "rag-benchmark.json"
+    code_eval = ROOT / "docs/reports/omp-cocoindex-pr2/evidence/live-eval-baseline-a.json"
+    with contextlib.redirect_stdout(io.StringIO()):
+        exit_code = evaluate_rag.main(["--code-eval", str(code_eval), "--out", str(output)])
+    if exit_code != 0:
+        raise RuntimeError(f"benchmark exited {exit_code}")
+    return {"report": json.loads(output.read_text(encoding="utf-8"))}
+
+
+def op_answer(args: dict) -> dict:
+    from app.discovery.code_index import CodeDiscovery
+    from app.domain.answers import AnswerRequest
+    from app.graphrag.context import AnswerService
+    from app.ingestion.repository import GitRepository
+
+    store = _store()
+    request = AnswerRequest.model_validate(args["request"])
+    code = None
+    if request.include_semantic_candidates:
+        code = CodeDiscovery(
+            repository=store,
+            git=GitRepository(_fixture_repo()),
+            repository_name="banking-demo",
+            model_version="deterministic-token-overlap-v1",
+        )
+    return {"response": _jsonable(AnswerService(store, code_discovery=code).answer(request))}
+
+
 def op_hashes(args: dict) -> dict:
     state = _load_state()
     path = Path(args["path"]) if args.get("path") else _repo_path(state, args.get("name", "repo"))
@@ -704,6 +739,8 @@ OPS = {
     "fixture_tests": op_fixture_tests,
     "commitlint": op_commitlint,
     "code_retrieval": op_code_retrieval,
+    "answer": op_answer,
+    "rag_benchmark": op_rag_benchmark,
     "hashes": op_hashes,
     "shallow_clone": op_shallow_clone,
     "external_build": op_external_build,

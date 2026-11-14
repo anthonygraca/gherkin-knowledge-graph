@@ -1,18 +1,18 @@
 {
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "fixture": "banking-demo",
   "generated_by": "tools/fixturectl.py",
   "commits": [
     {
       "id": "baseline-a-source",
-      "commit": "b85e2d4073b52dcda0597a7db9ea5cee25457283",
+      "commit": "a6162a3b86cdd635e6075986430fcca07ab29b04",
       "date": "2026-10-01T09:00:00Z",
       "message": "Add banking demo sources for baseline A",
       "tags": []
     },
     {
       "id": "baseline-a-evidence",
-      "commit": "316057bb5c8d212dd917035c4bde8ad39f72e51e",
+      "commit": "19824b5c3e0c5b0491088f1b260f3c7ce648df3b",
       "date": "2026-10-01T09:20:00Z",
       "message": "Record baseline A verification evidence",
       "tags": [
@@ -21,14 +21,14 @@
     },
     {
       "id": "baseline-b-change",
-      "commit": "703143b7c9d7e420603214150456de139b076abf",
+      "commit": "67df24e9acb6620af2d782ca33a705c5b193828a",
       "date": "2026-10-15T13:30:00Z",
       "message": "Require whole-dollar withdrawals and cover the at-limit transfer boundary",
       "tags": []
     },
     {
       "id": "baseline-b-evidence",
-      "commit": "14d02c5d1c08065e37b3ae52029fea10b944ad3e",
+      "commit": "559e680834a07c6a98158ea2d642386a7db319bb",
       "date": "2026-10-15T14:20:00Z",
       "message": "Record baseline B verification evidence",
       "tags": [
@@ -37,7 +37,7 @@
     }
   ],
   "tags": {
-    "baseline-a": "316057bb5c8d212dd917035c4bde8ad39f72e51e",
-    "baseline-b": "14d02c5d1c08065e37b3ae52029fea10b944ad3e"
+    "baseline-a": "19824b5c3e0c5b0491088f1b260f3c7ce648df3b",
+    "baseline-b": "559e680834a07c6a98158ea2d642386a7db319bb"
   }
 }

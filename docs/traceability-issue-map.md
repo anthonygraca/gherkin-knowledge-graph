@@ -81,6 +81,8 @@ Retrieval has AI-01 in M0 and AI-02/AI-03 in M3. Stories whose slice has no mile
 | AI-05 | [#35](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/35) | F-09 | M3 | A | Labeled precision/recall and recall@k evaluation |
 | AI-06 | [#56](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/56) | F-08 | M3 | A | CocoIndex Code semantic code-search capability and integration contract (implementation-approach story; not in roadmap §6) |
 | AI-07 | [#66](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/66) | F-08 | M3 | A | Artifact-aware code discovery using CocoIndex Code (PR 2; additive retrieval contract) |
+| AI-08 | [#69](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/69) | F-09 | M3 | shared | GraphRAG evidence retrieval over accepted links and evidence (PR 3) |
+| AI-09 | [#70](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/70) | F-09 | M3/M4-evidence | A/shared | Evidence-grounded retrieval benchmark (lexical vs CocoIndex vs graph vs hybrid) |
 | CI-01 | [#36](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/36) | F-10 | M4 | shared | Assurance runs when a repository revision changes |
 | CI-02 | [#37](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/37) | F-10 | M4 | shared | New, unchanged, and resolved findings between baselines |
 | GT-01 | [#60](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/60) | F-11 | M2 | shared | Cucumber runtime integration and executable acceptance harness |
@@ -98,6 +100,10 @@ Refinement disposition: drafted by OMP against the repository lifecycle; indepen
 review is required before any claim of approval. GT-02 currently records pending migration for
 `AS-04`, `AS-05`, and `SETUP-01` in `docs/feature-inventory.json`; the issue stays open until those
 bindings exist or an owner accepts the declared exclusions.
+
+**AI-08 (#69)** and **AI-09 (#70)** were created on 2026-11-14 for PR 3 and PR 4 of the RAG/CocoIndex
+mission. AI-08 adds deterministic evidence answers; AI-09 measures four retrieval arms. Neither
+closes M3 or M4.
 
 **AI-07 (#66)** was created on 2026-11-14 for PR 2 of the owner's RAG/CocoIndex mission. It is an
 additive M3 capability: snapshot-bound code proposals, a lexical comparator, and a provenance-rich

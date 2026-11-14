@@ -52,6 +52,8 @@ DISPOSITIONS: dict[str, dict[str, str]] = {
     "docs/stories/SETUP-01.feature": {"status": "executed", "reason": ""},
     "docs/stories/AI-01.feature": {"status": "executed", "reason": ""},
     "docs/stories/AI-07.feature": {"status": "executed", "reason": ""},
+    "docs/stories/AI-08.feature": {"status": "executed", "reason": ""},
+    "docs/stories/AI-09.feature": {"status": "executed", "reason": ""},
     "docs/stories/AI-06.feature": {
         "status": "out-of-scope",
         "reason": "M3 CocoIndex slice; not an M0/M1 acceptance feature and outside the M2 "

@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "root_id": "REQ-002",
   "baseline": "baseline-a",
   "artifacts": [
@@ -9,7 +9,7 @@
       "title": "Daily transfer limit enforcement",
       "source_uri": "fixture://banking-demo/requirements/REQ-002.md",
       "repository": "banking-demo",
-      "revision": "316057bb5c8d212dd917035c4bde8ad39f72e51e",
+      "revision": "19824b5c3e0c5b0491088f1b260f3c7ce648df3b",
       "content_hash": "sha256:d2a710e2da2b3d30397976a9b36430cbb42acca2e55bd325bb0481711df4468b",
       "locator": "requirements/REQ-002.md",
       "metadata": {
