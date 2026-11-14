@@ -17,6 +17,7 @@ and never executes anything from an external repository.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shutil
@@ -658,6 +659,35 @@ def op_code_retrieval(args: dict) -> dict:
     return {"response": _jsonable(response), "audit": audit}
 
 
+def op_dataset_variant(args: dict) -> dict:
+    state = _state_dir()
+    source = ROOT / "fixtures/banking-demo/expected/candidate-links.json"
+    payload = json.loads(source.read_text(encoding="utf-8"))
+    payload["model_version"] = "fake-fixture-v1-variant"
+    target = state / "candidate-links-variant.json"
+    target.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    digest = hashlib.sha256(target.read_bytes()).hexdigest()
+    return {"path": str(target), "sha256": f"sha256:{digest}"}
+
+
+def op_candidate_benchmark(args: dict) -> dict:
+    import contextlib
+    import io
+
+    import evaluate_candidates
+
+    state = _state_dir()
+    output = state / "candidate-benchmark.json"
+    command = ["--out", str(output)]
+    if args.get("dataset_path"):
+        command += ["--dataset", args["dataset_path"]]
+    with contextlib.redirect_stdout(io.StringIO()):
+        exit_code = evaluate_candidates.main(command)
+    if exit_code != 0:
+        raise RuntimeError(f"candidate benchmark exited {exit_code}")
+    return {"report": json.loads(output.read_text(encoding="utf-8"))}
+
+
 def op_rag_benchmark(args: dict) -> dict:
     import contextlib
     import io
@@ -741,6 +771,8 @@ OPS = {
     "code_retrieval": op_code_retrieval,
     "answer": op_answer,
     "rag_benchmark": op_rag_benchmark,
+    "candidate_benchmark": op_candidate_benchmark,
+    "dataset_variant": op_dataset_variant,
     "hashes": op_hashes,
     "shallow_clone": op_shallow_clone,
     "external_build": op_external_build,
