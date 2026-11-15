@@ -360,6 +360,16 @@ def load_report(path: Path, *, side: str) -> AssuranceReport:
         raise ReportsNotComparable(
             f"The {side} report is not readable JSON: {exc}", invalid_input=side
         ) from exc
+    if not isinstance(raw, dict):
+        raise ReportsNotComparable(f"The {side} report is not a JSON object.", invalid_input=side)
+    supplied_digest = raw.get("report_digest")
+    if not isinstance(supplied_digest, str):
+        raise ReportsNotComparable(f"The {side} report has no report_digest.", invalid_input=side)
+    canonical_raw = {key: value for key, value in raw.items() if key != "report_digest"}
+    if supplied_digest != digest_text(canonical_json(canonical_raw)):
+        raise ReportsNotComparable(
+            f"The {side} report digest does not match its contents.", invalid_input=side
+        )
     try:
         report = AssuranceReport.model_validate(raw)
     except ValidationError as exc:
@@ -369,9 +379,30 @@ def load_report(path: Path, *, side: str) -> AssuranceReport:
         ) from exc
     if report.report_digest != report_digest(report):
         raise ReportsNotComparable(
-            f"The {side} report digest does not match its contents.", invalid_input=side
+            f"The {side} report digest does not match its validated contents.",
+            invalid_input=side,
         )
     return report
+
+
+def load_report_pair(
+    previous_path: Path, current_path: Path
+) -> tuple[AssuranceReport, AssuranceReport]:
+    """Load both reports, preserving attributable failures from both sides."""
+    loaded: dict[str, AssuranceReport] = {}
+    errors: list[tuple[str, str]] = []
+    for side, path in (("previous", previous_path), ("current", current_path)):
+        try:
+            loaded[side] = load_report(path, side=side)
+        except ReportsNotComparable as exc:
+            errors.append((side, exc.detail))
+    if errors:
+        invalid = "both" if len(errors) == 2 else errors[0][0]
+        raise ReportsNotComparable(
+            "; ".join(f"{side}: {detail}" for side, detail in errors),
+            invalid_input=invalid,
+        )
+    return loaded["previous"], loaded["current"]
 
 
 def _validate_finding(finding: ReportFinding, *, side: str) -> None:
@@ -385,6 +416,12 @@ def _validate_finding(finding: ReportFinding, *, side: str) -> None:
 
 
 def _validate_report(report: AssuranceReport, *, side: str) -> None:
+    for entry in report.inputs:
+        if entry.required and (not entry.available or entry.digest is None):
+            raise ReportsNotComparable(
+                f"The {side} report has an unavailable or undigested required input.",
+                invalid_input=side,
+            )
     if report.tool_outcome is not ToolOutcome.COMPLETED:
         raise ReportsNotComparable(f"The {side} evaluation is incomplete.", invalid_input=side)
     if report.evaluated_revision is None:
@@ -412,8 +449,18 @@ def _validate_report(report: AssuranceReport, *, side: str) -> None:
 
 
 def compare_reports(previous: AssuranceReport, current: AssuranceReport) -> FindingsDiff:
-    _validate_report(previous, side="previous")
-    _validate_report(current, side="current")
+    errors: list[tuple[str, str]] = []
+    for side, report in (("previous", previous), ("current", current)):
+        try:
+            _validate_report(report, side=side)
+        except ReportsNotComparable as exc:
+            errors.append((side, exc.detail))
+    if errors:
+        invalid = "both" if len(errors) == 2 else errors[0][0]
+        raise ReportsNotComparable(
+            "; ".join(f"{side}: {detail}" for side, detail in errors),
+            invalid_input=invalid,
+        )
     for field in (
         "scope",
         "repository",

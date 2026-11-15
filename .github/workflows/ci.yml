@@ -175,11 +175,15 @@ jobs:
         run: uv run --project backend python tools/fixturectl.py build
 
       - name: Evaluate baseline-b and publish the typed report
-        env:
-          EVALUATOR_REVISION: cta@${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           mkdir -p "$RUNNER_TEMP/assurance"
-          uv run --project backend python tools/assurance.py evaluate             --repository banking-demo --baseline baseline-b             --report "$RUNNER_TEMP/assurance/banking-report.json"             --manifest "$RUNNER_TEMP/assurance/banking-manifest.json"             --summary "$GITHUB_STEP_SUMMARY"             --evaluator-revision "$EVALUATOR_REVISION"
+          uv run --project backend python tools/assurance.py evaluate \
+            --repository banking-demo --baseline baseline-b \
+            --report "$RUNNER_TEMP/assurance/banking-report.json" \
+            --manifest "$RUNNER_TEMP/assurance/banking-manifest.json" \
+            --summary "$GITHUB_STEP_SUMMARY" \
+            --deny-network \
+            2> "$RUNNER_TEMP/assurance/banking-diagnostic.json"
 
       - name: Upload the report, manifest, and diagnostic
         if: always()
@@ -189,6 +193,7 @@ jobs:
           path: |
             ${{ runner.temp }}/assurance/banking-report.json
             ${{ runner.temp }}/assurance/banking-manifest.json
+            ${{ runner.temp }}/assurance/banking-diagnostic.json
           if-no-files-found: warn
 
   self-assurance:
@@ -226,11 +231,22 @@ jobs:
       - name: Evaluate the selected revision with the imported report
         env:
           TESTED_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
-          EVALUATOR_REVISION: cta@${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           mkdir -p "$RUNNER_TEMP/assurance"
-          printf '{"repository_id":"gherkin-knowledge-graph","tested_commit":"%s"}' "$TESTED_COMMIT"             > "$RUNNER_TEMP/assurance/self.meta.json"
-          uv run --project backend python tools/assurance.py self-assure             --repo-root . --repository-id gherkin-knowledge-graph             --tested-commit "$TESTED_COMMIT"             --cucumber-report "$RUNNER_TEMP/cucumber/cucumber-messages.ndjson"             --cucumber-root bdd             --metadata "$RUNNER_TEMP/assurance/self.meta.json"             --state-dir "$RUNNER_TEMP/assurance/state"             --report "$RUNNER_TEMP/assurance/self-report.json"             --manifest "$RUNNER_TEMP/assurance/self-manifest.json"             --summary "$GITHUB_STEP_SUMMARY"             --evaluator-revision "$EVALUATOR_REVISION"             2> "$RUNNER_TEMP/assurance/self-diagnostic.json"
+          printf '{"repository_id":"gherkin-knowledge-graph","tested_commit":"%s"}' "$TESTED_COMMIT" \
+            > "$RUNNER_TEMP/assurance/self.meta.json"
+          uv run --project backend python tools/assurance.py self-assure \
+            --repo-root . --repository-id gherkin-knowledge-graph \
+            --tested-commit "$TESTED_COMMIT" \
+            --cucumber-report "$RUNNER_TEMP/cucumber/cucumber-messages.ndjson" \
+            --cucumber-root bdd \
+            --metadata "$RUNNER_TEMP/assurance/self.meta.json" \
+            --state-dir "$RUNNER_TEMP/assurance/state" \
+            --report "$RUNNER_TEMP/assurance/self-report.json" \
+            --manifest "$RUNNER_TEMP/assurance/self-manifest.json" \
+            --summary "$GITHUB_STEP_SUMMARY" \
+            --deny-network \
+            2> "$RUNNER_TEMP/assurance/self-diagnostic.json"
 
       - name: Upload the self-assurance report, manifest, and diagnostic
         if: always()

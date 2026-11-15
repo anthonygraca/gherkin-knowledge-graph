@@ -123,7 +123,7 @@ Given('no model provider is enabled', function () {
 When('the assurance command ingests and evaluates that commit', function () {
   this.results.assurance = evaluate(this, 'baseline-b', {
     deny_network: this.results.denyNetwork,
-    evaluator_revision: 'cta@test+assurance',
+    evaluator_revision: 'cta@0.1.0+test+assurance',
   });
   this.results.report = this.results.assurance.report;
   this.results.reportPath = save(this, 'baseline-b-report.json', this.results.report);
@@ -148,7 +148,7 @@ Then(
 );
 
 Then('the report records the CTA evaluator revision and input content hashes', function () {
-  assert.match(this.results.report.evaluator_revision, /^cta@test\+assurance$/);
+  assert.match(this.results.report.evaluator_revision, /^cta@0\.1\.0\+test\+assurance$/);
   assert.ok(this.results.report.inputs.length > 0);
   assert.ok(
     this.results.report.inputs
@@ -426,7 +426,7 @@ Given('a completed deterministic assurance report contains findings', function (
     encoding: 'utf8',
   });
   const result = evaluate(this, 'baseline-b', {
-    evaluator_revision: 'cta@test+assurance',
+    evaluator_revision: 'cta@0.1.0+test+assurance',
   });
   this.results.report = result.report;
   this.results.manifest = result.manifest;
@@ -497,7 +497,7 @@ Given(
   function (first, second) {
     this.results.reports = {};
     for (const baseline of [first, second]) {
-      const result = evaluate(this, baseline, { evaluator_revision: 'cta@test+assurance' });
+      const result = evaluate(this, baseline, { evaluator_revision: 'cta@0.1.0+test+assurance' });
       this.results.reports[baseline] = save(this, `${baseline}.json`, result.report);
     }
   },
@@ -552,7 +552,7 @@ Then('no verification evidence or requirement verdict is created', function () {
 });
 
 Given('a complete assurance report for banking-demo baseline-a', function () {
-  const result = evaluate(this, 'baseline-a', { evaluator_revision: 'cta@test+assurance' });
+  const result = evaluate(this, 'baseline-a', { evaluator_revision: 'cta@0.1.0+test+assurance' });
   this.results.reportPath = save(this, 'baseline-a.json', result.report);
 });
 
@@ -563,7 +563,7 @@ When('that report is compared with itself', function () {
 Given(
   'two comparable finding reports contain the same rule, finding type, and artifact IDs',
   function () {
-    const result = evaluate(this, 'baseline-a', { evaluator_revision: 'cta@test+assurance' });
+    const result = evaluate(this, 'baseline-a', { evaluator_revision: 'cta@0.1.0+test+assurance' });
     const before = clone(result.report);
     const after = clone(result.report);
     before.run_id = 'payload-before';
@@ -592,10 +592,16 @@ Then('the finding is classified as unchanged', function () {
 });
 
 Then('its before and after finding payloads under the contract, including status and artifact revisions, are both retained', function () {
-  const pair = this.results.diff.diff.unchanged.find(
-    (item) => item.finding_id === this.results.diff.diff.unchanged[0].finding_id,
-  );
+  const pair = this.results.diff.diff.unchanged[0];
   assert.ok(pair);
+  const before = JSON.parse(fs.readFileSync(this.results.beforePayload, 'utf8')).findings.find(
+    (finding) => finding.finding_id === pair.finding_id,
+  );
+  const after = JSON.parse(fs.readFileSync(this.results.afterPayload, 'utf8')).findings.find(
+    (finding) => finding.finding_id === pair.finding_id,
+  );
+  assert.deepEqual(pair.before, before);
+  assert.deepEqual(pair.after, after);
   assert.notEqual(pair.before.explanation, pair.after.explanation);
 });
 
@@ -614,8 +620,8 @@ When('the reports are compared', function () {
 Given(
   'two otherwise-valid completed report inputs differ by {string}',
   function (condition) {
-    const first = evaluate(this, 'baseline-a', { evaluator_revision: 'cta@test+assurance' });
-    const second = evaluate(this, 'baseline-b', { evaluator_revision: 'cta@test+assurance' });
+    const first = evaluate(this, 'baseline-a', { evaluator_revision: 'cta@0.1.0+test+assurance' });
+    const second = evaluate(this, 'baseline-b', { evaluator_revision: 'cta@0.1.0+test+assurance' });
     const previous = clone(first.report);
     const current = clone(second.report);
     const rehashBoth = () => {
@@ -655,6 +661,9 @@ Given(
       rehashBoth();
     } else if (condition === 'a finding identity does not match its payload') {
       current.findings[0].finding_id = 'FND-0000000000000000';
+      rehashBoth();
+    } else if (condition === 'an unsupported report version') {
+      current.report_version = '999.0';
       rehashBoth();
     } else if (condition === 'a report digest does not match its contents') {
       current.findings[0].explanation = 'tampered without rehashing';

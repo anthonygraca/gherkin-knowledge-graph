@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import StrEnum
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -93,11 +94,6 @@ class ReportFinding(_FrozenModel):
     execution_keys: list[str] = Field(default_factory=list)
     explanation: str = Field(min_length=1)
 
-    @field_validator("artifact_ids", "artifact_keys", "evidence_ids", "execution_keys")
-    @classmethod
-    def _sorted_unique(cls, value: list[str]) -> list[str]:
-        return sorted(set(value))
-
 
 class SourceDigest(_FrozenModel):
     path: str = Field(min_length=1)
@@ -113,7 +109,7 @@ class ExecutionReportProvenance(_FrozenModel):
 
 
 class AssuranceReport(_FrozenModel):
-    report_version: str = REPORT_VERSION
+    report_version: Literal["1.0"] = "1.0"
     run_id: str = Field(min_length=1)
     generated_at: datetime
     scope: AssuranceScope
@@ -159,6 +155,12 @@ class AssuranceReport(_FrozenModel):
         if self.tool_outcome is ToolOutcome.COMPLETED:
             if self.evaluated_revision is None:
                 raise ValueError("a completed report requires evaluated_revision")
+            for entry in self.inputs:
+                if entry.required and (not entry.available or entry.digest is None):
+                    raise ValueError(
+                        "a completed report requires every required input to be available "
+                        "and digested"
+                    )
             if self.incomplete_reason is not None:
                 raise ValueError("a completed report cannot have incomplete_reason")
             if self.failure_stage is not None or self.failure_code is not None:
@@ -233,7 +235,7 @@ class InputManifest(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    manifest_version: str = REPORT_VERSION
+    manifest_version: Literal["1.0"] = "1.0"
     report_digest: str = Field(pattern=DIGEST_PATTERN)
     scope: AssuranceScope
     repository: str = Field(min_length=1)

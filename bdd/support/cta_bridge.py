@@ -541,8 +541,7 @@ def op_assurance(args: dict) -> dict:
     manifest_path = Path(args["manifest"]) if args.get("manifest") else state / "manifest.json"
     summary_path = state / "summary.md"
     diff_path = state / "diff.json"
-    for stale in (report_path, manifest_path, summary_path, diff_path):
-        stale.unlink(missing_ok=True)
+    diff_path.unlink(missing_ok=True)
     if command == "evaluate":
         argv.extend(
             [
@@ -557,7 +556,7 @@ def op_assurance(args: dict) -> dict:
                 "--summary",
                 str(summary_path),
                 "--evaluator-revision",
-                args.get("evaluator_revision", "cta@test+assurance"),
+                args.get("evaluator_revision", "cta@0.1.0+test+assurance"),
             ]
         )
         if args.get("fixture_repo"):
@@ -599,7 +598,7 @@ def op_assurance(args: dict) -> dict:
                 "--summary",
                 str(summary_path),
                 "--evaluator-revision",
-                args.get("evaluator_revision", "cta@test+assurance"),
+                args.get("evaluator_revision", "cta@0.1.0+test+assurance"),
             ]
         )
     elif command == "diff":

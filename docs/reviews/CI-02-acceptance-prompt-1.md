@@ -14,9 +14,9 @@ for read-only `gh` verification.
 ## Snapshot
 
 * PR: `#78` (`feat/36-37-m4-assurance` → `main`)
-* Head commit: `7ed56c28ffc33552eab2575e501dd5292e522180`
+* Head commit: `4df96be60bb3e05388c1886c6cd9bad3ffd368b9`
 * Base: `b6e6931c90f527fa4009a9ba9e9b11f92f9f315e`
-* Hosted CI: run `43695481792`; inspect the exact job/artifact conclusions.
+* Hosted CI: run `43698670353`; inspect the exact job/artifact conclusions.
 
 ## Evidence to inspect
 

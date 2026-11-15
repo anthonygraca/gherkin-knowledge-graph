@@ -14,10 +14,10 @@ for read-only `gh` verification.
 ## Snapshot
 
 * PR: `#78` (`feat/36-37-m4-assurance` → `main`)
-* Head commit: `7ed56c28ffc33552eab2575e501dd5292e522180`
+* Head commit: `4df96be60bb3e05388c1886c6cd9bad3ffd368b9`
 * Base: `b6e6931c90f527fa4009a9ba9e9b11f92f9f315e`
-* Hosted CI: run `43695481792`. Inspect the exact job/artifact conclusions with
-  `gh run view 43695481792 --json databaseId,conclusion,status,headSha,jobs` and `gh pr checks 78`.
+* Hosted CI: run `43698670353`. Inspect the exact job/artifact conclusions with
+  `gh run view 43698670353 --json databaseId,conclusion,status,headSha,jobs` and `gh pr checks 78`.
 
 ## Evidence to inspect
 

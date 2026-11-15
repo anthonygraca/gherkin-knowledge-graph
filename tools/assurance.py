@@ -28,7 +28,7 @@ from app.assurance.reporting import (
     digest_bytes,
     evaluator_revision,
     incomplete_report,
-    load_report,
+    load_report_pair,
     refusal_diagnostic,
     requirement_inputs,
     requirement_report,
@@ -49,7 +49,7 @@ from app.domain.assurance_report import (
 )
 from app.domain.enums import ReviewState
 from app.domain.errors import ReportsNotComparable
-from app.domain.portable import ExecutionImportRequest
+from app.domain.portable import ExecutionImportRequest, ExecutionOutcome
 from app.persistence.ingested import IngestedStore
 from app.persistence.portable import PortableRegistry
 from app.settings import Settings
@@ -110,12 +110,38 @@ def _outside(path: Path, roots: tuple[Path, ...]) -> None:
             )
 
 
-def _summary(path: Path, lines: list[str]) -> None:
+def _summary(path: Path | None, lines: list[str]) -> None:
     if path is None:
         return
     path.parent.mkdir(parents=True, exist_ok=True)
     existing = path.read_text("utf-8") if path.is_file() else ""
     path.write_text(existing + "\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _clear_outputs(paths: tuple[Path | None, ...]) -> None:
+    for path in paths:
+        if path is None:
+            continue
+        try:
+            path.unlink(missing_ok=True)
+        except OSError as exc:
+            try:
+                path.write_text("", encoding="utf-8")
+            except OSError:
+                pass
+            raise _CliFailure(
+                f"report destination cannot be cleared safely: {exc}",
+                stage=FailureStage.WRITE,
+                code="report-unwritable",
+            ) from exc
+
+
+def _publication_failure(exc: Exception) -> int:
+    print(
+        json.dumps({"code": "publication-failed", "reason": f"{type(exc).__name__}: {exc}"}),
+        file=sys.stderr,
+    )
+    return 2
 
 
 def _normalize_uris(path: Path, *, cucumber_root: Path, repo_root: Path, state_dir: Path) -> Path:
@@ -168,10 +194,15 @@ def _evaluate(args: argparse.Namespace) -> int:
         _deny_external_network()
     settings: Settings | None = None
     commit: str | None = None
+    safe_report: Path | None = None
+    safe_manifest: Path | None = None
+    collected_inputs: list[ReportInput] = []
     try:
         settings = _settings(args)
         _outside(args.report, (settings.fixture_repo, settings.fixtures_dir))
         _outside(args.manifest, (settings.fixture_repo, settings.fixtures_dir))
+        safe_report, safe_manifest = args.report, args.manifest
+        _clear_outputs((safe_report, safe_manifest))
         store = IngestedStore.from_settings(settings)
         canonical = store.resolve_baseline(args.baseline)
         commit = store.commit_of(canonical)
@@ -207,6 +238,7 @@ def _evaluate(args: argparse.Namespace) -> int:
             historical_inputs=historical.values(),
             fixture_manifest_digest=digest_bytes(settings.baselines_manifest_path.read_bytes()),
         )
+        collected_inputs = list(inputs)
         report = requirement_report(
             repository=settings.fixture,
             baseline=canonical,
@@ -225,19 +257,22 @@ def _evaluate(args: argparse.Namespace) -> int:
                 stage=FailureStage.WRITE,
                 code="report-unwritable",
             ) from exc
-        _summary(
-            args.summary,
-            [
-                "# Assurance report",
-                f"- scope: {report.scope.value}",
-                f"- repository: {report.repository}",
-                f"- baseline: {report.baseline}",
-                f"- evaluated revision: {report.evaluated_revision}",
-                f"- evaluator revision: {report.evaluator_revision}",
-                f"- findings: {len(report.findings)}",
-                f"- report digest: {report.report_digest}",
-            ],
-        )
+        try:
+            _summary(
+                args.summary,
+                [
+                    "# Assurance report",
+                    f"- scope: {report.scope.value}",
+                    f"- repository: {report.repository}",
+                    f"- baseline: {report.baseline}",
+                    f"- evaluated revision: {report.evaluated_revision}",
+                    f"- evaluator revision: {report.evaluator_revision}",
+                    f"- findings: {len(report.findings)}",
+                    f"- report digest: {report.report_digest}",
+                ],
+            )
+        except Exception as exc:  # noqa: BLE001 - publisher failure is not evaluator failure
+            return _publication_failure(exc)
         return 0
     except _CliFailure as exc:
         report = incomplete_report(
@@ -248,14 +283,14 @@ def _evaluate(args: argparse.Namespace) -> int:
             evaluated_revision=commit,
             evaluator_revision_value=args.evaluator_revision or evaluator_revision(REPO_ROOT),
             rule_scope=REQUIREMENT_RULES,
-            inputs=[],
+            inputs=collected_inputs,
             reason=str(exc),
             stage=exc.stage,
             code=exc.code,
             run_id=args.run_id,
             generated_at=_generated_at(args.generated_at),
         )
-        return _diagnostic(report, args.report, args.manifest)
+        return _diagnostic(report, safe_report, safe_manifest)
     except Exception as exc:  # noqa: BLE001 - tool failures become incomplete diagnostics
         report = incomplete_report(
             scope=AssuranceScope.REQUIREMENT_ASSURANCE,
@@ -265,14 +300,14 @@ def _evaluate(args: argparse.Namespace) -> int:
             evaluated_revision=commit,
             evaluator_revision_value=args.evaluator_revision or evaluator_revision(REPO_ROOT),
             rule_scope=REQUIREMENT_RULES,
-            inputs=[],
+            inputs=collected_inputs,
             reason=f"{type(exc).__name__}: {exc}",
             stage=FailureStage.RESOLUTION if commit is None else FailureStage.INPUT,
             code="revision-unknown" if commit is None else "input-unreadable",
             run_id=args.run_id,
             generated_at=_generated_at(args.generated_at),
         )
-        return _diagnostic(report, args.report, args.manifest)
+        return _diagnostic(report, safe_report, safe_manifest)
 
 
 def _self_assure(args: argparse.Namespace) -> int:
@@ -280,16 +315,31 @@ def _self_assure(args: argparse.Namespace) -> int:
         _deny_external_network()
     registry = PortableRegistry()
     tested_commit: str | None = None
+    safe_report: Path | None = None
+    safe_manifest: Path | None = None
+    collected_inputs: list[ReportInput] = []
     try:
+        _outside(args.report, (args.repo_root,))
+        _outside(args.manifest, (args.repo_root,))
+        safe_report, safe_manifest = args.report, args.manifest
+        _clear_outputs((safe_report, safe_manifest))
         report_path = args.cucumber_report.expanduser().resolve()
         if not report_path.is_file():
+            collected_inputs = [
+                ReportInput(
+                    kind="execution_report",
+                    path=str(report_path),
+                    revision=args.tested_commit,
+                    digest=None,
+                    available=False,
+                    required=True,
+                )
+            ]
             raise _CliFailure(
                 f"execution report is missing: {report_path}",
                 stage=FailureStage.INPUT,
                 code="execution-report-missing",
             )
-        _outside(args.report, (args.repo_root,))
-        _outside(args.manifest, (args.repo_root,))
         report_path = _normalize_uris(
             report_path,
             cucumber_root=args.cucumber_root.resolve(),
@@ -308,16 +358,33 @@ def _self_assure(args: argparse.Namespace) -> int:
             )
         metadata = metadata.expanduser().resolve()
         if not metadata.is_file():
+            collected_inputs.append(
+                ReportInput(
+                    kind="provenance_sidecar",
+                    path=str(metadata),
+                    revision=args.tested_commit,
+                    digest=None,
+                    available=False,
+                    required=True,
+                )
+            )
             raise _CliFailure(
                 f"execution-report provenance sidecar is missing: {metadata}",
                 stage=FailureStage.INPUT,
                 code="provenance-missing",
             )
-        summary = registry.index(
-            args.repo_root,
-            repository_id=args.repository_id,
-            revision=args.tested_commit,
-        )
+        try:
+            summary = registry.index(
+                args.repo_root,
+                repository_id=args.repository_id,
+                revision=args.tested_commit,
+            )
+        except Exception as exc:  # noqa: BLE001 - an unresolvable revision is a tool failure
+            raise _CliFailure(
+                f"evaluated revision {args.tested_commit!r} cannot be resolved: {exc}",
+                stage=FailureStage.RESOLUTION,
+                code="revision-unknown",
+            ) from exc
         tested_commit = summary.revision
         snapshot = registry.snapshot(args.repository_id, tested_commit)
         report_data, _ = registry.import_report(
@@ -328,34 +395,7 @@ def _self_assure(args: argparse.Namespace) -> int:
                 tested_commit=tested_commit,
             ),
         )
-        indexed = {feature.path: feature.content_hash for feature in snapshot.features}
-        for uri, digest in report_data.sources:
-            if indexed.get(uri) != digest:
-                raise _CliFailure(
-                    f"execution report source {uri!r} does not match the indexed feature bytes",
-                    stage=FailureStage.REPORT_PARSE,
-                    code="report-provenance-mismatch",
-                )
-        findings, _ = registry.findings(args.repository_id, tested_commit)
-        coverage_data = registry.coverage(args.repository_id, tested_commit)
-        coverage = Coverage(
-            available=True,
-            features_indexed=len(snapshot.features),
-            features_covered_by_report=len({uri for uri, _ in report_data.sources}),
-            scenarios_total=coverage_data.scenarios_total,
-            scenarios_executed=coverage_data.scenarios_executed,
-            scenarios_skipped=0,
-            scenarios_unknown=coverage_data.scenarios_without_execution,
-            diagnostics=[diagnostic.code for diagnostic in snapshot.diagnostics],
-        )
-        execution = ExecutionReportProvenance(
-            report_digest=report_data.report_digest,
-            tested_commit=tested_commit,
-            adapter=report_data.adapter,
-            sources=[SourceDigest(path=uri, digest=digest) for uri, digest in report_data.sources],
-            metadata_digest=digest_bytes(metadata.read_bytes()),
-        )
-        inputs = [
+        collected_inputs = [
             ReportInput(
                 kind="execution_report",
                 path=str(report_path),
@@ -368,27 +408,67 @@ def _self_assure(args: argparse.Namespace) -> int:
                 revision=tested_commit,
                 digest=digest_bytes(metadata.read_bytes()),
             ),
-            *[
-                ReportInput(
-                    kind="feature",
-                    path=path,
-                    revision=tested_commit,
-                    digest=digest,
-                )
-                for path, digest in sorted(indexed.items())
-            ],
+        ]
+        indexed = {feature.path: feature.content_hash for feature in snapshot.features}
+        collected_inputs.extend(
+            ReportInput(
+                kind="feature",
+                path=path,
+                revision=tested_commit,
+                digest=digest,
+            )
+            for path, digest in sorted(indexed.items())
+        )
+        collected_inputs.append(
             ReportInput(
                 kind="policy",
                 id="default",
                 digest=digest_bytes(b'{"policy":"default","policy_version":"1"}'),
-            ),
-        ]
+            )
+        )
+        for uri, digest in report_data.sources:
+            if indexed.get(uri) != digest:
+                raise _CliFailure(
+                    f"execution report source {uri!r} does not match the indexed feature bytes",
+                    stage=FailureStage.REPORT_PARSE,
+                    code="report-provenance-mismatch",
+                )
+        findings, _ = registry.findings(args.repository_id, tested_commit)
+        coverage_data = registry.coverage(args.repository_id, tested_commit)
+        skipped = len(
+            {
+                execution.scenario_key
+                for execution in report_data.executions
+                if execution.outcome is ExecutionOutcome.SKIPPED
+            }
+        )
+        unknown = max(
+            0,
+            coverage_data.scenarios_total - coverage_data.scenarios_executed - skipped,
+        )
+        coverage = Coverage(
+            available=True,
+            features_indexed=len(snapshot.features),
+            features_covered_by_report=len({uri for uri, _ in report_data.sources}),
+            scenarios_total=coverage_data.scenarios_total,
+            scenarios_executed=coverage_data.scenarios_executed,
+            scenarios_skipped=skipped,
+            scenarios_unknown=unknown,
+            diagnostics=[diagnostic.code for diagnostic in snapshot.diagnostics],
+        )
+        execution = ExecutionReportProvenance(
+            report_digest=report_data.report_digest,
+            tested_commit=tested_commit,
+            adapter=report_data.adapter,
+            sources=[SourceDigest(path=uri, digest=digest) for uri, digest in report_data.sources],
+            metadata_digest=digest_bytes(metadata.read_bytes()),
+        )
         report = self_report(
             repository=args.repository_id,
             tested_commit=tested_commit,
             evaluator_revision_value=args.evaluator_revision or evaluator_revision(REPO_ROOT),
             findings=findings,
-            inputs=inputs,
+            inputs=collected_inputs,
             coverage=coverage,
             execution_report=execution,
             run_id=args.run_id,
@@ -402,18 +482,21 @@ def _self_assure(args: argparse.Namespace) -> int:
                 stage=FailureStage.WRITE,
                 code="report-unwritable",
             ) from exc
-        _summary(
-            args.summary,
-            [
-                "# Self-assurance report",
-                f"- scope: {report.scope.value}",
-                f"- repository: {report.repository}",
-                f"- evaluated revision: {report.evaluated_revision}",
-                f"- evaluator revision: {report.evaluator_revision}",
-                f"- findings: {len(report.findings)}",
-                f"- execution report digest: {report.execution_report.report_digest}",
-            ],
-        )
+        try:
+            _summary(
+                args.summary,
+                [
+                    "# Self-assurance report",
+                    f"- scope: {report.scope.value}",
+                    f"- repository: {report.repository}",
+                    f"- evaluated revision: {report.evaluated_revision}",
+                    f"- evaluator revision: {report.evaluator_revision}",
+                    f"- findings: {len(report.findings)}",
+                    f"- execution report digest: {report.execution_report.report_digest}",
+                ],
+            )
+        except Exception as exc:  # noqa: BLE001 - publisher failure is not evaluator failure
+            return _publication_failure(exc)
         return 0
     except _CliFailure as exc:
         report = incomplete_report(
@@ -424,14 +507,14 @@ def _self_assure(args: argparse.Namespace) -> int:
             evaluated_revision=tested_commit,
             evaluator_revision_value=args.evaluator_revision or evaluator_revision(REPO_ROOT),
             rule_scope=PORTABLE_RULES,
-            inputs=[],
+            inputs=collected_inputs,
             reason=str(exc),
             stage=exc.stage,
             code=exc.code,
             run_id=args.run_id,
             generated_at=_generated_at(args.generated_at),
         )
-        return _diagnostic(report, args.report, args.manifest)
+        return _diagnostic(report, safe_report, safe_manifest)
     except Exception as exc:  # noqa: BLE001 - tool failures become incomplete diagnostics
         report = incomplete_report(
             scope=AssuranceScope.GHERKIN_EXECUTABILITY,
@@ -441,20 +524,19 @@ def _self_assure(args: argparse.Namespace) -> int:
             evaluated_revision=tested_commit,
             evaluator_revision_value=args.evaluator_revision or evaluator_revision(REPO_ROOT),
             rule_scope=PORTABLE_RULES,
-            inputs=[],
+            inputs=collected_inputs,
             reason=f"{type(exc).__name__}: {exc}",
             stage=FailureStage.REPORT_PARSE,
             code="report-malformed",
             run_id=args.run_id,
             generated_at=_generated_at(args.generated_at),
         )
-        return _diagnostic(report, args.report, args.manifest)
+        return _diagnostic(report, safe_report, safe_manifest)
 
 
 def _diff(args: argparse.Namespace) -> int:
     try:
-        previous = load_report(args.previous, side="previous")
-        current = load_report(args.current, side="current")
+        previous, current = load_report_pair(args.previous, args.current)
         diff = compare_reports(previous, current)
     except ReportsNotComparable as exc:
         print(canonical_json(refusal_diagnostic(exc)), file=sys.stdout)
