@@ -10,7 +10,7 @@
 |---|---|
 |`uv run --project backend pytest backend/tests/test_local_embedding.py -q`|**18 passed**|
 |`npx cucumber-js --tags @AI-02` (offline scenarios SCN-3201…3204, 3206; SCN-3203 outline ×3)|**7 scenarios / 73 steps passed**|
-|`uv run --project backend pytest backend/tests -q`|**544 passed, 4 skipped** (final close-out suite)|
+|`uv run --project backend pytest backend/tests -q`|**552 passed, 4 skipped** (final close-out suite)|
 
 The offline scenarios cover: default `fake` with no model/runtime import and no socket attempt
 (SCN-3201); remote endpoint `400 invalid-request` before any connection (SCN-3202); absent weights,
