@@ -1,7 +1,8 @@
-# Canonical acceptance specification for CI-02 (#37), M4 — REFINEMENT DRAFT / GATED.
-# Implementation follows CI-01 and the M3 gate. Portable-locator comparison requires an owner
-# disposition on comparison identity. See docs/adr/0012-closeout-scope-decisions.md.
-@CI-02 @issue-37 @M4 @refinement-draft
+# Canonical acceptance specification for CI-02 (#37), M4.
+# Specification APPROVED by docs/reviews/CI-02-spec-review-4.md; ADR 0012 §3 is accepted and the M3
+# gate is approved by docs/reviews/M3-review-2.md. Report/comparison contract:
+# docs/assurance-report-contract.md.
+@CI-02 @issue-37 @M4
 Feature: CI-02: Comparable finding sets are classified by stable identity
   Finding identity is the existing stable fingerprint. Comparison requires complete, comparable,
   revision-bound reports; absence does not imply remediation.
@@ -10,7 +11,7 @@ Feature: CI-02: Comparable finding sets are classified by stable identity
 
     @SCN-3501
     Scenario: Compare the hand-labeled banking baselines
-      Given complete comparable assurance reports for banking-demo baseline-a and baseline-b
+      Given completed comparable assurance reports under the report contract for banking-demo baseline-a and baseline-b
       When the findings diff command compares baseline-a to baseline-b
       Then it reports 2 new findings
       And it reports 4 unchanged findings
@@ -20,7 +21,7 @@ Feature: CI-02: Comparable finding sets are classified by stable identity
 
     @SCN-3502
     Scenario: Reverse comparison exposes the resolved category
-      Given complete comparable assurance reports for banking-demo baseline-a and baseline-b
+      Given completed comparable assurance reports under the report contract for banking-demo baseline-a and baseline-b
       When the findings diff command compares baseline-b to baseline-a
       Then it reports 0 new findings
       And it reports 4 unchanged findings
@@ -42,14 +43,14 @@ Feature: CI-02: Comparable finding sets are classified by stable identity
       And those findings have different explanations and evidence references
       When the reports are compared
       Then the finding is classified as unchanged
-      And its before and after payloads are both retained
+      And its before and after finding payloads under the contract, including status and artifact revisions, are both retained
       And neither payload is rewritten
 
   Rule: Unknown or incompatible inputs cannot imply resolution
 
     @SCN-3505
     Scenario Outline: Refuse an invalid comparison
-      Given two report inputs differ by "<condition>"
+      Given two otherwise-valid completed report inputs differ by "<condition>"
       When the findings diff command compares them
       Then it exits 2 with code "findings-not-comparable"
       And it identifies the invalid input and reason
@@ -63,13 +64,20 @@ Feature: CI-02: Comparable finding sets are classified by stable identity
         | repository identities differ             |
         | evaluated rule scopes differ             |
         | policy versions differ                   |
+        | evaluator revisions differ               |
         | a finding baseline contradicts its report|
+        | duplicate finding identities             |
+        | a finding identity does not match its payload |
+        | a report digest does not match its contents |
+        | an unsupported report version |
 
     @SCN-3506
     Scenario: Source locators alone do not establish cross-revision continuity
       Given two portable finding reports use source-locator identities
-      And no reviewed continuity mapping accompanies them
+      And no reviewed continuity mapping is implemented for these reports
+      And a claimed mapping is not trusted
       When the findings diff command compares those reports
       Then it exits 2 with code "findings-not-comparable"
       And it reports that stable cross-revision identity is unavailable
+      And it returns no new, unchanged, or resolved classification
       And it does not classify displaced findings as resolved and new

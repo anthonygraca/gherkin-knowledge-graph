@@ -60,16 +60,8 @@ DISPOSITIONS: dict[str, dict[str, str]] = {
         "docs/reports/omp-closeout/AI-02-EVIDENCE.md.",
     },
     "docs/stories/AI-03.feature": {"status": "executed", "reason": ""},
-    "docs/stories/CI-01.feature": {
-        "status": "refinement",
-        "reason": "Refinement draft; M4 implementation gated by M3 exit and owner "
-        "acceptance of the two-scope framing.",
-    },
-    "docs/stories/CI-02.feature": {
-        "status": "refinement",
-        "reason": "Refinement draft; M4 implementation follows CI-01; portable locator "
-        "comparison needs owner disposition.",
-    },
+    "docs/stories/CI-01.feature": {"status": "executed", "reason": ""},
+    "docs/stories/CI-02.feature": {"status": "executed", "reason": ""},
     "docs/stories/AI-05.feature": {"status": "executed", "reason": ""},
     "docs/stories/AI-07.feature": {"status": "executed", "reason": ""},
     "docs/stories/AI-08.feature": {"status": "executed", "reason": ""},

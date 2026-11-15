@@ -2,10 +2,10 @@
 
 ```text
 Date:                2026-11-15
-Current branch:      main at 4e4b305 (PRs #75/#76 merged)
-Milestone:           M0, M1, and expanded M2 gates SATISFIED; M3 gate APPROVED by independent
-                     review 2 at 4e4b305 (docs/reviews/M3-review-2.md); M4 CI-01/CI-02 not started
-Active task:         M4 — revision-triggered assurance and finding-set diff
+Current branch:      main at b6e6931 + M4 PR #78 (accepted at 0aa9c6a; merge pending)
+Milestone:           M0, M1, expanded M2, and M3 gates SATISFIED; M4 CI-01/CI-02 acceptance APPROVED
+                     at 0aa9c6a; merge and the independent M4 milestone review remain
+Active task:         M4 milestone review and final closeout
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
                      docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
                      NEEDS_INPUT; R1–R7 all repaired; AC-1.1…AC-1.8 and AC-2.1…AC-2.5 all PASS;
@@ -47,18 +47,20 @@ Independent review:  docs/reviews/M0-review.md — first review: "M0 not verifie
                      integration); repaired by PR #76
                      docs/reviews/M3-review-2.md — M3 APPROVE at 4e4b305; M3-R1 closed; one
                      nonblocking documentation finding (R2) repaired by this record
+                     docs/reviews/CI-01-acceptance-5.md and CI-01-acceptance-6.md — CI-01 APPROVE
+                     docs/reviews/CI-02-acceptance-5.md — CI-02 R6; CI-02-acceptance-6.md — APPROVE
+                     at 0aa9c6a
                      Historical (SETUP-01, 2026-11-12): the commit-reference slice landed via PR #42; commitlint
                      green on the landed history (9 commits); the M0 approved snapshot bca69cf
                      had 107 passed; the SETUP-01 tree then had 135 passed (also under an
                      OS-level network denial). Outstanding owner actions: #18/#19 closure, the
                      FT-03/project-definition reviews, the required-check ruleset, README work item.
-Tests executed:      Merged main at 4e4b305 (2026-11-15): backend 553 passed / 4 opt-in skips;
-                     Cucumber 177 scenarios / 1704 steps passed; strict step gate ok; fixturectl
+Tests executed:      M4 accepted snapshot (2026-11-15): backend 553 passed / 4 opt-in skips;
+                     Cucumber 203 scenarios / 1972 steps passed; strict step gate ok; fixturectl
                      verify exit 0; ruff check + format clean; `git diff --check` clean; feature
-                     inventory regenerated (41 files); frontend build + 14 tests passed; AI-02 live
-                     pytest 1 passed and SCN-3205 1 scenario / 14 steps under `unshare -rn`.
-                     Close-out PR #75 hosted run 43682516693 green; binding-repair PR #76 run
-                     43686600314 green; main merge runs 43683744000 and 43687159833 green.
+                     inventory regenerated (41 files); frontend build + 14 tests passed.
+                     Hosted M4 run 43713557672 passed all six jobs, including banking and portable
+                     self-assurance. M3 close-out evidence remains in the historical sections.
                      Historical — Expanded-M2 slice (after review-3 repairs): backend 443 passed / 3 opt-in skips; frontend 13 passed;
                      fixturectl verify exit 0; ruff check + format clean; `git diff --check` clean.
                      93 Cucumber scenarios passed (396 Gherkin steps + 372 hook steps); strict gate ok;

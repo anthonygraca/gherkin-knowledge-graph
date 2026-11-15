@@ -251,3 +251,15 @@ class ReviewStorageUnavailable(DomainError):
     def __init__(self, detail: str, *, durability: str = "not_committed") -> None:
         super().__init__(detail)
         self.durability = durability
+
+
+class ReportsNotComparable(DomainError):
+    """Two assurance reports cannot be compared without inventing a classification."""
+
+    code = "findings-not-comparable"
+    title = "Findings not comparable"
+    status = 400
+
+    def __init__(self, detail: str, *, invalid_input: str) -> None:
+        super().__init__(detail)
+        self.invalid_input = invalid_input

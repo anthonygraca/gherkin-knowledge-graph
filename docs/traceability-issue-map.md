@@ -57,6 +57,7 @@ Retrieval has AI-01 in M0 and AI-02/AI-03 in M3. Stories whose slice has no mile
 
 | Roadmap | Issue | Feature | Slice | Owner | Title |
 | --- | --- | --- | --- | --- | --- |
+| F-10 | [#16](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/16) | F-10 | M4 | shared | Automation — revision-triggered assurance and baseline diff (parent feature) |
 | SETUP-01 | [#8](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/8) | F-01 | M0 | shared | Initial repository setup and commit↔issue traceability |
 | FT-01 | [#18](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/18) | F-01 | M0 | B lead | Deterministic fixture repository and hand-labeled oracle |
 | FT-02 | [#19](https://github.com/anthonygraca/gherkin-knowledge-graph/issues/19) | F-01 | M0 | B lead | Versioned contracts with fixture-backed mock responses |
