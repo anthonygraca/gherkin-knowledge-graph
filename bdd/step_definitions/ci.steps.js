@@ -43,14 +43,22 @@ function evaluate(world, baseline, extra = {}) {
   return result;
 }
 
-function selfAssure(world, { failed = false, metadata = null } = {}) {
+function selfAssure(world, { failed = false, metadata = null, probe = null } = {}) {
+  const fixture =
+    probe ??
+    world.call('assurance_fixture', {
+      feature: 'docs/stories/CI-01.feature',
+      failed,
+    });
   const result = assurance(world, {
     command: 'self',
     repository_id: 'gherkin-knowledge-graph',
-    tested_commit: HEAD(),
-    cucumber_report: failed ? FAILED_REPORT : FINAL_REPORT,
-    ...(metadata ? { metadata } : {}),
+    tested_commit: fixture.tested_commit,
+    cucumber_report: fixture.report,
+    cucumber_root: '.',
+    metadata: metadata ?? fixture.metadata,
   });
+  result.fixture = fixture;
   return result;
 }
 
@@ -234,11 +242,15 @@ Then(
 
 Given('a pinned CTA checkout and an attributable Cucumber report for that revision', function () {
   this.results.head = HEAD();
-  assert.ok(fs.existsSync(FINAL_REPORT));
+  this.results.probe = this.call('assurance_fixture', {
+    feature: 'docs/stories/CI-01.feature',
+    failed: false,
+  });
+  assert.ok(fs.existsSync(this.results.probe.report));
 });
 
 When('portable self-assurance evaluates the checkout with that report', function () {
-  const result = selfAssure(this);
+  const result = selfAssure(this, { probe: this.results.probe });
   assert.equal(result.status, 0, result.stderr);
   this.results.self = result;
   this.results.report = result.report;
@@ -290,16 +302,19 @@ Then('it makes no requirement-to-production-code verification claim', function (
 });
 
 Given('a valid deterministic Cucumber report records a failed scenario', function () {
-  this.results.failedReport = true;
-  assert.ok(fs.existsSync(FAILED_REPORT));
+  this.results.probe = this.call('assurance_fixture', {
+    feature: 'docs/stories/CI-01.feature',
+    failed: true,
+  });
+  assert.ok(fs.existsSync(this.results.probe.report));
 });
 
 Given('its provenance matches the evaluated repository revision', function () {
-  this.results.head = HEAD();
+  this.results.head = this.results.probe.tested_commit;
 });
 
 When('portable assurance ingests and evaluates that report', function () {
-  const result = selfAssure(this, { failed: true });
+  const result = selfAssure(this, { probe: this.results.probe });
   assert.equal(result.status, 0, result.stderr);
   this.results.self = result;
   this.results.report = result.report;
@@ -467,7 +482,7 @@ Then(
       result.report.findings.some((finding) => finding.finding_type === 'execution_failed'),
     );
     const envelopes = fs
-      .readFileSync(FAILED_REPORT, 'utf8')
+      .readFileSync(result.fixture.report, 'utf8')
       .split('\n')
       .filter(Boolean)
       .map((line) => JSON.parse(line));
@@ -675,7 +690,11 @@ Then('it returns no new, unchanged, or resolved classification', function () {
 });
 
 Given('two portable finding reports use source-locator identities', function () {
-  const result = selfAssure(this);
+  const probe = this.call('assurance_fixture', {
+    feature: 'docs/stories/CI-01.feature',
+    failed: false,
+  });
+  const result = selfAssure(this, { probe });
   assert.equal(result.status, 0);
   this.results.portable = save(this, 'portable.json', result.report);
 });

@@ -58,6 +58,21 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_FIXTURES = REPO_ROOT / "fixtures"
 
 
+def _deny_external_network() -> None:
+    """Reject non-loopback Python socket connections for this invocation."""
+    import socket
+
+    original = socket.socket.connect
+
+    def guarded(sock, address):  # type: ignore[no-untyped-def]
+        host = address[0] if isinstance(address, tuple) else str(address)
+        if host not in {"127.0.0.1", "::1", "localhost"}:
+            raise OSError("external network access denied by --deny-network")
+        return original(sock, address)
+
+    socket.socket.connect = guarded  # type: ignore[method-assign]
+
+
 class _CliFailure(RuntimeError):
     def __init__(self, detail: str, *, stage: FailureStage, code: str) -> None:
         super().__init__(detail)
@@ -149,6 +164,8 @@ def _diagnostic(
 
 
 def _evaluate(args: argparse.Namespace) -> int:
+    if args.deny_network:
+        _deny_external_network()
     settings: Settings | None = None
     commit: str | None = None
     try:
@@ -259,6 +276,8 @@ def _evaluate(args: argparse.Namespace) -> int:
 
 
 def _self_assure(args: argparse.Namespace) -> int:
+    if args.deny_network:
+        _deny_external_network()
     registry = PortableRegistry()
     tested_commit: str | None = None
     try:
@@ -481,6 +500,7 @@ def _parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--evaluator-revision")
     evaluate.add_argument("--run-id")
     evaluate.add_argument("--generated-at")
+    evaluate.add_argument("--deny-network", action="store_true")
     evaluate.set_defaults(func=_evaluate)
 
     self_assure = sub.add_parser("self-assure")
@@ -497,6 +517,7 @@ def _parser() -> argparse.ArgumentParser:
     self_assure.add_argument("--evaluator-revision")
     self_assure.add_argument("--run-id")
     self_assure.add_argument("--generated-at")
+    self_assure.add_argument("--deny-network", action="store_true")
     self_assure.set_defaults(func=_self_assure)
 
     diff = sub.add_parser("diff")

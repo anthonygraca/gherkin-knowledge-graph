@@ -519,6 +519,17 @@ def op_tracked(args: dict) -> dict:
     return {"files": [line for line in result.stdout.splitlines() if line]}
 
 
+def op_assurance_fixture(args: dict) -> dict:
+    from assurance_fixture import build_probe_report
+
+    state = Path(os.environ["CTA_BDD_STATE"]) / "assurance-fixture"
+    return build_probe_report(
+        state,
+        feature=args.get("feature", "docs/stories/CI-01.feature"),
+        failed=bool(args.get("failed", False)),
+    )
+
+
 def op_assurance(args: dict) -> dict:
     """Run the real M4 assurance CLI and return its artifacts."""
     state = Path(os.environ["CTA_BDD_STATE"]) / "assurance"
@@ -610,8 +621,8 @@ def op_assurance(args: dict) -> dict:
         argv.extend(["--event", str(event_path)])
     else:
         raise ValueError(f"unknown assurance command {command!r}")
-    if args.get("deny_network") and shutil.which("unshare"):
-        argv = ["unshare", "-rn", *argv]
+    if args.get("deny_network") and command in {"evaluate", "self"}:
+        argv.append("--deny-network")
     result = subprocess.run(
         argv,
         cwd=ROOT,
@@ -2071,6 +2082,7 @@ OPS = {
     "fixture_repo": op_fixture_repo,
     "inventory": op_inventory,
     "assurance": op_assurance,
+    "assurance_fixture": op_assurance_fixture,
     "tracked": op_tracked,
 }
 
