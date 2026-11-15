@@ -1785,6 +1785,8 @@ def op_local_embedding(args: dict) -> dict:
         index_started = time.perf_counter()
         binding = provider.binding_for("baseline-a")
         index_seconds = time.perf_counter() - index_started
+        expected_binding = "sha256:814eb9914310d4d18f68859fbb5e89230773f026a50e931cb16889b1e3eaac52"
+        assert binding == expected_binding
         latencies = []
         result_sets = {}
         for artifact_id in ("SCN-001", "REQ-001", "SCN-002"):
@@ -1794,6 +1796,12 @@ def op_local_embedding(args: dict) -> dict:
             result_sets[artifact_id] = [item.target_id for item in candidates]
         candidates = provider.discover("SCN-001", top_k=10, baseline="baseline-a")
         trimmed = provider.discover("SCN-001", top_k=1, baseline="baseline-a")
+        top_k_rejected = False
+        try:
+            provider.discover("SCN-001", top_k=0, baseline="baseline-a")
+        except ValueError:
+            top_k_rejected = True
+        assert top_k_rejected
         sources = provider.discover(
             "SCN-001", relation_types=["implemented_by"], baseline="baseline-a"
         )
@@ -1820,7 +1828,10 @@ def op_local_embedding(args: dict) -> dict:
         api_registry = ProviderRegistry(api_settings, api_app.state.store)
         api_registry._cache["local-embeddinggemma"] = provider
         api_app.state.providers = api_registry
-        empty = TestClient(api_app).post(
+        api = TestClient(api_app)
+        thread_before = api.get("/api/threads/REQ-001", params={"baseline": "baseline-a"})
+        assert thread_before.status_code == 200, thread_before.text
+        empty = api.post(
             "/api/discovery",
             json={
                 "artifact_id": "CODE-001",
@@ -1828,6 +1839,12 @@ def op_local_embedding(args: dict) -> dict:
                 "baseline": "baseline-a",
             },
         )
+        thread_after = api.get("/api/threads/REQ-001", params={"baseline": "baseline-a"})
+        assert thread_after.status_code == 200, thread_after.text
+        assert thread_after.json() == thread_before.json()
+        thread_body = thread_after.json()
+        assert isinstance(thread_body["accepted_links"], list)
+        assert isinstance(thread_body["proposed_links"], list)
         after = (
             store.list_links("baseline-a"),
             store.list_evidence("baseline-a"),
@@ -1863,6 +1880,12 @@ def op_local_embedding(args: dict) -> dict:
             "requirements": _jsonable(requirements),
             "empty_source": _jsonable(empty_source),
             "empty_response": {"status": empty.status_code, "body": empty.json()},
+            "expected_binding": expected_binding,
+            "binding_matches_fixture": binding == expected_binding,
+            "top_k_rejected": top_k_rejected,
+            "thread_accepted_links": thread_body["accepted_links"],
+            "thread_proposed_links": thread_body["proposed_links"],
+            "thread_equal": thread_after.json() == thread_before.json(),
             "no_link_fields": all(
                 not hasattr(item, "link_id") and not hasattr(item, "review_state")
                 for item in candidates

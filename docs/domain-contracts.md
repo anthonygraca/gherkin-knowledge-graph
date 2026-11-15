@@ -261,8 +261,9 @@ The exact model, weights digests, runtime, licence, hardware, formatting version
 and failure modes are recorded in
 `docs/reports/omp-closeout/AI-02-MODEL-MANIFEST.md`. A remote endpoint is `400 invalid-request`
 before any connection; missing weights, a digest mismatch, a missing runtime, or a non-finite/wrong
-dimension/zero embedding are `503 retrieval-unavailable`. The provider writes no accepted link,
-review state, evidence, or finding.
+dimension/zero embedding are `503 retrieval-unavailable` on `/api/discovery`; this is the AI-02
+provider-specific exception to the generic AS-07 `provider-unavailable` mapping. The provider writes
+no accepted link, review state, evidence, or finding.
 
 ## Retrieval lifecycle contracts (schema 0.8.0, additive; AI-03)
 

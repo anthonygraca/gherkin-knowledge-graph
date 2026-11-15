@@ -244,6 +244,11 @@ When('that runtime indexes baseline-a and executes the shared discovery contract
   assert.ok(result.empty_response.body.model_version);
   assert.equal(result.empty_response.body.index_revision, result.index_revision);
   assert.equal(result.no_link_fields, true);
+  assert.equal(result.top_k_rejected, true);
+  assert.equal(result.binding_matches_fixture, true);
+  assert.equal(result.thread_equal, true);
+  assert.ok(Array.isArray(result.thread_accepted_links));
+  assert.ok(Array.isArray(result.thread_proposed_links));
 });
 
 Then('the contract cases complete without external network access', function () {

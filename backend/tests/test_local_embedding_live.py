@@ -25,6 +25,11 @@ from app.persistence.ingested import IngestedStore
 from app.settings import Settings
 
 DEFAULT_MODEL_DIR = Path.home() / ".local/share/cta/models/embeddinggemma-2-text-270m-onnx"
+#: Reviewed fixed vector: SHA-256 over the baseline-a fixture artifact metadata and the accepted
+#: model manifest, computed independently of the provider. Do not derive this from `binding_for`.
+EXPECTED_BASELINE_A_BINDING = (
+    "sha256:814eb9914310d4d18f68859fbb5e89230773f026a50e931cb16889b1e3eaac52"
+)
 pytestmark = pytest.mark.skipif(
     os.environ.get("CTA_LOCAL_EMBEDDING_LIVE_TESTS") != "1",
     reason="set CTA_LOCAL_EMBEDDING_LIVE_TESTS=1 to run real local inference",
@@ -71,6 +76,7 @@ def test_local_embeddinggemma_live_contract(
     index_started = time.perf_counter()
     binding = provider.binding_for("baseline-a")
     index_seconds = time.perf_counter() - index_started
+    assert binding == EXPECTED_BASELINE_A_BINDING
     for artifact_id in queries:
         query_started = time.perf_counter()
         candidates = provider.discover(artifact_id, top_k=10, baseline="baseline-a")
@@ -98,6 +104,8 @@ def test_local_embeddinggemma_live_contract(
     trimmed = provider.discover("SCN-001", top_k=1, baseline="baseline-a")
     assert len(trimmed) == 1
     assert trimmed[0].rank == 1
+    with pytest.raises(ValueError):
+        provider.discover("SCN-001", top_k=0, baseline="baseline-a")
     implemented = provider.discover(
         "SCN-001", relation_types=[RelationType.IMPLEMENTED_BY], baseline="baseline-a"
     )
@@ -125,7 +133,10 @@ def test_local_embeddinggemma_live_contract(
     registry = ProviderRegistry(api_settings, app.state.store)
     registry._cache["local-embeddinggemma"] = provider
     app.state.providers = registry
-    empty = TestClient(app).post(
+    api = TestClient(app)
+    thread_before = api.get("/api/threads/REQ-001", params={"baseline": "baseline-a"})
+    assert thread_before.status_code == 200, thread_before.text
+    empty = api.post(
         "/api/discovery",
         json={
             "artifact_id": "CODE-001",
@@ -139,6 +150,12 @@ def test_local_embeddinggemma_live_contract(
     assert empty_body["provider"] == "local-embeddinggemma"
     assert empty_body["model_version"].startswith("embeddinggemma-2-text-270m-q8_0@sha256:")
     assert empty_body["index_revision"] == binding
+    thread_after = api.get("/api/threads/REQ-001", params={"baseline": "baseline-a"})
+    assert thread_after.status_code == 200, thread_after.text
+    assert thread_after.json() == thread_before.json()
+    thread_body = thread_after.json()
+    assert isinstance(thread_body["accepted_links"], list)
+    assert isinstance(thread_body["proposed_links"], list)
 
     after = (
         store.list_links("baseline-a"),
@@ -167,6 +184,12 @@ def test_local_embeddinggemma_live_contract(
         "index_seconds": round(index_seconds, 3),
         "query_latency_ms": [round(value, 1) for value in latencies],
         "median_query_latency_ms": round(statistics.median(latencies), 1),
+        "expected_binding": EXPECTED_BASELINE_A_BINDING,
+        "binding_matches_fixture": binding == EXPECTED_BASELINE_A_BINDING,
+        "top_k_rejected": True,
+        "thread_accepted_links": thread_body["accepted_links"],
+        "thread_proposed_links": thread_body["proposed_links"],
+        "thread_equal": thread_after.json() == thread_before.json(),
         "rss_before_kib": rss_before,
         "rss_after_kib": rss_after,
         "rss_delta_kib": (rss_after - rss_before) if rss_before and rss_after else None,

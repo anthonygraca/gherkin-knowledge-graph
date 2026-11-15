@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import json
+import threading
+import time
 from dataclasses import replace
 from pathlib import Path
 
@@ -19,6 +22,7 @@ from app.domain.models import TraceCandidate
 from app.domain.retrieval_lifecycle import (
     CombineRequest,
     IndexRefreshObservation,
+    ManifestListResponse,
     RetrievalConfig,
     SnapshotBoundBatch,
 )
@@ -469,3 +473,142 @@ def test_elapsed_includes_key_construction(
     )
     manifest = service.refresh("baseline-a", config=config())
     assert manifest.elapsed_ms == 1_000.0
+
+
+def test_repository_and_mislabeled_baseline_are_not_served(
+    store: IngestedStore, fixture_settings: Settings, tmp_path: Path
+) -> None:
+    service = lifecycle(store, fixture_settings, tmp_path)
+    manifest = service.refresh("baseline-a", config=config())
+    path = next((tmp_path / "retrieval-snapshots" / "snapshots").glob("snapshot-*.json"))
+    payload = json.loads(path.read_text("utf-8"))
+
+    payload["repository"] = "another-repository"
+    path.write_text(json.dumps(payload), "utf-8")
+    with pytest.raises(RetrievalSnapshotNotFound):
+        service.get(manifest.snapshot_binding)
+    with pytest.raises(RetrievalSnapshotNotFound):
+        service.manifest_for("baseline-a")
+    with pytest.raises(RetrievalSnapshotNotFound):
+        service.refresh("baseline-a", config=config())
+
+    payload["repository"] = "banking-demo"
+    payload["baseline"] = "baseline-b"
+    path.write_text(json.dumps(payload), "utf-8")
+    pointer = tmp_path / "retrieval-snapshots" / "baselines" / "baseline-b.json"
+    pointer.write_text(
+        json.dumps(
+            {
+                "snapshot_binding": manifest.snapshot_binding,
+                "config_digest": manifest.config_digest,
+            }
+        ),
+        "utf-8",
+    )
+    with pytest.raises(RetrievalSnapshotNotFound):
+        service.get(manifest.snapshot_binding)
+    with pytest.raises(RetrievalSnapshotNotFound):
+        service.manifest_for("baseline-b")
+
+
+def test_arbitrary_snapshot_filename_is_not_listed_or_served(
+    store: IngestedStore, fixture_settings: Settings, tmp_path: Path
+) -> None:
+    service = lifecycle(store, fixture_settings, tmp_path)
+    manifest = service.refresh("baseline-a", config=config())
+    original = next((tmp_path / "retrieval-snapshots" / "snapshots").glob("snapshot-*.json"))
+    original.rename(original.with_name("arbitrary.json"))
+
+    listed = service.manifests()
+    assert manifest.snapshot_binding not in {item.snapshot_binding for item in listed.manifests}
+    with pytest.raises(RetrievalSnapshotNotFound):
+        service.manifest_for("baseline-a")
+    with pytest.raises(RetrievalSnapshotNotFound):
+        service.get(manifest.snapshot_binding)
+
+
+def test_publication_is_invisible_until_pointer_commit(
+    store: IngestedStore,
+    fixture_settings: Settings,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import app.retrieval.lifecycle as lifecycle_module
+
+    service = lifecycle(store, fixture_settings, tmp_path)
+    first = service.refresh("baseline-a", config=config())
+    original = lifecycle_module._atomic_write
+    entered = threading.Event()
+    release = threading.Event()
+
+    def paused_pointer(path: Path, content: str) -> None:
+        if path.parent.name == "baselines" and path.name == "baseline-b.json":
+            entered.set()
+            assert release.wait(5)
+            raise OSError("injected pointer publication failure")
+        original(path, content)
+
+    monkeypatch.setattr(lifecycle_module, "_atomic_write", paused_pointer)
+    failures: list[BaseException] = []
+
+    def do_refresh() -> None:
+        try:
+            service.refresh("baseline-b", previous_baseline="baseline-a", config=config())
+        except RetrievalUnavailable:
+            pass
+        except BaseException as exc:  # noqa: BLE001 - the worker reports any unexpected failure
+            failures.append(exc)
+
+    worker = threading.Thread(target=do_refresh)
+    worker.start()
+    assert entered.wait(5)
+    reader_result: list[ManifestListResponse | BaseException] = []
+
+    def do_read() -> None:
+        try:
+            reader_result.append(service.manifests())
+        except BaseException as exc:  # noqa: BLE001 - the worker reports any unexpected failure
+            reader_result.append(exc)
+
+    reader = threading.Thread(target=do_read)
+    reader.start()
+    time.sleep(0.1)
+    assert reader.is_alive(), "a reader observed the pending publication before commit"
+    release.set()
+    worker.join(5)
+    reader.join(5)
+    assert not worker.is_alive() and not reader.is_alive()
+    assert failures == []
+    assert len(reader_result) == 1
+    listed = reader_result[0]
+    assert isinstance(listed, ManifestListResponse)
+    assert [item.baseline for item in listed.manifests] == ["baseline-a"]
+    assert service.manifest_for("baseline-a").snapshot_binding == first.snapshot_binding
+    with pytest.raises(RetrievalSnapshotNotFound):
+        service.manifest_for("baseline-b")
+    assert not list((tmp_path / "retrieval-snapshots" / "staging").glob("*.json"))
+
+
+def test_snapshot_write_failure_is_typed(
+    store: IngestedStore,
+    fixture_settings: Settings,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import app.retrieval.lifecycle as lifecycle_module
+
+    service = lifecycle(store, fixture_settings, tmp_path)
+    original = lifecycle_module._atomic_write
+
+    def failing_snapshot(path: Path, content: str) -> None:
+        if path.parent.name == "staging":
+            raise OSError("injected snapshot storage failure")
+        original(path, content)
+
+    monkeypatch.setattr(lifecycle_module, "_atomic_write", failing_snapshot)
+    with pytest.raises(RetrievalUnavailable):
+        service.refresh("baseline-a", config=config())
+    with pytest.raises(RetrievalSnapshotNotFound):
+        service.manifest_for("baseline-a")
+    assert not list((tmp_path / "retrieval-snapshots" / "snapshots").glob("*.json"))
+    assert not list((tmp_path / "retrieval-snapshots" / "baselines").glob("*.json"))

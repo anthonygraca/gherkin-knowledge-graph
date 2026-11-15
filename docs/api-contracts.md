@@ -244,7 +244,8 @@ Request:
 * A registered provider that cannot execute returns `503 provider-unavailable` with
   `failed_provider`; the application never falls back to `fake`. A valid empty result is `200` with
   `candidates: []` and retained provider/model/index provenance. Provider failure never becomes a
-  finding.
+  finding. The `local-embeddinggemma` provider is the documented exception: its own model/runtime
+  availability errors keep `503 retrieval-unavailable` per AI-02; see the local provider section.
 
 Response (abridged; `fixtures/api-responses/discovery.SCN-001.json` is the full sample):
 
@@ -275,7 +276,8 @@ Guarantees, asserted by tests: candidates carry no `link_id` and no `review_stat
 link or evidence record is created or modified; a known artifact with no proposals returns an
 empty list; unknown artifact → 404 `artifact-not-found`; unknown provider → 400
 `provider-not-registered` with `failed_provider` and `registered_providers`; provider failure →
-503 `provider-unavailable`; no automatic fallback.
+503 `provider-unavailable` (except the documented `local-embeddinggemma` model/runtime case, which
+keeps `503 retrieval-unavailable` per AI-02); no automatic fallback.
 
 ### `GET /api/discovery/providers`
 
@@ -301,7 +303,9 @@ provenance and are labelled from the static table.
 When `CTA_LOCAL_EMBEDDING=1` and a local model directory is installed, the effective registry also
 lists `local-embeddinggemma` (`kind: model`). It implements the same request/response contract; a
 remote endpoint is `400 invalid-request` before any connection, and missing weights or malformed
-embeddings are `503 retrieval-unavailable`. The exact manifest is in
+embeddings are `503 retrieval-unavailable` (AI-02 SCN-3203/SCN-3206). This is the provider-specific
+exception to the AS-07 `provider-unavailable` mapping; no fake fallback, accepted link, evidence, or
+finding is produced. The exact manifest is in
 `docs/reports/omp-closeout/AI-02-MODEL-MANIFEST.md`.
 
 ## Review workspace endpoints (schema 0.6.0, additive; AS-06)

@@ -38,7 +38,7 @@ from app.domain.api import (
     ThreadResponse,
 )
 from app.domain.enums import ArtifactType
-from app.domain.errors import DomainError, ProviderUnavailable
+from app.domain.errors import DomainError, ProviderUnavailable, RetrievalUnavailable
 from app.domain.models import ARTIFACT_ID_PATTERN, Artifact
 from app.version import PACKAGE_VERSION, SCHEMA_VERSION
 
@@ -179,6 +179,13 @@ def post_discovery(
     resolved = payload.provider or settings.discovery_provider
     try:
         provider = providers.get(payload.provider)  # 400 when the provider name is unknown
+    except ProviderUnavailable:
+        raise
+    except RetrievalUnavailable as exc:
+        if resolved == "local-embeddinggemma":
+            # AI-02 SCN-3203/SCN-3206 govern this retrieval capability's own availability code.
+            raise
+        raise ProviderUnavailable(str(exc), failed_provider=resolved) from exc
     except DomainError:
         raise
     except Exception as exc:  # noqa: BLE001 - provider construction is an availability boundary
@@ -199,6 +206,13 @@ def post_discovery(
             relation_types=payload.relation_types,
             baseline=payload.baseline,
         )
+    except ProviderUnavailable:
+        raise
+    except RetrievalUnavailable as exc:
+        if provider.provider_name == "local-embeddinggemma":
+            # AI-02 SCN-3203/SCN-3206 govern this retrieval capability's own availability code.
+            raise
+        raise ProviderUnavailable(str(exc), failed_provider=provider.provider_name) from exc
     except DomainError:
         raise
     except Exception as exc:  # noqa: BLE001 - provider plugins are an availability boundary

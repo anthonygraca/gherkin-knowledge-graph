@@ -85,8 +85,10 @@ class RetrievalLifecycle:
         self._lock = threading.RLock()
         self._snapshots = store_dir / "snapshots"
         self._baselines = store_dir / "baselines"
+        self._staging = store_dir / "staging"
         self._snapshots.mkdir(parents=True, exist_ok=True)
         self._baselines.mkdir(parents=True, exist_ok=True)
+        self._staging.mkdir(parents=True, exist_ok=True)
 
     # --------------------------------------------------------------- planning
 
@@ -159,7 +161,7 @@ class RetrievalLifecycle:
                 cache_key=cache_key,
                 config_digest_value=digest,
             )
-            existing = self._read_snapshot(binding)
+            existing = self._read_snapshot(binding, expected_baseline=canonical)
             if existing is not None:
                 # Exact-binding cache hit: return the original publication observation, including
                 # its historical elapsed_ms and counts. Do not pretend this request re-measured it.
@@ -233,46 +235,54 @@ class RetrievalLifecycle:
     # ----------------------------------------------------------------- reads
 
     def manifest_for(self, baseline: str) -> RetrievalManifest:
-        canonical = self._repository.resolve_baseline(baseline)
-        pointer = self._baselines / f"{_safe_name(canonical)}.json"
-        if not pointer.is_file():
-            raise RetrievalSnapshotNotFound(
-                f"No retrieval snapshot is published for baseline {canonical!r}."
+        with self._lock:
+            canonical = self._repository.resolve_baseline(baseline)
+            pointer = self._baselines / f"{_safe_name(canonical)}.json"
+            if not pointer.is_file():
+                raise RetrievalSnapshotNotFound(
+                    f"No retrieval snapshot is published for baseline {canonical!r}."
+                )
+            try:
+                payload = json.loads(pointer.read_text("utf-8"))
+                binding = payload["snapshot_binding"]
+            except Exception as exc:  # noqa: BLE001 - a corrupt pointer is not a usable snapshot
+                raise RetrievalSnapshotNotFound(
+                    f"Retrieval snapshot pointer for {canonical!r} is corrupt."
+                ) from exc
+            manifest = self._read_snapshot_file(
+                self._snapshots / f"{_safe_name(binding)}.json",
+                expected_binding=binding,
+                expected_baseline=canonical,
             )
-        try:
-            payload = json.loads(pointer.read_text("utf-8"))
-            binding = payload["snapshot_binding"]
-        except Exception as exc:  # noqa: BLE001 - a corrupt pointer is not a usable snapshot
-            raise RetrievalSnapshotNotFound(
-                f"Retrieval snapshot pointer for {canonical!r} is corrupt."
-            ) from exc
-        manifest = self._read_snapshot_file(
-            self._snapshots / f"{_safe_name(binding)}.json",
-            expected_binding=binding,
-            expected_baseline=canonical,
-        )
-        if manifest is None:
-            raise RetrievalSnapshotNotFound(
-                f"Retrieval snapshot {binding} referenced by {canonical} is missing."
-            )
-        return manifest
+            if manifest is None:
+                raise RetrievalSnapshotNotFound(
+                    f"Retrieval snapshot {binding} referenced by {canonical} is missing."
+                )
+            return manifest
 
     def get(self, snapshot_binding_value: str) -> RetrievalManifest:
-        manifest = self._read_snapshot(snapshot_binding_value)
-        if manifest is None:
-            raise RetrievalSnapshotNotFound(
-                f"No retrieval snapshot {snapshot_binding_value!r} is published."
-            )
-        return manifest
+        with self._lock:
+            manifest = self._read_snapshot(snapshot_binding_value)
+            if manifest is None:
+                raise RetrievalSnapshotNotFound(
+                    f"No retrieval snapshot {snapshot_binding_value!r} is published."
+                )
+            return manifest
 
     def manifests(self) -> ManifestListResponse:
-        manifests = [
-            self._read_snapshot_file(path, expected_binding=_binding_from_filename(path))
-            for path in sorted(self._snapshots.glob("*.json"))
-        ]
-        published = [manifest for manifest in manifests if manifest is not None]
-        published.sort(key=lambda item: (item.published_at, item.snapshot_binding))
-        return ManifestListResponse(schema_version=SCHEMA_VERSION, manifests=published)
+        with self._lock:
+            manifests: list[RetrievalManifest] = []
+            for path in sorted(self._snapshots.glob("*.json")):
+                try:
+                    manifest = self._read_snapshot_file(path)
+                except RetrievalSnapshotNotFound:
+                    # A corrupt or non-canonical file is not a published snapshot. Reads by
+                    # binding and by baseline raise; the listing omits it rather than serving it.
+                    continue
+                if manifest is not None:
+                    manifests.append(manifest)
+            manifests.sort(key=lambda item: (item.published_at, item.snapshot_binding))
+            return ManifestListResponse(schema_version=SCHEMA_VERSION, manifests=manifests)
 
     # -------------------------------------------------------------- combine
 
@@ -392,11 +402,18 @@ class RetrievalLifecycle:
         ]
 
     def _publish(self, manifest: RetrievalManifest) -> None:
-        snapshot_path = self._snapshots / f"{_safe_name(manifest.snapshot_binding)}.json"
-        snapshot_existed = snapshot_path.exists()
+        final_path = self._snapshots / f"{_safe_name(manifest.snapshot_binding)}.json"
+        snapshot_existed = final_path.exists()
+        pending_path = self._staging / f"{_safe_name(manifest.snapshot_binding)}.json"
         if not snapshot_existed:
-            _atomic_write(snapshot_path, manifest.model_dump_json(indent=2) + "\n")
+            try:
+                _atomic_write(pending_path, manifest.model_dump_json(indent=2) + "\n")
+            except OSError as exc:
+                raise RetrievalUnavailable(
+                    f"Retrieval snapshot storage failed for {manifest.baseline!r}: {exc}"
+                ) from exc
         pointer = self._baselines / f"{_safe_name(manifest.baseline)}.json"
+        previous_pointer = pointer.read_bytes() if pointer.is_file() else None
         try:
             _atomic_write(
                 pointer,
@@ -412,7 +429,7 @@ class RetrievalLifecycle:
         except Exception as exc:  # noqa: BLE001 - publication failure is a typed storage error
             if not snapshot_existed:
                 try:
-                    snapshot_path.unlink()
+                    pending_path.unlink(missing_ok=True)
                 except OSError as cleanup_exc:
                     raise RetrievalUnavailable(
                         "Retrieval publication failed and the uncommitted snapshot could not be "
@@ -421,10 +438,37 @@ class RetrievalLifecycle:
             raise RetrievalUnavailable(
                 f"Retrieval publication failed for {manifest.baseline!r} and was rolled back: {exc}"
             ) from exc
+        if not snapshot_existed:
+            try:
+                os.replace(pending_path, final_path)
+            except OSError as exc:
+                try:
+                    if previous_pointer is None:
+                        pointer.unlink(missing_ok=True)
+                    else:
+                        _atomic_write(pointer, previous_pointer.decode("utf-8"))
+                    pending_path.unlink(missing_ok=True)
+                except Exception as rollback_exc:  # noqa: BLE001 - publication is indeterminate
+                    raise RetrievalUnavailable(
+                        "Retrieval snapshot visibility failed and the pointer could not be "
+                        f"restored; the publication state is indeterminate: {rollback_exc}"
+                    ) from rollback_exc
+                raise RetrievalUnavailable(
+                    f"Retrieval snapshot could not be made visible for {manifest.baseline!r}; "
+                    f"publication was rolled back: {exc}"
+                ) from exc
 
-    def _read_snapshot(self, binding: str) -> RetrievalManifest | None:
+    def _read_snapshot(
+        self, binding: str, *, expected_baseline: str | None = None
+    ) -> RetrievalManifest | None:
         path = self._snapshots / f"{_safe_name(binding)}.json"
-        return self._read_snapshot_file(path, expected_binding=binding) if path.is_file() else None
+        if not path.is_file():
+            return None
+        return self._read_snapshot_file(
+            path,
+            expected_binding=binding,
+            expected_baseline=expected_baseline,
+        )
 
     def _read_snapshot_file(
         self,
@@ -435,6 +479,19 @@ class RetrievalLifecycle:
     ) -> RetrievalManifest | None:
         if not path.is_file():
             return None
+        filename_binding = _binding_from_filename(path)
+        if filename_binding is None:
+            raise RetrievalSnapshotNotFound(
+                f"Retrieval snapshot {path.name} is not a canonical snapshot filename and will "
+                "not be served."
+            )
+        if expected_binding is None:
+            expected_binding = filename_binding
+        elif expected_binding != filename_binding:
+            raise RetrievalSnapshotNotFound(
+                f"Retrieval snapshot file {path.name} does not contain the requested binding "
+                f"{expected_binding!r}."
+            )
         try:
             manifest = RetrievalManifest.model_validate_json(path.read_text("utf-8"))
         except Exception as exc:  # noqa: BLE001 - a corrupt cache entry is not a usable snapshot
@@ -454,6 +511,30 @@ class RetrievalLifecycle:
         expected_binding: str | None = None,
         expected_baseline: str | None = None,
     ) -> RetrievalManifest:
+        if manifest.repository != self._repository_name:
+            raise RetrievalSnapshotNotFound(
+                f"Retrieval snapshot {manifest.snapshot_binding} belongs to repository "
+                f"{manifest.repository!r}, not {self._repository_name!r}."
+            )
+        try:
+            canonical = self._repository.resolve_baseline(manifest.baseline)
+            resolved_commit = self._repository.commit_of(canonical)
+        except Exception as exc:  # noqa: BLE001 - an unresolvable baseline is not usable
+            raise RetrievalSnapshotNotFound(
+                f"Retrieval snapshot {manifest.snapshot_binding} names baseline "
+                f"{manifest.baseline!r}, which cannot be resolved: {exc}"
+            ) from exc
+        if canonical != manifest.baseline:
+            raise RetrievalSnapshotNotFound(
+                f"Retrieval snapshot {manifest.snapshot_binding} names non-canonical baseline "
+                f"{manifest.baseline!r} (resolved {canonical!r})."
+            )
+        if resolved_commit != manifest.commit:
+            raise RetrievalSnapshotNotFound(
+                f"Retrieval snapshot {manifest.snapshot_binding} names baseline "
+                f"{manifest.baseline!r}, whose resolved commit {resolved_commit} does not match "
+                f"the stored commit {manifest.commit}."
+            )
         expected_config = config_digest(manifest.config)
         if manifest.config_digest != expected_config:
             raise RetrievalSnapshotNotFound(
