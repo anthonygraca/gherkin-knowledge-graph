@@ -448,6 +448,28 @@ def _validate_report(report: AssuranceReport, *, side: str) -> None:
         _validate_finding(finding, side=side)
 
 
+def load_comparable_pair(
+    previous_path: Path, current_path: Path
+) -> tuple[AssuranceReport, AssuranceReport]:
+    """Load and semantically validate both reports, attributing every failure."""
+    loaded: dict[str, AssuranceReport] = {}
+    errors: list[tuple[str, str]] = []
+    for side, path in (("previous", previous_path), ("current", current_path)):
+        try:
+            report = load_report(path, side=side)
+            _validate_report(report, side=side)
+            loaded[side] = report
+        except ReportsNotComparable as exc:
+            errors.append((side, exc.detail))
+    if errors:
+        invalid = "both" if len(errors) == 2 else errors[0][0]
+        raise ReportsNotComparable(
+            "; ".join(f"{side}: {detail}" for side, detail in errors),
+            invalid_input=invalid,
+        )
+    return loaded["previous"], loaded["current"]
+
+
 def compare_reports(previous: AssuranceReport, current: AssuranceReport) -> FindingsDiff:
     errors: list[tuple[str, str]] = []
     for side, report in (("previous", previous), ("current", current)):

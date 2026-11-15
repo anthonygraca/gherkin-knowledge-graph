@@ -17,6 +17,8 @@ POLICY = "default"
 POLICY_VERSION = "1"
 
 DIGEST_PATTERN = r"^sha256:[0-9a-f]{64}$"
+
+
 REVISION_PATTERN = r"^[0-9a-f]{7,64}$"
 
 
@@ -27,6 +29,23 @@ class _FrozenModel(BaseModel):
 class AssuranceScope(StrEnum):
     REQUIREMENT_ASSURANCE = "requirement_assurance"
     GHERKIN_EXECUTABILITY = "gherkin_executability"
+
+
+REQUIRED_INPUT_KINDS: dict[AssuranceScope, frozenset[str]] = {
+    AssuranceScope.REQUIREMENT_ASSURANCE: frozenset(
+        {
+            "artifact",
+            "accepted_link_set",
+            "proposed_link_set",
+            "evidence_set",
+            "fixture_manifest",
+            "policy",
+        }
+    ),
+    AssuranceScope.GHERKIN_EXECUTABILITY: frozenset(
+        {"execution_report", "provenance_sidecar", "feature", "policy"}
+    ),
+}
 
 
 class IdentityKind(StrEnum):
@@ -161,6 +180,13 @@ class AssuranceReport(_FrozenModel):
                         "a completed report requires every required input to be available "
                         "and digested"
                     )
+            provided = {entry.kind for entry in self.inputs if entry.required}
+            missing = REQUIRED_INPUT_KINDS[self.scope] - provided
+            if missing:
+                raise ValueError(
+                    "a completed report is missing mandatory input kinds: "
+                    + ", ".join(sorted(missing))
+                )
             if self.incomplete_reason is not None:
                 raise ValueError("a completed report cannot have incomplete_reason")
             if self.failure_stage is not None or self.failure_code is not None:

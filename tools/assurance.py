@@ -28,7 +28,7 @@ from app.assurance.reporting import (
     digest_bytes,
     evaluator_revision,
     incomplete_report,
-    load_report_pair,
+    load_comparable_pair,
     refusal_diagnostic,
     requirement_inputs,
     requirement_report,
@@ -203,7 +203,23 @@ def _evaluate(args: argparse.Namespace) -> int:
         _outside(args.manifest, (settings.fixture_repo, settings.fixtures_dir))
         safe_report, safe_manifest = args.report, args.manifest
         _clear_outputs((safe_report, safe_manifest))
-        store = IngestedStore.from_settings(settings)
+        try:
+            store = IngestedStore.from_settings(settings)
+        except Exception as exc:  # noqa: BLE001 - the fixture manifest is a required input
+            collected_inputs = [
+                ReportInput(
+                    kind="fixture_manifest",
+                    path=str(settings.baselines_manifest_path),
+                    available=False,
+                    digest=None,
+                    required=True,
+                )
+            ]
+            raise _CliFailure(
+                f"required fixture manifest is unreadable: {exc}",
+                stage=FailureStage.INPUT,
+                code="input-unreadable",
+            ) from exc
         canonical = store.resolve_baseline(args.baseline)
         commit = store.commit_of(canonical)
         findings = DeterministicAssuranceEvaluator(store).evaluate(canonical)
@@ -229,6 +245,24 @@ def _evaluate(args: argparse.Namespace) -> int:
                     ).encode()
                 ),
             )
+        manifest_path = settings.baselines_manifest_path
+        try:
+            manifest_digest = digest_bytes(manifest_path.read_bytes())
+        except OSError as exc:
+            collected_inputs = [
+                ReportInput(
+                    kind="fixture_manifest",
+                    path=str(manifest_path),
+                    available=False,
+                    digest=None,
+                    required=True,
+                )
+            ]
+            raise _CliFailure(
+                f"required fixture manifest is unreadable: {exc}",
+                stage=FailureStage.INPUT,
+                code="input-unreadable",
+            ) from exc
         inputs = requirement_inputs(
             commit=commit,
             artifacts=artifacts,
@@ -236,7 +270,7 @@ def _evaluate(args: argparse.Namespace) -> int:
             proposed_links=proposed,
             evidence=evidence,
             historical_inputs=historical.values(),
-            fixture_manifest_digest=digest_bytes(settings.baselines_manifest_path.read_bytes()),
+            fixture_manifest_digest=manifest_digest,
         )
         collected_inputs = list(inputs)
         report = requirement_report(
@@ -324,27 +358,41 @@ def _self_assure(args: argparse.Namespace) -> int:
         safe_report, safe_manifest = args.report, args.manifest
         _clear_outputs((safe_report, safe_manifest))
         report_path = args.cucumber_report.expanduser().resolve()
+        collected_inputs = [
+            ReportInput(
+                kind="execution_report",
+                path=str(report_path),
+                revision=args.tested_commit,
+                digest=None,
+                available=False,
+                required=True,
+            )
+        ]
         if not report_path.is_file():
-            collected_inputs = [
-                ReportInput(
-                    kind="execution_report",
-                    path=str(report_path),
-                    revision=args.tested_commit,
-                    digest=None,
-                    available=False,
-                    required=True,
-                )
-            ]
             raise _CliFailure(
                 f"execution report is missing: {report_path}",
                 stage=FailureStage.INPUT,
                 code="execution-report-missing",
             )
-        report_path = _normalize_uris(
-            report_path,
-            cucumber_root=args.cucumber_root.resolve(),
-            repo_root=args.repo_root.resolve(),
-            state_dir=args.state_dir.resolve(),
+        try:
+            report_path = _normalize_uris(
+                report_path,
+                cucumber_root=args.cucumber_root.resolve(),
+                repo_root=args.repo_root.resolve(),
+                state_dir=args.state_dir.resolve(),
+            )
+            report_source_digest = digest_bytes(report_path.read_bytes())
+        except OSError as exc:
+            raise _CliFailure(
+                f"execution report is unreadable: {exc}",
+                stage=FailureStage.INPUT,
+                code="input-unreadable",
+            ) from exc
+        collected_inputs[0] = ReportInput(
+            kind="execution_report",
+            path=str(report_path),
+            revision=args.tested_commit,
+            digest=report_source_digest,
         )
         metadata = args.metadata
         if metadata is None:
@@ -357,22 +405,36 @@ def _self_assure(args: argparse.Namespace) -> int:
                 encoding="utf-8",
             )
         metadata = metadata.expanduser().resolve()
-        if not metadata.is_file():
-            collected_inputs.append(
-                ReportInput(
-                    kind="provenance_sidecar",
-                    path=str(metadata),
-                    revision=args.tested_commit,
-                    digest=None,
-                    available=False,
-                    required=True,
-                )
+        collected_inputs.append(
+            ReportInput(
+                kind="provenance_sidecar",
+                path=str(metadata),
+                revision=args.tested_commit,
+                digest=None,
+                available=False,
+                required=True,
             )
+        )
+        if not metadata.is_file():
             raise _CliFailure(
                 f"execution-report provenance sidecar is missing: {metadata}",
                 stage=FailureStage.INPUT,
                 code="provenance-missing",
             )
+        try:
+            metadata_digest = digest_bytes(metadata.read_bytes())
+        except OSError as exc:
+            raise _CliFailure(
+                f"execution-report provenance sidecar is unreadable: {exc}",
+                stage=FailureStage.INPUT,
+                code="input-unreadable",
+            ) from exc
+        collected_inputs[-1] = ReportInput(
+            kind="provenance_sidecar",
+            path=str(metadata),
+            revision=args.tested_commit,
+            digest=metadata_digest,
+        )
         try:
             summary = registry.index(
                 args.repo_root,
@@ -395,20 +457,6 @@ def _self_assure(args: argparse.Namespace) -> int:
                 tested_commit=tested_commit,
             ),
         )
-        collected_inputs = [
-            ReportInput(
-                kind="execution_report",
-                path=str(report_path),
-                revision=tested_commit,
-                digest=digest_bytes(report_path.read_bytes()),
-            ),
-            ReportInput(
-                kind="provenance_sidecar",
-                path=str(metadata),
-                revision=tested_commit,
-                digest=digest_bytes(metadata.read_bytes()),
-            ),
-        ]
         indexed = {feature.path: feature.content_hash for feature in snapshot.features}
         collected_inputs.extend(
             ReportInput(
@@ -435,25 +483,29 @@ def _self_assure(args: argparse.Namespace) -> int:
                 )
         findings, _ = registry.findings(args.repository_id, tested_commit)
         coverage_data = registry.coverage(args.repository_id, tested_commit)
-        skipped = len(
-            {
-                execution.scenario_key
-                for execution in report_data.executions
-                if execution.outcome is ExecutionOutcome.SKIPPED
-            }
-        )
-        unknown = max(
-            0,
-            coverage_data.scenarios_total - coverage_data.scenarios_executed - skipped,
-        )
+        executed_keys = {
+            execution.scenario_key
+            for execution in report_data.executions
+            if execution.outcome in {ExecutionOutcome.PASSED, ExecutionOutcome.FAILED}
+            or any(
+                step.outcome in {ExecutionOutcome.PASSED, ExecutionOutcome.FAILED}
+                for step in execution.steps
+            )
+        }
+        skipped_keys = {
+            execution.scenario_key
+            for execution in report_data.executions
+            if execution.outcome is ExecutionOutcome.SKIPPED
+        } - executed_keys
+        observed_keys = executed_keys | skipped_keys
         coverage = Coverage(
             available=True,
             features_indexed=len(snapshot.features),
             features_covered_by_report=len({uri for uri, _ in report_data.sources}),
             scenarios_total=coverage_data.scenarios_total,
-            scenarios_executed=coverage_data.scenarios_executed,
-            scenarios_skipped=skipped,
-            scenarios_unknown=unknown,
+            scenarios_executed=len(executed_keys),
+            scenarios_skipped=len(skipped_keys),
+            scenarios_unknown=max(0, coverage_data.scenarios_total - len(observed_keys)),
             diagnostics=[diagnostic.code for diagnostic in snapshot.diagnostics],
         )
         execution = ExecutionReportProvenance(
@@ -536,7 +588,7 @@ def _self_assure(args: argparse.Namespace) -> int:
 
 def _diff(args: argparse.Namespace) -> int:
     try:
-        previous, current = load_report_pair(args.previous, args.current)
+        previous, current = load_comparable_pair(args.previous, args.current)
         diff = compare_reports(previous, current)
     except ReportsNotComparable as exc:
         print(canonical_json(refusal_diagnostic(exc)), file=sys.stdout)

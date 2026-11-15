@@ -14,3 +14,14 @@ the code, tests, and retained reports are the evidence.
 **Verification:** final full acceptance suite 203 scenarios / 1972 steps passed, including the new
 CI-02 example; backend 553 passed / 4 skipped; strict gate, fixture verify, Ruff and format clean.
 Hosted CI on the repaired head is recorded on PR #78; the reviewer must observe it.
+
+## Second acceptance pass (submission 2)
+
+- **CI02-ACC-R5:** a completed report now requires the full mandatory input-kind set for its scope
+  (requirement assurance: artifact, accepted/proposed link sets, evidence set, fixture manifest,
+  policy; self-assurance: execution report, provenance sidecar, feature, policy), each present and
+  marked required. Removing an entry, replacing `inputs` with `[]`, or downgrading a mandatory entry
+  is a contract refusal.
+- **CI02-ACC-R3:** `load_comparable_pair` loads and semantically validates both sides before
+  returning; load-stage and semantic-stage failures are collected across both inputs, so mixed
+  failures return `invalid_input="both"` with both reasons.

@@ -18,3 +18,19 @@ the code, tests, and retained reports are the evidence.
 **Verification:** final full acceptance suite 203 scenarios / 1972 steps passed; GT-02 recheck 3/3;
 backend 553 passed / 4 skipped; strict gate, fixture verify, Ruff and format clean. Hosted CI on the
 repaired head is recorded on PR #78; the reviewer must observe it.
+
+## Second acceptance pass (submission 2)
+
+- **CI01-ACC-R2:** the hosted workflow now writes reports, manifests, and diagnostics under a
+  run-unique `$RUNNER_TEMP/assurance/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}` directory; a previous
+  run's completion is never the publication path. The CLI still clears/truncates a reused
+  destination, but if the filesystem denies removal, truncation, and replacement, no process can
+  invalidate that inode; the contract's publication safeguard is the fresh run path, not a claim that
+  an immutable path can be rewritten.
+- **CI01-ACC-R4:** execution-report and provenance-sidecar inputs are registered before reading; a
+  permission/read failure is `input`/`input-unreadable` with `available=false`/`digest=null`.
+  Fixture-manifest read/store failures retain the unavailable `fixture_manifest` input. Mixed
+  malformed-provenance failures retain the already readable report entry.
+- **CI01-ACC-R5:** coverage uses disjoint scenario keys: executed keys are those with a passed/failed
+  execution, skipped keys are skipped-only definitions, and unknown is the indexed total minus their
+  union. A mixed outline no longer counts one definition in both buckets.

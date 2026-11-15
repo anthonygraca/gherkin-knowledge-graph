@@ -176,14 +176,15 @@ jobs:
 
       - name: Evaluate baseline-b and publish the typed report
         run: |
-          mkdir -p "$RUNNER_TEMP/assurance"
+          ASSURANCE_DIR="$RUNNER_TEMP/assurance/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$ASSURANCE_DIR"
           uv run --project backend python tools/assurance.py evaluate \
             --repository banking-demo --baseline baseline-b \
-            --report "$RUNNER_TEMP/assurance/banking-report.json" \
-            --manifest "$RUNNER_TEMP/assurance/banking-manifest.json" \
+            --report "$ASSURANCE_DIR/banking-report.json" \
+            --manifest "$ASSURANCE_DIR/banking-manifest.json" \
             --summary "$GITHUB_STEP_SUMMARY" \
             --deny-network \
-            2> "$RUNNER_TEMP/assurance/banking-diagnostic.json"
+            2> "$ASSURANCE_DIR/banking-diagnostic.json"
 
       - name: Upload the report, manifest, and diagnostic
         if: always()
@@ -191,9 +192,9 @@ jobs:
         with:
           name: assurance-banking
           path: |
-            ${{ runner.temp }}/assurance/banking-report.json
-            ${{ runner.temp }}/assurance/banking-manifest.json
-            ${{ runner.temp }}/assurance/banking-diagnostic.json
+            ${{ runner.temp }}/assurance/${{ github.run_id }}-${{ github.run_attempt }}/banking-report.json
+            ${{ runner.temp }}/assurance/${{ github.run_id }}-${{ github.run_attempt }}/banking-manifest.json
+            ${{ runner.temp }}/assurance/${{ github.run_id }}-${{ github.run_attempt }}/banking-diagnostic.json
           if-no-files-found: warn
 
   self-assurance:
@@ -232,21 +233,22 @@ jobs:
         env:
           TESTED_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
-          mkdir -p "$RUNNER_TEMP/assurance"
+          ASSURANCE_DIR="$RUNNER_TEMP/assurance/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$ASSURANCE_DIR"
           printf '{"repository_id":"gherkin-knowledge-graph","tested_commit":"%s"}' "$TESTED_COMMIT" \
-            > "$RUNNER_TEMP/assurance/self.meta.json"
+            > "$ASSURANCE_DIR/self.meta.json"
           uv run --project backend python tools/assurance.py self-assure \
             --repo-root . --repository-id gherkin-knowledge-graph \
             --tested-commit "$TESTED_COMMIT" \
             --cucumber-report "$RUNNER_TEMP/cucumber/cucumber-messages.ndjson" \
             --cucumber-root bdd \
-            --metadata "$RUNNER_TEMP/assurance/self.meta.json" \
-            --state-dir "$RUNNER_TEMP/assurance/state" \
-            --report "$RUNNER_TEMP/assurance/self-report.json" \
-            --manifest "$RUNNER_TEMP/assurance/self-manifest.json" \
+            --metadata "$ASSURANCE_DIR/self.meta.json" \
+            --state-dir "$ASSURANCE_DIR/state" \
+            --report "$ASSURANCE_DIR/self-report.json" \
+            --manifest "$ASSURANCE_DIR/self-manifest.json" \
             --summary "$GITHUB_STEP_SUMMARY" \
             --deny-network \
-            2> "$RUNNER_TEMP/assurance/self-diagnostic.json"
+            2> "$ASSURANCE_DIR/self-diagnostic.json"
 
       - name: Upload the self-assurance report, manifest, and diagnostic
         if: always()
@@ -254,7 +256,7 @@ jobs:
         with:
           name: assurance-self
           path: |
-            ${{ runner.temp }}/assurance/self-report.json
-            ${{ runner.temp }}/assurance/self-manifest.json
-            ${{ runner.temp }}/assurance/self-diagnostic.json
+            ${{ runner.temp }}/assurance/${{ github.run_id }}-${{ github.run_attempt }}/self-report.json
+            ${{ runner.temp }}/assurance/${{ github.run_id }}-${{ github.run_attempt }}/self-manifest.json
+            ${{ runner.temp }}/assurance/${{ github.run_id }}-${{ github.run_attempt }}/self-diagnostic.json
           if-no-files-found: warn
