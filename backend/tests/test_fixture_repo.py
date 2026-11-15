@@ -181,3 +181,14 @@ def test_generator_pins_the_object_format(
     monkeypatch.setenv("GIT_DEFAULT_HASH", "sha256")
     manifest = fixturectl.build_repo(fixture_settings.fixture_dir, tmp_path / "sha256-host")
     assert manifest.tags == committed_manifest.tags
+
+
+def test_build_repo_refuses_tracked_cta_roots() -> None:
+    for target in (
+        fixturectl.REPO_ROOT,
+        fixturectl.FIXTURE_DIR,
+        fixturectl.EXPECTED_DIR,
+        fixturectl.API_DIR,
+    ):
+        with pytest.raises(fixturectl.FixtureToolError):
+            fixturectl.build_repo(fixturectl.FIXTURE_DIR, target)

@@ -43,7 +43,24 @@ ENV_CCC_PROJECT_ROOT = "CTA_CCC_PROJECT_ROOT"
 ENV_CCC_LIVE_OPT_IN = "CTA_CCC_LIVE_OPT_IN"
 ENV_CCC_LIVE_TESTS = "CTA_CCC_LIVE_TESTS"
 
+# AS-06 trusted-local-operator review mode. The journal is application-owned and must live
+# outside the fixture/evaluated repository.
+ENV_REVIEW_OPERATOR = "CTA_REVIEW_OPERATOR"
+ENV_REVIEW_JOURNAL = "CTA_REVIEW_JOURNAL"
+
+# AI-02 same-machine local inference. Disabled by default; the fake provider remains the default.
+ENV_LOCAL_EMBEDDING = "CTA_LOCAL_EMBEDDING"
+ENV_LOCAL_EMBEDDING_MODEL_DIR = "CTA_LOCAL_EMBEDDING_MODEL_DIR"
+ENV_LOCAL_EMBEDDING_ENDPOINT = "CTA_LOCAL_EMBEDDING_ENDPOINT"
+ENV_LOCAL_EMBEDDING_WEIGHTS_DIGEST = "CTA_LOCAL_EMBEDDING_WEIGHTS_DIGEST"
+ENV_LOCAL_EMBEDDING_LIVE_TESTS = "CTA_LOCAL_EMBEDDING_LIVE_TESTS"
+
+# AI-03 CTA-owned retrieval manifests. Application-owned, outside the fixture/evaluated repo.
+ENV_RETRIEVAL_SNAPSHOT_DIR = "CTA_RETRIEVAL_SNAPSHOT_DIR"
+DEFAULT_RETRIEVAL_SNAPSHOT_DIR = ".cta/retrieval-snapshots"
+
 DEFAULT_CCC_EXECUTABLE = "ccc"
+DEFAULT_REVIEW_JOURNAL = ".cta/review-journal.ndjson"
 
 ALLOWED_AI_MODES: tuple[str, ...] = ("fake", "live")
 #: PR 1 validates the selector but ships no vector index; PR 2 owns the in-memory index.
@@ -119,6 +136,22 @@ class Settings:
     cocoindex_live_opt_in: bool = False
     ccc_live_tests: bool = False
 
+    # Trusted-local-operator review (AS-06). Unset operator disables every review mutation.
+    review_operator: str | None = None
+    review_journal_path: Path | None = None
+    review_loopback_only: bool = True
+
+    # AI-02 same-machine local inference. An endpoint is accepted only on loopback; a remote
+    # endpoint is refused by the provider rather than silently contacted.
+    local_embedding_enabled: bool = False
+    local_embedding_model_dir: Path | None = None
+    local_embedding_endpoint: str | None = None
+    local_embedding_weights_digest: str | None = None
+    local_embedding_live_tests: bool = False
+
+    # AI-03 application-owned retrieval manifest store.
+    retrieval_snapshot_dir: Path | None = None
+
     def __post_init__(self) -> None:
         mode = self.ai_mode.strip().lower()
         vector_backend = self.vector_backend.strip().lower()
@@ -175,6 +208,48 @@ class Settings:
                 "the application will not guess a project to index"
             )
 
+        operator = _clean(self.review_operator)
+        object.__setattr__(self, "review_operator", operator)
+        journal = self.review_journal_path or (self.repo_root / DEFAULT_REVIEW_JOURNAL)
+        journal = journal.expanduser().resolve()
+        forbidden = [self.fixtures_dir.resolve(), self.fixture_repo.resolve()]
+        for root in forbidden:
+            if journal == root or journal.is_relative_to(root):
+                raise SettingsError(
+                    f"{ENV_REVIEW_JOURNAL} must be outside the fixture and evaluated repository; "
+                    f"got {journal} inside {root}"
+                )
+        if journal.is_dir():
+            raise SettingsError(
+                f"{ENV_REVIEW_JOURNAL} is a directory, not a journal file: {journal}"
+            )
+        object.__setattr__(self, "review_journal_path", journal)
+        object.__setattr__(self, "review_loopback_only", True)
+
+        model_dir = self.local_embedding_model_dir
+        if model_dir is not None:
+            object.__setattr__(self, "local_embedding_model_dir", model_dir.expanduser().resolve())
+        endpoint = validate_base_url(ENV_LOCAL_EMBEDDING_ENDPOINT, self.local_embedding_endpoint)
+        object.__setattr__(self, "local_embedding_endpoint", endpoint)
+        digest = _clean(self.local_embedding_weights_digest)
+        if digest is not None and not digest.startswith("sha256:"):
+            raise SettingsError(
+                f"{ENV_LOCAL_EMBEDDING_WEIGHTS_DIGEST} must be 'sha256:<hex>'; got {digest!r}"
+            )
+        object.__setattr__(self, "local_embedding_weights_digest", digest)
+
+        snapshot_dir = self.retrieval_snapshot_dir or (
+            self.repo_root / DEFAULT_RETRIEVAL_SNAPSHOT_DIR
+        )
+        snapshot_dir = snapshot_dir.expanduser().resolve()
+        for root in (self.fixtures_dir.resolve(), self.fixture_repo.resolve()):
+            if snapshot_dir == root or snapshot_dir.is_relative_to(root):
+                raise SettingsError(
+                    f"{ENV_RETRIEVAL_SNAPSHOT_DIR} must be outside the fixture and evaluated "
+                    f"repository; got {snapshot_dir} inside {root}"
+                )
+        object.__setattr__(self, "retrieval_snapshot_dir", snapshot_dir)
+
     @property
     def llm_api_key_present(self) -> bool:
         """Whether a key is configured. The value itself is never reported."""
@@ -192,6 +267,26 @@ class Settings:
     def cocoindex_enabled(self) -> bool:
         """Whether a live CocoIndex probe is both configured and explicitly opted in."""
         return self.cocoindex_live_opt_in and self.ccc_project_root is not None
+
+    @property
+    def review_enabled(self) -> bool:
+        """Review mutations are available only with an explicit operator identity."""
+        return self.review_operator is not None
+
+    @property
+    def review_journal(self) -> Path:
+        assert self.review_journal_path is not None  # set in __post_init__
+        return self.review_journal_path
+
+    @property
+    def local_embedding_configured(self) -> bool:
+        """Local mode is registered only when explicitly enabled."""
+        return self.local_embedding_enabled
+
+    @property
+    def retrieval_snapshots(self) -> Path:
+        assert self.retrieval_snapshot_dir is not None  # set in __post_init__
+        return self.retrieval_snapshot_dir
 
     @property
     def fixture_dir(self) -> Path:
@@ -247,6 +342,26 @@ def load_settings() -> Settings:
         ccc_project_root=Path(ccc_root).expanduser() if ccc_root else None,
         cocoindex_live_opt_in=_env_flag(ENV_CCC_LIVE_OPT_IN),
         ccc_live_tests=_env_flag(ENV_CCC_LIVE_TESTS),
+        review_operator=_clean(os.environ.get(ENV_REVIEW_OPERATOR)),
+        review_journal_path=(
+            Path(os.environ[ENV_REVIEW_JOURNAL]).expanduser()
+            if os.environ.get(ENV_REVIEW_JOURNAL)
+            else None
+        ),
+        local_embedding_enabled=_env_flag(ENV_LOCAL_EMBEDDING),
+        local_embedding_model_dir=(
+            Path(os.environ[ENV_LOCAL_EMBEDDING_MODEL_DIR]).expanduser()
+            if os.environ.get(ENV_LOCAL_EMBEDDING_MODEL_DIR)
+            else None
+        ),
+        local_embedding_endpoint=_clean(os.environ.get(ENV_LOCAL_EMBEDDING_ENDPOINT)),
+        local_embedding_weights_digest=_clean(os.environ.get(ENV_LOCAL_EMBEDDING_WEIGHTS_DIGEST)),
+        local_embedding_live_tests=_env_flag(ENV_LOCAL_EMBEDDING_LIVE_TESTS),
+        retrieval_snapshot_dir=(
+            Path(os.environ[ENV_RETRIEVAL_SNAPSHOT_DIR]).expanduser()
+            if os.environ.get(ENV_RETRIEVAL_SNAPSHOT_DIR)
+            else None
+        ),
     )
 
 

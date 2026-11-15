@@ -359,7 +359,7 @@ Then('every executed entry names a scenario present in that report', function ()
       row.failed ? 'failed' : complete ? 'passing' : 'incomplete',
       `${entry.file} execution result mismatch`,
     );
-    assert.equal(entry.report, 'docs/reports/omp-m2-bdd/evidence/cucumber-messages.ndjson');
+    assert.equal(entry.report, path.relative(REPO_ROOT, this.results.executionReport));
     assert.equal(entry.migration_status, complete ? 'complete' : 'pending');
   }
   // Parsed-but-never-started scenarios must not be counted as executed.

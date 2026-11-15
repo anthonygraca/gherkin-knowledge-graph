@@ -175,6 +175,16 @@ deleting the project-local `.cocoindex_code` directory discards only a rebuildab
 * **Use the agent-side OMP plugin as the integration.** Rejected: agent ergonomics is not a CTA
   runtime adapter and produces no application contract or test evidence.
 
+## Amendment — AI-03 snapshot/cache lifecycle (2026-11-14)
+
+AI-03 adopts the re-scope accepted in ADR 0012 §2. CTA owns content-hash change planning,
+content-addressed corpus cache keys, configuration manifests, isolated snapshot publication,
+compatibility checks, and honest refresh reporting. CocoIndex continues to own code chunking,
+embeddings, incremental index behavior, and vector storage. CTA reports an internal embedding count
+or backend index identity only when the backend exposes it; otherwise the value is `not_available`
+and is never inferred from the changed-artifact count. A CTA manifest is a revision-bound snapshot
+record, not a claim that CocoIndex rebuilt or retained any particular vectors.
+
 ## Revisit when
 
 * PR 2 maps hits to artifact IDs and needs a ranking/expansion policy or baseline-specific index

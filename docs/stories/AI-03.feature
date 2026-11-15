@@ -1,7 +1,9 @@
-# Canonical acceptance specification for AI-03 (#32), M3 — REFINEMENT DRAFT / RE-SCOPE PROPOSED.
-# Applies only if the owner adopts the proposed re-scope from CTA-owned embedding refresh to the
-# retrieval snapshot/cache lifecycle. See docs/adr/0012-closeout-scope-decisions.md.
-@AI-03 @issue-32 @M3 @refinement-draft
+# Canonical acceptance specification for AI-03 (#32), M3.
+# The retrieval snapshot/cache re-scope is owner-accepted in ADR 0012 §2. CTA owns content-hash
+# planning, cache keys, manifests, isolated publication, compatibility, and honest refresh
+# reporting. CocoIndex owns chunking/embeddings/index storage; CTA reports unobservable backend
+# embedding counts as `not_available` and never infers them. Normative notes: docs/stories/AI-03.md.
+@AI-03 @issue-32 @M3
 Feature: AI-03: Revision-aware retrieval snapshot and cache lifecycle
   CTA owns content-change planning, manifests, isolated snapshot publication, compatibility, and
   candidate provenance. CocoIndex owns code chunking, embeddings, and its internal index.
@@ -15,7 +17,8 @@ Feature: AI-03: Revision-aware retrieval snapshot and cache lifecycle
       When the refresh planner compares baseline-a with baseline-b
       Then changed artifacts are exactly CODE-001 and TEST-002
       And unchanged artifacts are exactly CODE-002 and TEST-001
-      And the manifest records both resolved revisions and their artifact content hashes
+      And the plan records both resolved revisions
+      And the current and referenced previous manifests record their respective artifact content hashes
       And the plan does not claim that CocoIndex embedded exactly two items
 
     @SCN-3302
@@ -50,11 +53,16 @@ Feature: AI-03: Revision-aware retrieval snapshot and cache lifecycle
 
     @SCN-3305
     Scenario: Mixed snapshot candidates cannot form one ranked list
-      Given one candidate batch is bound to baseline-a
-      And another candidate batch is bound to baseline-b
+      Given one candidate batch is bound to baseline-a's manifest snapshot binding
+      And the batch retains the provider's own index revision
+      And another candidate batch is bound to baseline-b's manifest snapshot binding
       When the batches are submitted to the candidate-combination service
       Then combination fails with code "mixed-index-context"
       And no combined ranked list is returned
+      When the baseline-a batch is submitted with the expected binding
+      Then a ranked list is returned
+      And every candidate carries the CTA snapshot binding
+      And the batch provenance retains the provider's own index revision
 
     @SCN-3306
     Scenario: Refresh cost distinguishes measurements from unavailable backend data

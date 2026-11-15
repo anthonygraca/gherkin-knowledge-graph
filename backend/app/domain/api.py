@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from app.domain.enums import RelationType, ReviewDecision
+from app.domain.enums import RelationType
 from app.domain.models import (
     ARTIFACT_ID_PATTERN,
     Artifact,
@@ -104,12 +104,18 @@ class DiscoveryResponse(_FrozenModel):
     candidates: list[TraceCandidate]
 
 
-class ReviewRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+class ProviderDescriptor(_FrozenModel):
+    name: str = Field(min_length=1)
+    kind: str = Field(pattern=r"^(fixture|model|unknown)$")
+    default: bool
 
-    decision: ReviewDecision
-    reviewer_id: str = Field(min_length=1)
-    reason: str | None = None
+
+class ProviderCatalogResponse(_FrozenModel):
+    """The effective discovery registry plus presentation kind (AS-07)."""
+
+    schema_version: str
+    default: str = Field(min_length=1)
+    providers: list[ProviderDescriptor]
 
 
 class EvaluateRequest(BaseModel):
@@ -157,3 +163,7 @@ class ProblemDetails(BaseModel):
     code: str | None = None
     story: str | None = None
     milestone: str | None = None
+    # Additive provider/availability extensions (AS-07) and journal durability (AS-06).
+    failed_provider: str | None = None
+    registered_providers: list[str] | None = None
+    durability: str | None = None

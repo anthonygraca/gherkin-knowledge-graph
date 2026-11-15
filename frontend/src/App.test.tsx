@@ -9,6 +9,7 @@ import type { Api } from "./api";
 import type {
   Artifact,
   ArtifactListResponse,
+  DiscoveryResponse,
   FindingsResponse,
   Health,
   ThreadResponse,
@@ -60,6 +61,44 @@ function fakeApi(overrides: { findings?: Record<string, FindingsResponse> } = {}
     }),
     thread: async (artifactId, baseline) =>
       readFixture<ThreadResponse>(`threads/${artifactId}.${baseline}.json`),
+    reviewConfig: async () => ({
+      schema_version: snapshot.schema_version,
+      enabled: false,
+      operator: null,
+      loopback_only: true,
+    }),
+    workspaceThread: async (artifactId, baseline) => ({
+      ...readFixture<ThreadResponse>(`threads/${artifactId}.${baseline}.json`),
+      review_revision: 0,
+    }),
+    workspaceProposals: async (baseline) => ({
+      schema_version: snapshot.schema_version,
+      baseline,
+      review_revision: 0,
+      proposals: [],
+    }),
+    workspaceHistory: async (baseline) => ({
+      schema_version: snapshot.schema_version,
+      baseline,
+      review_revision: 0,
+      events: [],
+    }),
+    review: async () => {
+      throw new Error("review writes are disabled in this test double");
+    },
+    providers: async () => ({
+      schema_version: snapshot.schema_version,
+      default: "fake",
+      providers: [{ name: "fake", kind: "fixture", default: true }],
+    }),
+    discover: async (artifactId) => ({
+      schema_version: snapshot.schema_version,
+      artifact_id: artifactId,
+      provider: "fake",
+      model_version: "fake-fixture-v1",
+      index_revision: `sha256:${"a".repeat(64)}`,
+      candidates: [],
+    }),
   };
 }
 
@@ -281,6 +320,13 @@ describe("thread view", () => {
     const thread = await screen.findByRole("region", { name: /Thread for REQ-002/ });
     expect(within(thread).getByText("LNK-007")).toBeInTheDocument();
     expect(within(thread).getByText("not accepted")).toBeInTheDocument();
+    const fixtureThread = readFixture<ThreadResponse>("threads/REQ-002.baseline-a.json");
+    const proposal = fixtureThread.proposed_links.find((link) => link.link_id === "LNK-007")!;
+    const row = within(thread).getByText("LNK-007").closest("tr")!;
+    expect(row.textContent).toContain("fake");
+    expect(row.textContent).toContain("fake-fixture-v1");
+    expect(row.textContent).toContain(String(proposal.provenance.index_revision));
+    expect(row.textContent).toContain("fixture-generated");
     expect(
       within(requirementRow("REQ-002")).getByText("Missing verification"),
     ).toBeInTheDocument();
@@ -377,3 +423,47 @@ describe("thread view", () => {
     );
     expect(within(failure).getAllByText(/EV-003/).length).toBeGreaterThan(0);
   });
+
+describe("discovery candidates", () => {
+  it("labels a model-backed local provider from the historical/catalogue kinds", async () => {
+    const base = fakeApi();
+    const model = "embeddinggemma-2-text-270m-q8_0@sha256:b396bde0f7a8";
+    const binding = "sha256:provider-binding";
+    const api: Api = {
+      ...base,
+      discover: async (artifactId): Promise<DiscoveryResponse> => ({
+        schema_version: snapshot.schema_version,
+        artifact_id: artifactId,
+        provider: "local-embeddinggemma",
+        model_version: model,
+        index_revision: binding,
+        candidates: [
+          {
+            source_id: artifactId,
+            target_id: "CODE-001",
+            proposed_relation_type: "implemented_by",
+            rank: 1,
+            score: 0.9,
+            discovery_provider: "local-embeddinggemma",
+            model_version: model,
+            index_revision: binding,
+            rationale: "local cosine",
+          },
+        ],
+      }),
+    };
+    render(<App api={api} />);
+    await selectBaseline("baseline-a");
+    const region = await screen.findByRole("region", { name: "Discovery candidates" });
+    fireEvent.change(within(region).getByLabelText("Custom provider name"), {
+      target: { value: "local-embeddinggemma" },
+    });
+    fireEvent.click(within(region).getByRole("button", { name: "Find candidates" }));
+    const list = await within(region).findByRole("list", { name: "Discovery candidates" });
+    const item = list.querySelector('li[data-target-id="CODE-001"]')!;
+    expect(item.textContent).toContain("local-embeddinggemma");
+    expect(item.textContent).toContain("model-backed");
+    expect(item.textContent).toContain("CTA snapshot binding");
+    expect(item.textContent).not.toContain("provider kind not recorded");
+  });
+});

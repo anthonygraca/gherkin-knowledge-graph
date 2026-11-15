@@ -38,6 +38,9 @@ def problem_response(
     instance: str,
     story: str | None = None,
     milestone: str | None = None,
+    failed_provider: str | None = None,
+    registered_providers: list[str] | None = None,
+    durability: str | None = None,
 ) -> JSONResponse:
     body = ProblemDetails(
         type=f"{PROBLEM_TYPE_PREFIX}{code}",
@@ -48,6 +51,9 @@ def problem_response(
         code=code,
         story=story,
         milestone=milestone,
+        failed_provider=failed_provider,
+        registered_providers=registered_providers,
+        durability=durability,
     )
     return JSONResponse(status_code=status, content=body.model_dump(exclude_none=True))
 
@@ -72,6 +78,9 @@ def register_exception_handlers(app: FastAPI) -> None:
             title=exc.title,
             detail=exc.detail,
             instance=request.url.path,
+            failed_provider=getattr(exc, "failed_provider", None),
+            registered_providers=getattr(exc, "registered_providers", None),
+            durability=getattr(exc, "durability", None),
         )
 
     @app.exception_handler(CocoIndexError)

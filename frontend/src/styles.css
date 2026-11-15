@@ -180,3 +180,110 @@ tr.selected {
   font-weight: normal;
   opacity: 0.7;
 }
+
+.proposal {
+  margin: 1rem 0;
+  padding: 0.8rem 1rem;
+  border: 1px solid color-mix(in srgb, CanvasText 22%, transparent);
+  border-radius: 0.5rem;
+}
+
+.proposal dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.2rem 0.8rem;
+  margin: 0.6rem 0;
+}
+
+.proposal dt {
+  font-weight: 600;
+}
+
+.proposal dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.proposal label {
+  display: block;
+  margin: 0.6rem 0;
+}
+
+.proposal input {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.4rem;
+  font: inherit;
+}
+
+.proposal-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.review-history {
+  padding-left: 1.2rem;
+}
+
+.review-history li {
+  margin: 0.35rem 0;
+}
+
+.provenance-line {
+  display: block;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.candidate-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.8rem;
+  align-items: end;
+  margin: 0.8rem 0;
+}
+
+.candidate-controls label {
+  display: block;
+}
+
+.candidate-controls select,
+.candidate-controls input {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.4rem;
+  font: inherit;
+}
+
+.candidate-list {
+  padding-left: 1.2rem;
+}
+
+.candidate-list li {
+  margin: 1rem 0;
+}
+
+.candidate-list dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.2rem 0.8rem;
+  margin: 0.5rem 0;
+}
+
+.candidate-list dt {
+  font-weight: 600;
+}
+
+.candidate-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.candidate-empty {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid color-mix(in srgb, CanvasText 20%, transparent);
+  border-radius: 0.5rem;
+}

@@ -5,13 +5,13 @@ Endpoints are grouped by intent, which is also the honesty axis of the system:
 * **reads** — real implementations over the ingested fixture repository.
 * **ingestion** — parses the configured repository at a revision.
 * **assurance** — deterministic rules over ingested facts; no model calls.
-* **discovery** — real implementation, fixture provider; returns proposals only.
-* **contract-only** — the shape is frozen and documented, the implementation belongs to a
-  later milestone; the response is 501 with the owning story, never fake success.
+* **discovery** — proposals only; provider failure is a typed problem, never a finding.
+* **review** — trusted-local-operator capture and append-only decisions (review_routes.py).
 """
 
 from __future__ import annotations
 
+import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Path, Query
@@ -33,13 +33,16 @@ from app.domain.api import (
     IngestionRequest,
     IngestionResponse,
     ProblemDetails,
-    ReviewRequest,
+    ProviderCatalogResponse,
+    ProviderDescriptor,
     ThreadResponse,
 )
 from app.domain.enums import ArtifactType
-from app.domain.errors import FeatureNotImplemented
-from app.domain.models import ARTIFACT_ID_PATTERN, LINK_ID_PATTERN, Artifact, TraceLink
+from app.domain.errors import DomainError, ProviderUnavailable, RetrievalUnavailable
+from app.domain.models import ARTIFACT_ID_PATTERN, Artifact
 from app.version import PACKAGE_VERSION, SCHEMA_VERSION
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -54,10 +57,6 @@ _PROBLEM_400: dict[str, object] = {
 _PROBLEM_404: dict[str, object] = {
     "model": ProblemDetails,
     "description": "Unknown artifact, baseline, or thread.",
-}
-_PROBLEM_501: dict[str, object] = {
-    "model": ProblemDetails,
-    "description": "Contract-only endpoint; the problem document names the owning story.",
 }
 
 
@@ -174,15 +173,61 @@ def post_discovery(
     payload: DiscoveryRequest,
     repository: RepositoryDep,
     providers: ProvidersDep,
+    settings: SettingsDep,
 ) -> DiscoveryResponse:
     repository.get_artifact(payload.artifact_id)  # 404 when the source artifact is unknown
-    provider = providers.get(payload.provider)  # 400 when the provider name is unknown
-    candidates = provider.discover(
-        payload.artifact_id,
-        top_k=payload.top_k,
-        relation_types=payload.relation_types,
-        baseline=payload.baseline,
-    )
+    resolved = payload.provider or settings.discovery_provider
+    try:
+        provider = providers.get(payload.provider)  # 400 when the provider name is unknown
+    except ProviderUnavailable:
+        raise
+    except RetrievalUnavailable as exc:
+        if resolved == "local-embeddinggemma":
+            # AI-02 SCN-3203/SCN-3206 govern this retrieval capability's own availability code.
+            raise
+        raise ProviderUnavailable(str(exc), failed_provider=resolved) from exc
+    except DomainError:
+        raise
+    except Exception as exc:  # noqa: BLE001 - provider construction is an availability boundary
+        logger.warning(
+            "discovery provider %s could not be constructed for %s: %s",
+            resolved,
+            payload.artifact_id,
+            exc,
+        )
+        raise ProviderUnavailable(
+            f"Discovery provider {resolved!r} could not be constructed: {exc}",
+            failed_provider=resolved,
+        ) from exc
+    try:
+        candidates = provider.discover(
+            payload.artifact_id,
+            top_k=payload.top_k,
+            relation_types=payload.relation_types,
+            baseline=payload.baseline,
+        )
+    except ProviderUnavailable:
+        raise
+    except RetrievalUnavailable as exc:
+        if provider.provider_name == "local-embeddinggemma":
+            # AI-02 SCN-3203/SCN-3206 govern this retrieval capability's own availability code.
+            raise
+        raise ProviderUnavailable(str(exc), failed_provider=provider.provider_name) from exc
+    except DomainError:
+        raise
+    except Exception as exc:  # noqa: BLE001 - provider plugins are an availability boundary
+        logger.warning(
+            "discovery provider %s failed for %s at %s: %s",
+            provider.provider_name,
+            payload.artifact_id,
+            payload.baseline,
+            exc,
+        )
+        raise ProviderUnavailable(
+            f"Discovery provider {provider.provider_name!r} could not execute for "
+            f"{payload.artifact_id!r} at {payload.baseline or 'the latest baseline'}: {exc}",
+            failed_provider=provider.provider_name,
+        ) from exc
     return DiscoveryResponse(
         schema_version=SCHEMA_VERSION,
         artifact_id=payload.artifact_id,
@@ -203,6 +248,22 @@ def post_discovery(
     )
 
 
+@router.get(
+    "/api/discovery/providers",
+    response_model=ProviderCatalogResponse,
+    tags=["discovery"],
+    summary="Effective discovery providers with presentation kind",
+)
+def get_discovery_providers(providers: ProvidersDep) -> ProviderCatalogResponse:
+    catalog = providers.catalog()
+    default = next((item["name"] for item in catalog if item["default"]), "fake")
+    return ProviderCatalogResponse(
+        schema_version=SCHEMA_VERSION,
+        default=default,
+        providers=[ProviderDescriptor.model_validate(item) for item in catalog],
+    )
+
+
 @router.post(
     "/api/ingestion/run",
     response_model=IngestionResponse,
@@ -220,28 +281,6 @@ def post_ingestion_run(payload: IngestionRequest, store: StoreDep) -> IngestionR
         accepted_link_count=len(revision.accepted_links),
         proposed_link_count=len(revision.proposed_links),
         evidence_count=len(revision.evidence),
-    )
-
-
-@router.post(
-    "/api/links/{link_id}/review",
-    response_model=TraceLink,
-    tags=["contract-only"],
-    responses={501: _PROBLEM_501, 422: {"model": ProblemDetails}},
-    summary="Record a reviewer decision on a proposed link (contract only in M0)",
-)
-def post_link_review(
-    link_id: Annotated[str, Path(pattern=LINK_ID_PATTERN)],
-    payload: ReviewRequest,
-) -> TraceLink:
-    raise FeatureNotImplemented(
-        story="AS-06 (C-PR1 onward)",
-        milestone="M1/M2",
-        detail=(
-            "Link review with reviewer identity, timestamp, reason, and immutable decision "
-            "history is implemented with AS-06. Accepting a link will not change verification "
-            "status: an accepted link is not evidence of behaviour."
-        ),
     )
 
 

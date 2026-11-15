@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.5.0",
+  "schema_version": "0.8.0",
   "baseline": "baseline-a",
   "findings": [
     {
@@ -10,12 +10,12 @@
       "artifact_ids": [
         "REQ-002"
       ],
-      "evaluated_baseline": "19824b5c3e0c5b0491088f1b260f3c7ce648df3b",
+      "evaluated_baseline": "28c70cb4e0587f06898c0ebd1c14bcf1b25b0d72",
       "evidence_ids": [],
       "explanation": "REQ-002 has no accepted verification scenario at baseline-a.",
       "rule_id": "RULE-MISSING-VERIFICATION-LINK",
       "artifact_revisions": {
-        "REQ-002": "19824b5c3e0c5b0491088f1b260f3c7ce648df3b"
+        "REQ-002": "28c70cb4e0587f06898c0ebd1c14bcf1b25b0d72"
       }
     },
     {
@@ -26,12 +26,12 @@
       "artifact_ids": [
         "SCN-002"
       ],
-      "evaluated_baseline": "19824b5c3e0c5b0491088f1b260f3c7ce648df3b",
+      "evaluated_baseline": "28c70cb4e0587f06898c0ebd1c14bcf1b25b0d72",
       "evidence_ids": [],
       "explanation": "SCN-002 has no accepted implementation link at baseline-a.",
       "rule_id": "RULE-MISSING-IMPLEMENTATION-LINK",
       "artifact_revisions": {
-        "SCN-002": "19824b5c3e0c5b0491088f1b260f3c7ce648df3b"
+        "SCN-002": "28c70cb4e0587f06898c0ebd1c14bcf1b25b0d72"
       }
     },
     {
@@ -43,13 +43,13 @@
         "REQ-002",
         "SCN-002"
       ],
-      "evaluated_baseline": "19824b5c3e0c5b0491088f1b260f3c7ce648df3b",
+      "evaluated_baseline": "28c70cb4e0587f06898c0ebd1c14bcf1b25b0d72",
       "evidence_ids": [],
       "explanation": "Proposed link LNK-007 (REQ-002 verified_by SCN-002) has not been reviewed.",
       "rule_id": "RULE-CANDIDATE-PENDING-REVIEW",
       "artifact_revisions": {
-        "REQ-002": "19824b5c3e0c5b0491088f1b260f3c7ce648df3b",
-        "SCN-002": "19824b5c3e0c5b0491088f1b260f3c7ce648df3b"
+        "REQ-002": "28c70cb4e0587f06898c0ebd1c14bcf1b25b0d72",
+        "SCN-002": "28c70cb4e0587f06898c0ebd1c14bcf1b25b0d72"
       }
     },
     {
@@ -60,12 +60,12 @@
       "artifact_ids": [
         "REQ-003"
       ],
-      "evaluated_baseline": "19824b5c3e0c5b0491088f1b260f3c7ce648df3b",
+      "evaluated_baseline": "28c70cb4e0587f06898c0ebd1c14bcf1b25b0d72",
       "evidence_ids": [],
       "explanation": "REQ-003 is superseded but still has accepted relationships; a lifecycle review is required.",
       "rule_id": "RULE-LIFECYCLE-SUPERSEDED",
       "artifact_revisions": {
-        "REQ-003": "19824b5c3e0c5b0491088f1b260f3c7ce648df3b"
+        "REQ-003": "28c70cb4e0587f06898c0ebd1c14bcf1b25b0d72"
       }
     }
   ]

@@ -180,15 +180,127 @@ All errors are RFC 9457 problem documents: `type` (`urn:cta:error:<code>`), `tit
 | `artifact-not-found` | 404 | Unknown artifact id at the requested baseline |
 | `baseline-not-found` | 404 | Revision expression resolves to no known baseline |
 | `thread-not-found` | 404 | Artifact known, no thread materialized for it (M0: requirement roots only) |
-| `provider-not-registered` | 400 | Unknown discovery provider; detail lists registered providers |
+| `provider-not-registered` | 400 | Unknown discovery provider; `failed_provider` and `registered_providers` are present |
+| `provider-unavailable` | 503 | A registered discovery provider failed while executing; `failed_provider` is present; never a finding |
+| `retrieval-unavailable` | 503 | A configured optional retrieval provider (including local inference) is unavailable |
+| `retrieval-snapshot-not-found` | 404 | No retrieval manifest is published for the requested baseline or binding |
+| `mixed-index-context` | 409 | Candidate batches bound to different snapshot bindings cannot form one ranked list |
 | `invalid-request` | 400 | Request is valid JSON but semantically unusable |
 | `request-validation` | 422 | Body/path/query failed schema validation |
-| `not-implemented` | 501 | Contract frozen, implementation belongs to a later milestone (names `story`, `milestone`) |
+| `review-identity-unavailable` | 503 | Review writes are disabled because no operator identity is configured |
+| `review-identity-mismatch` | 403 | The supplied reviewer is not the server-assigned operator |
+| `review-loopback-required` | 403 | A review write arrived from a non-loopback peer |
+| `review-origin-forbidden` | 403 | A browser Origin outside the trusted loopback boundary attempted a review write |
+| `review-conflict` | 409 | A terminal decision already exists for the proposal |
+| `review-reason-required` | 422 | A rejection reason is empty or whitespace-only |
+| `review-storage-unavailable` | 503 | The journal could not durably store or confirm a record; `durability` is `not_committed` or `indeterminate` |
+| `proposal-invalid` | 422 | Capture names an unknown endpoint or contradicts the relation direction |
+| `proposal-conflict` | 409 | A pending proposal exists for the same triple with a different snapshot |
+| `proposal-stale` | 409 | Submitted or recorded endpoint content differs from the selected baseline |
+| `proposal-not-found` | 404 | No captured or baseline proposal exists for the link id at the selected baseline |
+| `not-implemented` | 501 | Reserved for a future contract-only capability; no current endpoint returns it |
 | `fixture-data-missing` / `fixture-data-invalid` | 500 | Server-side fixture problem; message says how to regenerate |
 | `repository-not-indexed` | 404 | Portable query named a repository or revision that is not indexed |
 | `scenario-not-found` | 404 | Portable scenario key absent at the pinned revision |
 | `report-not-applicable` | 400 | Report's parsed feature content does not match the indexed revision |
 | `internal-error` | 500 | Unhandled error; logged with traceback |
+
+## Review workspace contracts (schema 0.6.0, additive; AS-06)
+
+These models live in `app/domain/review.py`; the full normative notes are in
+`docs/stories/AS-06.md`.
+
+* `ProposalCaptureRequest` — explicit capture of a discovery candidate: source/target ids, relation,
+  required `baseline`, submitted endpoint content hashes, and reported provider/model/index
+  provenance (optional).
+* `ProposalSnapshot` — immutable proposal identity: `snapshot_digest`, endpoints, relation, selected
+  `baseline` and `baseline_commit`, both endpoint content hashes, reported provenance, score,
+  rationale, and server `captured_at`. The digest is `sha256` over the canonical JSON of the
+  endpoints, relation, baseline/commit, endpoint hashes, and provider/model/index; score,
+  rationale, and timestamp are excluded.
+* `TraceLink` remains the decision result. `ProposalRecord = {link, snapshot: ProposalSnapshot |
+  null, binding: "captured" | "legacy"}`; a legacy pending proposal has no capture snapshot until
+  its first decision.
+* `ReviewEvent` — one committed journal event: 1-based `review_revision`, event type
+  (`proposal_captured` | `decision_recorded`), server UTC `recorded_at`, operator, baseline/commit,
+  full link, full snapshot, decision, and reason.
+* `WorkspaceThreadResponse` = `ThreadResponse` + `review_revision`; it follows accepted and proposed
+  links to assemble the review neighbourhood, then keeps the arrays partitioned.
+  `WorkspaceProposalsResponse` is the pending queue; `WorkspaceHistoryResponse` is the applicable
+  event history.
+* Review and capture mutations **require** an explicit baseline (tag or commit SHA; an omitted field
+  is `422 request-validation`). A decision applies at a baseline whose commit matches, or whose two
+  endpoint content hashes equal the recorded snapshot. Addressability, freshness, and pending-queue
+  visibility are separate: a known stale proposal is addressable and yields `409 proposal-stale`,
+  not `404`.
+* The journal is application-owned NDJSON outside the fixture/evaluated repository. A committed
+  event is a payload line (with `record_digest`) followed by a matching `{"commit": ...}` line;
+  replay accepts only committed pairs. A confirmed rollback yields `durability: "not_committed"`;
+  an unconfirmed rollback or a persistent uncommitted tail blocks further mutations with
+  `durability: "indeterminate"` / `review-storage-unavailable`.
+* Review writes are loopback-only; a missing `Origin` is allowed for local CLI clients, and any
+  present Origin must be an `http(s)` loopback origin.
+
+## Provider availability and catalogue (schema 0.7.0, additive; AS-07)
+
+`ProviderDescriptor = {name, kind: "fixture" | "model" | "unknown", default}` and
+`ProviderCatalogResponse = {schema_version, default, providers}` describe the **effective** registry.
+Presentation kind comes from the versioned `PROVIDER_KINDS` table (`fake` fixture,
+`cocoindex`/`local-embeddinggemma` model), not from the provider name; disabling a provider does
+not erase the meaning of historical provenance. Problem documents may carry `failed_provider` and
+`registered_providers`; both are required on `provider-not-registered`. A registered provider that
+fails maps to `503 provider-unavailable` and is never converted into a finding, an accepted link, or
+an empty success. Empty discovery success keeps provider/model/index provenance.
+
+## Local embedding provider (schema 0.7.0, additive provider; AI-02)
+
+`local-embeddinggemma` is an optional `CandidateDiscovery` implementation behind the existing port;
+the default remains `fake`. It loads the Apache-2.0 EmbeddingGemma 2 text ONNX model from a local
+directory, embeds the eligible corpus in memory, and returns ordinary `TraceCandidate` proposals.
+The exact model, weights digests, runtime, licence, hardware, formatting versions, measured limits,
+and failure modes are recorded in
+`docs/reports/omp-closeout/AI-02-MODEL-MANIFEST.md`. A remote endpoint is `400 invalid-request`
+before any connection; missing weights, a digest mismatch, a missing runtime, or a non-finite/wrong
+dimension/zero embedding are `503 retrieval-unavailable` on `/api/discovery`; this is the AI-02
+provider-specific exception to the generic AS-07 `provider-unavailable` mapping. The provider writes
+no accepted link, review state, evidence, or finding.
+
+## Retrieval lifecycle contracts (schema 0.8.0, additive; AI-03)
+
+The CTA-owned snapshot/cache lifecycle lives in `app/domain/retrieval_lifecycle.py` and
+`app/retrieval/lifecycle.py`; the normative notes are in `docs/stories/AI-03.md`.
+
+* `RetrievalConfig` — provider, model ID/version, weights digest, runtime, formatting version,
+  dimension, max tokens, and explicit `chunking_owner`/`embedding_owner = cocoindex`.
+  `config_digest = sha256(canonical config)`.
+* `RetrievalArtifact` — eligible `CODE-nnn`/`TEST-nnn` artifact ID, type, locator, revision, and
+  content hash.
+* `ContentChangePlan` — `changed`, `added`, `removed`, and `unchanged` artifact IDs plus the
+  resolved selected/previous commits. It has no embedding-count field.
+* `RetrievalManifest` — schema version, repository, baseline, commit, config/config digest,
+  `corpus_cache_key`, `snapshot_binding`, eligible artifacts, change classifications and counts,
+  `items_embedded` (nullable), `items_embedded_availability` (`measured` | `not_available`),
+  measured `elapsed_ms`, previous binding, `reused`, `published_at`, and the optional backend
+  observation.
+* `corpus_cache_key = sha256(repository, config_digest, sorted eligible artifact IDs/types/locators/
+  content hashes)`; commits are excluded. `snapshot_binding = snapshot:sha256(sha256(repository,
+  commit, corpus_cache_key, config_digest))`; commits are included. Evidence-only commits therefore
+  share a cache key but not a binding.
+* Publication is an immutable `snapshots/<binding>.json` plus an atomically replaced
+  `baselines/<baseline>.json` pointer, outside the fixture/evaluated repository. Failed refresh
+  publishes no pointer; the previous snapshot remains readable. Old snapshot files are never
+  rewritten by a later config change.
+* `SnapshotBoundBatch` — `{snapshot_binding, provider, provider_index_revision, model_version,
+  candidates}`. The provider's own index identity is retained at the batch level; candidates carry
+  the CTA lifecycle binding in `index_revision`. `RetrievalLifecycle.bind` validates the provider
+  name/model and the provider's candidate binding before constructing the batch.
+  `CombineRequest`/`CombinedCandidatesResponse` accept these batches plus one expected binding.
+  A batch whose candidates disagree with its own declared binding is a `422 request-validation`
+  shape failure; a valid batch whose binding differs from the request binding is
+  `409 mixed-index-context`. Neither returns a combined list. Compatible candidates are re-ranked
+  contiguously, and the response `provenance` list retains each batch's provider identity.
+* `items_embedded` is `null`/`not_available` unless the backend exposes a measured non-negative
+  counter. CTA never infers a CocoIndex embedding count.
 
 ## Fixture file schemas
 

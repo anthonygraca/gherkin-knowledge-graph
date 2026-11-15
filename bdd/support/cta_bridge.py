@@ -135,6 +135,8 @@ def _write_files(repo: Path, files: dict[str, str]) -> None:
 
 
 def _commit(repo: Path, message: str) -> str:
+    if repo.resolve() == ROOT:
+        raise RuntimeError("refusing to commit the CTA repository root from the BDD harness")
     _git(repo, "add", "-A")
     _git(repo, "commit", "--quiet", "--allow-empty", "-m", message)
     return _git(repo, "rev-parse", "HEAD").strip()
@@ -738,6 +740,1171 @@ def op_hashes(args: dict) -> dict:
     }
 
 
+def _tree_digest(path: Path) -> str:
+    import hashlib
+
+    digest = hashlib.sha256()
+    for item in sorted(path.rglob("*")):
+        if item.is_file() and ".git" not in item.parts:
+            digest.update(str(item.relative_to(path)).encode("utf-8"))
+            digest.update(item.read_bytes())
+    return f"sha256:{digest.hexdigest()}"
+
+
+def _review_state() -> dict:
+    state = _load_state()
+    return state.setdefault("review", {})
+
+
+def _review_init(args: dict) -> dict:
+    import uuid
+
+    state = _load_state()
+    review = state.setdefault("review", {})
+    journal = Path(
+        args.get("journal") or (_state_dir() / "review" / f"journal-{uuid.uuid4().hex}.ndjson")
+    )
+    journal.parent.mkdir(parents=True, exist_ok=True)
+    if args.get("fresh", True) and journal.exists():
+        journal.unlink()
+    repo = Path(args.get("repo") or _fixture_repo())
+    review.update(
+        {
+            "journal": str(journal),
+            "operator": args.get("operator", "rv-ana"),
+            "repo": str(repo),
+        }
+    )
+    _save_state(state)
+    settings = _review_settings()
+    client = _review_client()
+    baseline = client.get("/api/findings", params={"baseline": "baseline-a"}).json()
+    thread = client.get("/api/threads/REQ-002", params={"baseline": "baseline-a"}).json()
+    review["baseline"] = {
+        "findings": baseline,
+        "thread": thread,
+        "evidence": thread["evidence"],
+        "fixture_digest": _tree_digest(_fixture_repo()),
+        "journal_hashes": _journal_hashes(journal) if journal.exists() else None,
+    }
+    state = _load_state()
+    state["review"] = review
+    _save_state(state)
+    return {
+        "journal": str(journal),
+        "operator": settings.review_operator,
+        "outside_fixture": not journal.resolve().is_relative_to(ROOT / "fixtures"),
+        "config": client.get("/api/review/config").json(),
+        "events": _review_journal_events(journal),
+    }
+
+
+def _review_settings() -> Settings:
+    from dataclasses import replace
+
+    review = _review_state()
+    return replace(
+        _settings(),
+        fixture_repo_path=Path(review.get("repo") or _fixture_repo()),
+        review_operator=review.get("operator", "rv-ana"),
+        review_journal_path=Path(review["journal"]),
+    )
+
+
+def _review_client():
+    from fastapi.testclient import TestClient
+
+    return TestClient(create_app(_review_settings()))
+
+
+def _review_workspace():
+    from app.persistence.review import ReviewWorkspace
+
+    settings = _review_settings()
+    return ReviewWorkspace(create_app(settings).state.store, settings)
+
+
+def _review_journal_events(path: Path) -> list[dict]:
+    from app.persistence.review import ReviewJournal
+
+    journal = ReviewJournal(path)
+    return [event.model_dump(mode="json") for event in journal.events]
+
+
+def _review_capture_payload(
+    client,
+    *,
+    source_id="SCN-002",
+    target_id="CODE-001",
+    relation_type="implemented_by",
+    baseline="baseline-a",
+    **overrides,
+):
+    artifacts = {
+        artifact["artifact_id"]: artifact
+        for artifact in client.get("/api/artifacts", params={"baseline": baseline}).json()[
+            "artifacts"
+        ]
+    }
+    payload = {
+        "source_id": source_id,
+        "target_id": target_id,
+        "relation_type": relation_type,
+        "baseline": baseline,
+        "source_content_hash": artifacts[source_id]["content_hash"],
+        "target_content_hash": artifacts[target_id]["content_hash"],
+        "provider": "fake",
+        "model_version": "fake-fixture-v1",
+        "index_revision": "sha256:" + "a" * 64,
+        "score": 0.71,
+    }
+    payload.update(overrides)
+    return payload
+
+
+def _review_last_capture() -> dict:
+    return _review_state().get("last_capture", {})
+
+
+def op_review(args: dict) -> dict:
+    action = args.get("action")
+    if action == "init":
+        return _review_init(args)
+    if action == "config":
+        return _review_client().get("/api/review/config").json()
+
+    client = _review_client()
+    review = _review_state()
+
+    if action == "capture":
+        payload = None
+        if args.get("candidate"):
+            from app.discovery.registry import ProviderRegistry
+            from app.domain.enums import RelationType
+
+            settings = _review_settings()
+            provider = ProviderRegistry(settings).get("fake")
+            candidates = provider.discover(
+                "SCN-002", top_k=50, relation_types=[RelationType.IMPLEMENTED_BY]
+            )
+            candidate = next(
+                (
+                    item
+                    for item in candidates
+                    if item.source_id == "SCN-002" and item.target_id == "CODE-001"
+                ),
+                None,
+            )
+            if candidate is None:
+                raise RuntimeError(
+                    "the fake index has no SCN-002 implemented_by CODE-001 candidate"
+                )
+            payload = _review_capture_payload(
+                client,
+                provider=candidate.discovery_provider,
+                model_version=candidate.model_version,
+                index_revision=candidate.index_revision,
+                score=candidate.score,
+                rationale=candidate.rationale,
+            )
+        elif args.get("stored"):
+            payload = _review_last_capture()["payload"]
+        elif args.get("submission"):
+            base = _review_last_capture()["payload"]
+            payload = dict(base)
+            if args["submission"] == "the same endpoints with a different provider identity":
+                payload["provider"] = "cocoindex"
+            elif args["submission"] == "the identical snapshot again":
+                pass
+            elif args["submission"] == "the same endpoints after a terminal decision":
+                link_id = _review_last_capture()["body"]["link"]["link_id"]
+                decision = client.post(
+                    f"/api/links/{link_id}/review",
+                    json={
+                        "decision": "accept",
+                        "reviewer_id": "rv-ana",
+                        "baseline": base["baseline"],
+                    },
+                )
+                if decision.status_code != 200:
+                    raise RuntimeError(f"terminal decision setup failed: {decision.text}")
+            else:
+                raise RuntimeError(f"unknown capture submission {args['submission']!r}")
+        else:
+            overrides = {
+                key: args[key]
+                for key in ("source_id", "target_id", "relation_type", "baseline")
+                if key in args
+            }
+            payload = _review_capture_payload(client, **overrides)
+            defect = args.get("defect")
+            if defect == "an unknown target artifact SCN-999":
+                payload["target_id"] = "SCN-999"
+            elif defect == "a relation direction that contradicts the endpoint artifact types":
+                payload["source_id"], payload["target_id"] = "CODE-001", "SCN-002"
+                payload["source_content_hash"], payload["target_content_hash"] = (
+                    payload["target_content_hash"],
+                    payload["source_content_hash"],
+                )
+            elif defect == "a source content hash that disagrees":
+                payload["source_content_hash"] = "sha256:" + "b" * 64
+            elif defect == "a target content hash that disagrees":
+                payload["target_content_hash"] = "sha256:" + "b" * 64
+            elif defect:
+                raise RuntimeError(f"unknown capture defect {defect!r}")
+
+        if args.get("dry_run"):
+            review["last_capture"] = {"payload": payload, "status": None, "body": {}}
+            state = _load_state()
+            state["review"] = review
+            _save_state(state)
+            return review["last_capture"]
+
+        before = _tree_digest(_fixture_repo())
+        response = client.post("/api/link-proposals", json=payload)
+        after = _tree_digest(_fixture_repo())
+        body = response.json()
+        review["last_capture"] = {
+            "status": response.status_code,
+            "body": body,
+            "payload": payload,
+            "fixture_unchanged": before == after,
+            "digest_valid": (
+                "snapshot" in body
+                and body["snapshot"]["snapshot_digest"]
+                == _independent_snapshot_digest(body["snapshot"])
+            ),
+        }
+        state = _load_state()
+        state["review"] = review
+        _save_state(state)
+        return review["last_capture"]
+
+    if action == "decide":
+        link_id = args.get("link_id") or _review_last_capture()["body"]["link"]["link_id"]
+        payload: dict = {
+            "decision": args.get("decision", "accept"),
+            "reviewer_id": args.get("reviewer", "rv-ana"),
+            "baseline": args.get("baseline", "baseline-a"),
+        }
+        reason = args.get("reason")
+        if reason is None and "reason" in args:
+            payload["reason"] = None
+        elif reason == "no reason field":
+            pass
+        elif reason == "a null reason":
+            payload["reason"] = None
+        elif reason == "an empty reason":
+            payload["reason"] = ""
+        elif reason == "a reason of three space characters":
+            payload["reason"] = "   "
+        elif reason is not None:
+            payload["reason"] = reason
+        headers = {}
+        if args.get("origin"):
+            headers["Origin"] = args["origin"]
+        if args.get("client_host"):
+            from fastapi.testclient import TestClient
+
+            request_client = TestClient(
+                create_app(_review_settings()), client=(args["client_host"], 50000)
+            )
+        else:
+            request_client = client
+        before = client.get("/api/workspace/history", params={"baseline": payload["baseline"]})
+        before_count = len(before.json()["events"]) if before.status_code == 200 else 0
+        journal_path = Path(_review_state()["journal"])
+        before_hashes = _journal_hashes(journal_path)
+        response = request_client.post(
+            f"/api/links/{link_id}/review", json=payload, headers=headers
+        )
+        after_events = _review_journal_events(journal_path) if journal_path.exists() else []
+        review["last_decision"] = {
+            "status": response.status_code,
+            "body": response.json(),
+            "payload": payload,
+            "link_id": link_id,
+            "history_revision_before": before_count,
+            "journal_hashes_before": before_hashes,
+            "journal_events": after_events,
+            "journal_hashes": _journal_hashes(journal_path),
+        }
+        state = _load_state()
+        state["review"] = review
+        _save_state(state)
+        return review["last_decision"]
+
+    if action == "workspace":
+        kind = args.get("kind", "history")
+        params = {"baseline": args.get("baseline", "baseline-a")}
+        if kind == "thread":
+            path = f"/api/workspace/threads/{args.get('artifact_id', 'REQ-002')}"
+        elif kind == "proposals":
+            path = "/api/workspace/proposals"
+        elif kind == "history":
+            path = "/api/workspace/history"
+        else:
+            raise RuntimeError(f"unknown workspace kind {kind!r}")
+        response = client.get(path, params=params)
+        return {"status": response.status_code, "body": response.json()}
+
+    if action == "restart":
+        path = Path(_review_state()["journal"])
+        before = _journal_hashes(path)
+        restarted = _review_client()
+        return {
+            "config": restarted.get("/api/review/config").json(),
+            "journal_hashes_before": before,
+            "journal_hashes_after": _journal_hashes(path),
+            "history": restarted.get(
+                "/api/workspace/history", params={"baseline": args.get("baseline", "baseline-a")}
+            ).json(),
+        }
+
+    if action == "journal":
+        path = Path(_review_state()["journal"])
+        hashes = _journal_hashes(path)
+        result = {
+            "path": str(path),
+            "exists": path.exists(),
+            "bytes_sha256": hashes["bytes_sha256"],
+            "bytes": hashes["bytes"],
+            "line_count": hashes["line_count"],
+            "events": _review_journal_events(path) if path.exists() else [],
+        }
+        if "prefix_bytes" in args:
+            import hashlib
+
+            raw = path.read_bytes() if path.exists() else b""
+            length = min(max(0, int(args["prefix_bytes"])), len(raw))
+            result["prefix_sha256"] = f"sha256:{hashlib.sha256(raw[:length]).hexdigest()}"
+        return result
+
+    if action == "baseline":
+        baseline = args.get("baseline", "baseline-a")
+        findings = client.get("/api/findings", params={"baseline": baseline}).json()
+        thread = client.get("/api/threads/REQ-002", params={"baseline": baseline}).json()
+        path = Path(_review_state()["journal"])
+        review["baseline"] = {
+            "findings": findings,
+            "thread": thread,
+            "evidence": thread["evidence"],
+            "fixture_digest": _tree_digest(_fixture_repo()),
+            "journal_hashes": _journal_hashes(path) if path.exists() else None,
+        }
+        state = _load_state()
+        state["review"] = review
+        _save_state(state)
+        return review["baseline"]
+
+    if action == "compare_baseline":
+        baseline = args.get("baseline", "baseline-a")
+        recorded = _review_state().get("baseline")
+        if recorded is None:
+            raise RuntimeError("no recorded baseline comparison")
+        findings = client.get("/api/findings", params={"baseline": baseline}).json()
+        thread = client.get("/api/threads/REQ-002", params={"baseline": baseline}).json()
+        path = Path(_review_state()["journal"])
+        return {
+            "findings_equal": findings == recorded["findings"],
+            "evidence_equal": thread["evidence"] == recorded["evidence"],
+            "thread_equal": thread == recorded["thread"],
+            "fixture_equal": _tree_digest(_fixture_repo()) == recorded["fixture_digest"],
+            "journal": _journal_hashes(path) if path.exists() else None,
+        }
+
+    if action == "concurrent":
+        import threading
+
+        from app.domain.enums import ReviewDecision
+
+        settings = _review_settings()
+        workspace = _review_workspace()
+        outcomes: list[dict] = []
+
+        def decide(decision: str, reason: str | None) -> None:
+            from app.domain.errors import ReviewConflict
+
+            try:
+                link = workspace.review(
+                    args.get("link_id", "LNK-007"),
+                    decision=ReviewDecision(decision),
+                    reviewer_id="rv-ana",
+                    baseline=args.get("baseline", "baseline-a"),
+                    reason=reason,
+                )
+                outcomes.append({"status": 200, "body": link.model_dump(mode="json")})
+            except ReviewConflict as exc:
+                outcomes.append({"status": 409, "body": {"code": exc.code, "detail": exc.detail}})
+
+        threads = [
+            threading.Thread(target=decide, args=("accept", None)),
+            threading.Thread(target=decide, args=("reject", "concurrent rejection")),
+        ]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+        path = Path(_review_state()["journal"])
+        return {"outcomes": outcomes, "events": _review_journal_events(path)}
+
+    if action == "evidence_only":
+        import uuid
+
+        destination = _state_dir() / "review" / f"evidence-only-{uuid.uuid4().hex}"
+        _git(_fixture_repo().parent, "clone", "--quiet", str(_fixture_repo()), str(destination))
+        _git(destination, "checkout", "--quiet", "baseline-a")
+        _git(destination, "config", "user.name", "BDD Fixture")
+        _git(destination, "config", "user.email", "bdd@example.invalid")
+        _git(destination, "config", "commit.gpgsign", "false")
+        commit = _commit(destination, "Evidence-only observation")
+        review["repo"] = str(destination)
+        review["evidence_only_commit"] = commit
+        state = _load_state()
+        state["review"] = review
+        _save_state(state)
+        return {"commit": commit, "repo": str(destination)}
+
+    if action == "findings":
+        baseline = args.get("baseline", "baseline-a")
+        response = client.get("/api/findings", params={"baseline": baseline})
+        return {"status": response.status_code, "body": response.json()}
+
+    if action == "failing_capture":
+        from fastapi.testclient import TestClient
+
+        from app.persistence.review import ReviewJournal, ReviewWorkspace
+
+        mode = args.get("mode", "rollback")
+
+        class FailingJournal(ReviewJournal):
+            def __init__(self, path: Path) -> None:
+                self.calls = 0
+                super().__init__(path)
+
+            def _fsync(self, fd: int) -> None:
+                self.calls += 1
+                if self.calls == 2:
+                    raise OSError("injected fsync failure")
+                super()._fsync(fd)
+
+        class IndeterminateJournal(FailingJournal):
+            def _truncate(self, fd: int, size: int) -> None:
+                raise OSError("injected truncate failure")
+
+        settings = _review_settings()
+        journal = (IndeterminateJournal if mode == "indeterminate" else FailingJournal)(
+            Path(settings.review_journal)
+        )
+        app = create_app(settings)
+        app.state.review = ReviewWorkspace(app.state.store, settings, journal=journal)
+        scenario_client = TestClient(app)
+        payload = args.get("payload") or _review_last_capture()["payload"]
+        response = scenario_client.post("/api/link-proposals", json=payload)
+        path = Path(settings.review_journal)
+        return {
+            "status": response.status_code,
+            "body": response.json(),
+            "live_pending": app.state.review.pending("baseline-a").model_dump(mode="json"),
+            "journal_hashes": _journal_hashes(path),
+        }
+
+    if action == "failing_decide":
+        from fastapi.testclient import TestClient
+
+        from app.persistence.review import ReviewJournal, ReviewWorkspace
+
+        mode = args.get("mode", "rollback")
+
+        class FailingJournal(ReviewJournal):
+            def __init__(self, path: Path) -> None:
+                self.calls = 0
+                super().__init__(path)
+
+            def _fsync(self, fd: int) -> None:
+                self.calls += 1
+                if self.calls == 2:
+                    raise OSError("injected fsync failure")
+                super()._fsync(fd)
+
+        class IndeterminateJournal(FailingJournal):
+            def _truncate(self, fd: int, size: int) -> None:
+                raise OSError("injected truncate failure")
+
+        settings = _review_settings()
+        journal = (IndeterminateJournal if mode == "indeterminate" else FailingJournal)(
+            Path(settings.review_journal)
+        )
+        app = create_app(settings)
+        app.state.review = ReviewWorkspace(app.state.store, settings, journal=journal)
+        scenario_client = TestClient(app)
+        link_id = args.get("link_id", "LNK-007")
+        response = scenario_client.post(
+            f"/api/links/{link_id}/review",
+            json={
+                "decision": args.get("decision", "accept"),
+                "reviewer_id": "rv-ana",
+                "baseline": args.get("baseline", "baseline-a"),
+            },
+        )
+        path = Path(settings.review_journal)
+        return {
+            "status": response.status_code,
+            "body": response.json(),
+            "live_pending": app.state.review.pending("baseline-a").model_dump(mode="json"),
+            "live_history": app.state.review.history("baseline-a").model_dump(mode="json"),
+            "journal_hashes": _journal_hashes(path),
+        }
+
+    if action == "tail":
+        path = Path(_review_state()["journal"])
+        payload_line = json.dumps(
+            {"event": {}, "record_digest": "sha256:" + "a" * 64}, separators=(",", ":")
+        )
+        with path.open("a", encoding="utf-8") as handle:
+            handle.write(payload_line + "\n")
+        return {"path": str(path)}
+
+    raise RuntimeError(f"unknown review action {action!r}")
+
+
+def _journal_hashes(path: Path) -> dict:
+    import hashlib
+
+    if not path.exists():
+        return {"bytes_sha256": None, "line_count": 0, "bytes": 0}
+    raw = path.read_bytes()
+    return {
+        "bytes_sha256": f"sha256:{hashlib.sha256(raw).hexdigest()}",
+        "line_count": len(raw.splitlines()),
+        "bytes": len(raw),
+    }
+
+
+def _independent_snapshot_digest(snapshot: dict) -> str:
+    import hashlib
+    import json
+
+    payload = {
+        "source_id": snapshot["source_id"],
+        "target_id": snapshot["target_id"],
+        "relation_type": snapshot["relation_type"],
+        "baseline": snapshot["baseline"],
+        "baseline_commit": snapshot["baseline_commit"],
+        "source_content_hash": snapshot["source_content_hash"],
+        "target_content_hash": snapshot["target_content_hash"],
+        "provider": snapshot["provider"],
+        "model_version": snapshot["model_version"],
+        "index_revision": snapshot["index_revision"],
+    }
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return f"sha256:{hashlib.sha256(canonical.encode('utf-8')).hexdigest()}"
+
+
+class _KeywordRuntime:
+    """Deterministic local runtime used by the offline AI-02 contract scenario."""
+
+    model_id = "embeddinggemma-2-text-270m-q8_0"
+    weights_digest = "sha256:" + "a" * 64
+    runtime_version = "deterministic-keyword-runtime"
+    dimension = 3
+    max_tokens = 512
+
+    def embed(self, texts):
+        import math
+
+        vectors = []
+        for text in texts:
+            lowered = text.lower()
+            vector = [0.0, 0.0, 0.0]
+            if "withdraw" in lowered:
+                vector[0] += 1.0
+            if "transfer" in lowered:
+                vector[1] += 1.0
+            if "account" in lowered:
+                vector[2] += 1.0
+            if not any(vector):
+                vector[2] = 1.0
+            norm = math.sqrt(sum(value * value for value in vector))
+            vectors.append([value / norm for value in vector])
+        return vectors
+
+
+class _NaNRuntime(_KeywordRuntime):
+    def embed(self, texts):
+        return [[float("nan"), 0.0, 0.0] for _ in texts]
+
+
+def _local_provider(runtime):
+    from app.discovery.local_embedding import LocalEmbeddingCandidateDiscovery
+    from app.ingestion.repository import GitRepository
+
+    store = _store()
+    return LocalEmbeddingCandidateDiscovery(store, GitRepository(_fixture_repo()), runtime=runtime)
+
+
+def _deny_network(attempts: list[str] | None = None) -> object:
+    import socket
+
+    original = socket.socket.connect
+
+    def deny(sock, address):
+        if attempts is not None:
+            attempts.append(str(address))
+        raise OSError(f"network connection attempted to {address!r}")
+
+    socket.socket.connect = deny
+    return original
+
+
+def _restore_network(original) -> None:
+    import socket
+
+    socket.socket.connect = original
+
+
+class _FailingRefreshAdapter:
+    def refresh(self, *, baseline, commit, plan, config):
+        raise TimeoutError("deterministic retrieval index adapter timed out")
+
+
+def _retrieval_state() -> dict:
+    state = _load_state()
+    return state.setdefault("retrieval", {})
+
+
+def _retrieval_init(args: dict) -> dict:
+    import uuid
+
+    state = _load_state()
+    retrieval = state.setdefault("retrieval", {})
+    snapshots = _state_dir() / "retrieval" / f"snapshots-{uuid.uuid4().hex}"
+    snapshots.mkdir(parents=True, exist_ok=True)
+    retrieval.update({"snapshots": str(snapshots), "repo": str(_fixture_repo())})
+    state["retrieval"] = retrieval
+    _save_state(state)
+    return {
+        "snapshots": str(snapshots),
+        "repo": str(_fixture_repo()),
+        "manifest": None,
+    }
+
+
+def _retrieval_settings():
+    from dataclasses import replace
+
+    retrieval = _retrieval_state()
+    return replace(
+        _settings(),
+        fixture_repo_path=Path(retrieval.get("repo") or _fixture_repo()),
+        retrieval_snapshot_dir=Path(retrieval["snapshots"]),
+        review_journal_path=_state_dir() / "review" / "journal.ndjson",
+    )
+
+
+def _retrieval_client():
+    from fastapi.testclient import TestClient
+
+    return TestClient(create_app(_retrieval_settings()))
+
+
+def _retrieval_config(args: dict):
+    from app.domain.retrieval_lifecycle import RetrievalConfig
+
+    weights = args.get("weights_digest")
+    if weights is None:
+        return None
+    return RetrievalConfig(
+        provider="cocoindex",
+        model_id="embeddinggemma-2-text-270m-q8_0",
+        model_version="embeddinggemma-2-text-270m-q8_0@sha256:" + "b" * 12,
+        weights_digest=weights,
+        runtime="cocoindex 0.2.43",
+        formatting_version="ai03-test-v1",
+    )
+
+
+def _retrieval_service():
+    from app.ingestion.repository import GitRepository
+    from app.retrieval.lifecycle import RetrievalLifecycle
+
+    settings = _retrieval_settings()
+    return RetrievalLifecycle(
+        IngestedStore.from_settings(settings),
+        GitRepository(settings.fixture_repo),
+        settings.retrieval_snapshots,
+        repository_name=settings.fixture,
+    )
+
+
+def op_retrieval_lifecycle(args: dict) -> dict:
+    action = args.get("action", "init")
+    if action == "init":
+        return _retrieval_init(args)
+
+    if action == "evidence_only":
+        import uuid
+
+        destination = _state_dir() / "retrieval" / f"evidence-only-{uuid.uuid4().hex}"
+        _git(_fixture_repo().parent, "clone", "--quiet", str(_fixture_repo()), str(destination))
+        _git(destination, "checkout", "--quiet", "baseline-a")
+        _git(destination, "config", "user.name", "BDD Fixture")
+        _git(destination, "config", "user.email", "bdd@example.invalid")
+        _git(destination, "config", "commit.gpgsign", "false")
+        commit = _commit(destination, "Evidence-only retrieval observation")
+        retrieval = _retrieval_state()
+        retrieval["repo"] = str(destination)
+        state = _load_state()
+        state["retrieval"] = retrieval
+        _save_state(state)
+        from app.assurance.rules import DeterministicAssuranceEvaluator
+        from app.persistence.ingested import IngestedStore
+
+        store = IngestedStore.from_settings(_retrieval_settings())
+        evaluator = DeterministicAssuranceEvaluator(store)
+        before = evaluator.evaluate("baseline-a")
+        after = evaluator.evaluate(commit)
+        findings_unchanged = [
+            (finding.finding_id, finding.finding_type, finding.artifact_ids) for finding in before
+        ] == [(finding.finding_id, finding.finding_type, finding.artifact_ids) for finding in after]
+        return {
+            "commit": commit,
+            "repo": str(destination),
+            "findings_unchanged": findings_unchanged,
+            "verification_failed": [
+                finding.finding_id
+                for finding in after
+                if finding.finding_type.value == "verification_failed"
+            ],
+        }
+
+    client = _retrieval_client()
+    if action == "plan":
+        service = _retrieval_service()
+        plan = service.plan(args["baseline"], args.get("previous_baseline"))
+        return plan.model_dump(mode="json")
+
+    if action == "refresh":
+        if args.get("adapter") == "failing":
+            service = _retrieval_service()
+            try:
+                manifest = service.refresh(
+                    args["baseline"],
+                    previous_baseline=args.get("previous_baseline"),
+                    config=_retrieval_config(args),
+                    adapter=_FailingRefreshAdapter(),
+                )
+            except Exception as exc:
+                return {"status": 503, "error": type(exc).__name__, "detail": str(exc)}
+            return {"status": 200, "body": manifest.model_dump(mode="json")}
+        response = client.post(
+            "/api/retrieval/refresh",
+            json={
+                "baseline": args["baseline"],
+                "previous_baseline": args.get("previous_baseline"),
+                "config": (
+                    _retrieval_config(args).model_dump(mode="json")
+                    if _retrieval_config(args) is not None
+                    else None
+                ),
+            },
+        )
+        return {"status": response.status_code, "body": response.json()}
+
+    if action == "manifest":
+        response = client.get(f"/api/retrieval/manifests/{args['baseline']}")
+        return {"status": response.status_code, "body": response.json()}
+
+    if action == "manifests":
+        response = client.get("/api/retrieval/manifests")
+        return {"status": response.status_code, "body": response.json()}
+
+    if action == "combine":
+        response = client.post(
+            "/api/retrieval/combine",
+            json={"snapshot_binding": args["snapshot_binding"], "batches": args["batches"]},
+        )
+        return {"status": response.status_code, "body": response.json()}
+
+    raise RuntimeError(f"unknown retrieval lifecycle action {action!r}")
+
+
+def op_local_embedding(args: dict) -> dict:
+    from dataclasses import replace
+
+    from app.discovery.registry import ProviderRegistry
+    from app.main import create_app
+
+    action = args.get("action", "contract")
+    base = _settings()
+    store = _store()
+
+    if action == "default_fake":
+        registry = ProviderRegistry(base, store)
+        attempts: list[str] = []
+        original = _deny_network(attempts)
+        try:
+            candidates = registry.get(None).discover("SCN-001")
+        finally:
+            _restore_network(original)
+        import sys
+
+        return {
+            "registered": registry.registered,
+            "candidates": _jsonable(candidates),
+            "provider": candidates[0].discovery_provider if candidates else "fake",
+            "onnxruntime_imported": "onnxruntime" in sys.modules,
+            "model_dir_configured": base.local_embedding_model_dir is not None,
+            "network_attempts": attempts,
+        }
+
+    if action == "remote_endpoint":
+        settings = replace(
+            base,
+            local_embedding_enabled=True,
+            local_embedding_endpoint="http://192.0.2.10:11434",
+            review_journal_path=_state_dir() / "review-local" / "journal.ndjson",
+        )
+        app = create_app(settings)
+        attempts: list[str] = []
+        original = _deny_network(attempts)
+        try:
+            from fastapi.testclient import TestClient
+
+            response = TestClient(app).post(
+                "/api/discovery",
+                json={"artifact_id": "SCN-001", "provider": "local-embeddinggemma"},
+            )
+        finally:
+            _restore_network(original)
+        return {
+            "status": response.status_code,
+            "body": response.json(),
+            "network_attempts": attempts,
+        }
+
+    if action == "missing_weights":
+        condition = args.get("condition", "absent")
+        model_dir = _state_dir() / "review-local" / f"model-{condition}"
+        expected = "sha256:" + "a" * 64
+        if condition in {"mismatch", "runtime_missing"}:
+            model_dir.mkdir(parents=True, exist_ok=True)
+            (model_dir / "onnx").mkdir(exist_ok=True)
+            (model_dir / "onnx" / "model_quantized.onnx").write_bytes(b"graph")
+            (model_dir / "onnx" / "model_quantized.onnx_data").write_bytes(b"data")
+            (model_dir / "tokenizer.json").write_text("{}", "utf-8")
+        settings = replace(
+            base,
+            local_embedding_enabled=True,
+            local_embedding_model_dir=model_dir,
+            local_embedding_weights_digest=(expected if condition != "runtime_missing" else None),
+            review_journal_path=_state_dir() / "review-local" / "journal.ndjson",
+        )
+        import sys
+
+        from fastapi.testclient import TestClient
+
+        patched: dict[str, object] = {}
+        if condition == "runtime_missing":
+            for name in ("onnxruntime", "tokenizers"):
+                patched[name] = sys.modules.get(name)
+                sys.modules[name] = None
+        try:
+            client = TestClient(create_app(settings))
+            before = {
+                "findings": client.get("/api/findings", params={"baseline": "baseline-a"}).json(),
+                "thread": client.get(
+                    "/api/threads/REQ-001", params={"baseline": "baseline-a"}
+                ).json(),
+            }
+            response = client.post(
+                "/api/discovery",
+                json={"artifact_id": "SCN-001", "provider": "local-embeddinggemma"},
+            )
+            after = {
+                "findings": client.get("/api/findings", params={"baseline": "baseline-a"}).json(),
+                "thread": client.get(
+                    "/api/threads/REQ-001", params={"baseline": "baseline-a"}
+                ).json(),
+            }
+        finally:
+            for name, value in patched.items():
+                if value is None:
+                    sys.modules.pop(name, None)
+                else:
+                    sys.modules[name] = value
+        return {
+            "status": response.status_code,
+            "body": response.json(),
+            "unchanged": before == after,
+            "condition": condition,
+        }
+
+    if action == "contract":
+        provider = _local_provider(_KeywordRuntime())
+        from app.assurance.rules import DeterministicAssuranceEvaluator
+
+        evaluator = DeterministicAssuranceEvaluator(store)
+        before = (
+            store.list_links("baseline-a"),
+            store.list_evidence("baseline-a"),
+            evaluator.evaluate("baseline-a"),
+        )
+        candidates = provider.discover("SCN-001", top_k=10)
+        trimmed = provider.discover("SCN-001", top_k=1)
+        sources = provider.discover("SCN-001", relation_types=["implemented_by"])
+        tests = provider.discover("SCN-001", relation_types=["exercised_by"])
+        requirements = provider.discover("REQ-001")
+
+        settings = replace(
+            base,
+            local_embedding_enabled=True,
+            local_embedding_model_dir=None,
+            review_journal_path=_state_dir() / "review-local" / "journal.ndjson",
+        )
+        from fastapi.testclient import TestClient
+
+        app = create_app(settings)
+        from app.discovery.registry import ProviderRegistry
+
+        registry = ProviderRegistry(settings, app.state.store)
+        registry._cache["local-embeddinggemma"] = provider
+        app.state.providers = registry
+        empty = TestClient(app).post(
+            "/api/discovery",
+            json={
+                "artifact_id": "CODE-001",
+                "provider": "local-embeddinggemma",
+                "baseline": "baseline-a",
+            },
+        )
+
+        from app.discovery.local_embedding import (
+            LocalEmbeddingCandidateDiscovery,
+            RetrievalUnavailable,
+        )
+        from app.ingestion.repository import GitRepository
+
+        class NoProvenanceRuntime:
+            dimension = 3
+            max_tokens = 512
+            runtime_version = "no-provenance"
+
+            def embed(self, texts):
+                return [[1.0, 0.0, 0.0] for _ in texts]
+
+        try:
+            LocalEmbeddingCandidateDiscovery(
+                store,
+                GitRepository(_fixture_repo()),
+                runtime=NoProvenanceRuntime(),
+            )
+            unavailable_provenance = False
+        except RetrievalUnavailable:
+            unavailable_provenance = True
+
+        after = (
+            store.list_links("baseline-a"),
+            store.list_evidence("baseline-a"),
+            evaluator.evaluate("baseline-a"),
+        )
+        return {
+            "provider": provider.provider_name,
+            "model_version": provider.model_version,
+            "index_revision": provider.index_revision,
+            "candidates": _jsonable(candidates),
+            "trimmed": _jsonable(trimmed),
+            "sources": _jsonable(sources),
+            "tests": _jsonable(tests),
+            "requirements": _jsonable(requirements),
+            "empty_status": empty.status_code,
+            "empty_response": empty.json(),
+            "unavailable_provenance": unavailable_provenance,
+            "unchanged": before == after,
+        }
+
+    if action == "malformed":
+        provider = _local_provider(_NaNRuntime())
+        settings = replace(
+            base,
+            local_embedding_enabled=True,
+            local_embedding_model_dir=None,
+            review_journal_path=_state_dir() / "review-local" / "journal.ndjson",
+        )
+        app = create_app(settings)
+        registry = ProviderRegistry(settings, app.state.store)
+        registry._cache["local-embeddinggemma"] = provider
+        app.state.providers = registry
+        from fastapi.testclient import TestClient
+
+        client = TestClient(app)
+        before = client.get("/api/findings", params={"baseline": "baseline-a"}).json()
+        response = client.post(
+            "/api/discovery",
+            json={"artifact_id": "SCN-001", "provider": "local-embeddinggemma"},
+        )
+        after = client.get("/api/findings", params={"baseline": "baseline-a"}).json()
+        return {
+            "status": response.status_code,
+            "body": response.json(),
+            "unchanged": before == after,
+        }
+
+    if action == "live":
+        from app.discovery.local_embedding import (
+            LocalEmbeddingCandidateDiscovery,
+            OnnxEmbeddingRuntime,
+        )
+        from app.ingestion.repository import GitRepository
+
+        model_dir = Path(
+            args.get("model_dir")
+            or (Path.home() / ".local/share/cta/models/embeddinggemma-2-text-270m-onnx")
+        ).expanduser()
+        if not model_dir.is_dir():
+            raise RuntimeError(f"local model directory is absent: {model_dir}")
+        started = __import__("time").perf_counter()
+        runtime = OnnxEmbeddingRuntime(
+            model_dir,
+            expected_weights_digest=args.get("weights_digest"),
+        )
+        provider = LocalEmbeddingCandidateDiscovery(
+            store, GitRepository(_fixture_repo()), runtime=runtime
+        )
+        load_seconds = __import__("time").perf_counter() - started
+        from app.assurance.rules import DeterministicAssuranceEvaluator
+
+        evaluator = DeterministicAssuranceEvaluator(store)
+        before = (
+            store.list_links("baseline-a"),
+            store.list_evidence("baseline-a"),
+            evaluator.evaluate("baseline-a"),
+        )
+        import time
+
+        index_started = time.perf_counter()
+        binding = provider.binding_for("baseline-a")
+        index_seconds = time.perf_counter() - index_started
+        expected_binding = "sha256:814eb9914310d4d18f68859fbb5e89230773f026a50e931cb16889b1e3eaac52"
+        assert binding == expected_binding
+        latencies = []
+        result_sets = {}
+        for artifact_id in ("SCN-001", "REQ-001", "SCN-002"):
+            query_started = time.perf_counter()
+            candidates = provider.discover(artifact_id, top_k=10, baseline="baseline-a")
+            latencies.append((time.perf_counter() - query_started) * 1000.0)
+            result_sets[artifact_id] = [item.target_id for item in candidates]
+        candidates = provider.discover("SCN-001", top_k=10, baseline="baseline-a")
+        trimmed = provider.discover("SCN-001", top_k=1, baseline="baseline-a")
+        top_k_rejected = False
+        try:
+            provider.discover("SCN-001", top_k=0, baseline="baseline-a")
+        except ValueError:
+            top_k_rejected = True
+        assert top_k_rejected
+        sources = provider.discover(
+            "SCN-001", relation_types=["implemented_by"], baseline="baseline-a"
+        )
+        tests = provider.discover("SCN-001", relation_types=["exercised_by"], baseline="baseline-a")
+        incompatible = provider.discover(
+            "SCN-001", relation_types=["verified_by"], baseline="baseline-a"
+        )
+        requirements = provider.discover("REQ-001", baseline="baseline-a")
+        empty_source = provider.discover("CODE-001", baseline="baseline-a")
+        from dataclasses import replace
+
+        from fastapi.testclient import TestClient
+
+        from app.discovery.registry import ProviderRegistry
+        from app.main import create_app
+
+        api_settings = replace(
+            _settings(),
+            local_embedding_enabled=True,
+            local_embedding_model_dir=model_dir,
+            review_journal_path=_state_dir() / "review-local" / "journal.ndjson",
+        )
+        api_app = create_app(api_settings)
+        api_registry = ProviderRegistry(api_settings, api_app.state.store)
+        api_registry._cache["local-embeddinggemma"] = provider
+        api_app.state.providers = api_registry
+        api = TestClient(api_app)
+        thread_before = api.get("/api/threads/REQ-001", params={"baseline": "baseline-a"})
+        assert thread_before.status_code == 200, thread_before.text
+        empty = api.post(
+            "/api/discovery",
+            json={
+                "artifact_id": "CODE-001",
+                "provider": "local-embeddinggemma",
+                "baseline": "baseline-a",
+            },
+        )
+        thread_after = api.get("/api/threads/REQ-001", params={"baseline": "baseline-a"})
+        assert thread_after.status_code == 200, thread_after.text
+        assert thread_after.json() == thread_before.json()
+        thread_body = thread_after.json()
+        assert isinstance(thread_body["accepted_links"], list)
+        assert isinstance(thread_body["proposed_links"], list)
+        after = (
+            store.list_links("baseline-a"),
+            store.list_evidence("baseline-a"),
+            evaluator.evaluate("baseline-a"),
+        )
+        import os
+        import socket
+
+        try:
+            socket.create_connection(("192.0.2.1", 9), timeout=1)
+            external_egress = True
+        except OSError:
+            external_egress = False
+        record = {
+            "model_dir": str(model_dir),
+            "model_version": provider.model_version,
+            "index_revision": binding,
+            "weights_digest": runtime.weights_digest,
+            "manifest_weights_digest": args.get("weights_digest"),
+            "runtime": runtime.runtime_version,
+            "formatting": provider.formatting_version,
+            "baseline": "baseline-a",
+            "git": store.commit_of("baseline-a"),
+            "load_seconds": round(load_seconds, 3),
+            "index_seconds": round(index_seconds, 3),
+            "query_latency_ms": [round(value, 1) for value in latencies],
+            "results": result_sets,
+            "candidates": _jsonable(candidates),
+            "trimmed": _jsonable(trimmed),
+            "sources": _jsonable(sources),
+            "tests": _jsonable(tests),
+            "incompatible": _jsonable(incompatible),
+            "requirements": _jsonable(requirements),
+            "empty_source": _jsonable(empty_source),
+            "empty_response": {"status": empty.status_code, "body": empty.json()},
+            "expected_binding": expected_binding,
+            "binding_matches_fixture": binding == expected_binding,
+            "top_k_rejected": top_k_rejected,
+            "thread_accepted_links": thread_body["accepted_links"],
+            "thread_proposed_links": thread_body["proposed_links"],
+            "thread_equal": thread_after.json() == thread_before.json(),
+            "no_link_fields": all(
+                not hasattr(item, "link_id") and not hasattr(item, "review_state")
+                for item in candidates
+            ),
+            "unchanged": before == after,
+            "external_egress": external_egress,
+            "egress_denied_env": os.environ.get("CTA_EGRESS_DENIED") == "1",
+            "network_namespace": os.readlink("/proc/self/ns/net"),
+        }
+        if args.get("output"):
+            Path(args["output"]).parent.mkdir(parents=True, exist_ok=True)
+            Path(args["output"]).write_text(
+                json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+            )
+        return record
+
+    raise RuntimeError(f"unknown local embedding action {action!r}")
+
+
 OPS = {
     "repo": op_repo,
     "repo_from_fixture": op_repo_from_fixture,
@@ -774,6 +1941,9 @@ OPS = {
     "candidate_benchmark": op_candidate_benchmark,
     "dataset_variant": op_dataset_variant,
     "hashes": op_hashes,
+    "review": op_review,
+    "local_embedding": op_local_embedding,
+    "retrieval_lifecycle": op_retrieval_lifecycle,
     "shallow_clone": op_shallow_clone,
     "external_build": op_external_build,
     "fixture_repo": op_fixture_repo,
