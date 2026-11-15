@@ -2,11 +2,11 @@
 
 ```text
 Date:                2026-11-15
-Current branch:      main at 1731aed (PR #78 merged); M4 review findings repaired on
-                     fix/36-m4-review; the M4 re-review is pending
-Milestone:           M0, M1, expanded M2, and M3 gates SATISFIED; M4 CI-01/CI-02 APPROVED; the
-                     independent M4 review 1 requested changes; repairs complete, re-review pending
-Active task:         M4 milestone re-review and final closeout
+Current branch:      main at db8e309 (PRs #78/#79 merged); M4 review 2 APPROVE; close-out
+                     records landing through the final docs PR
+Milestone:           M0, M1, expanded M2, M3, and M4 gates SATISFIED; all parent features closed;
+                     final close-out report at docs/reports/closeout/README.md
+Active task:         Close-out record publication
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
                      docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
                      NEEDS_INPUT; R1–R7 all repaired; AC-1.1…AC-1.8 and AC-2.1…AC-2.5 all PASS;
@@ -53,18 +53,21 @@ Independent review:  docs/reviews/M0-review.md — first review: "M0 not verifie
                      at 0aa9c6a
                      docs/reviews/M4-review-1.md — M4 review 1 REQUEST_CHANGES (R1–R6); repairs
                      recorded in M4-review-1-repairs.md; Codex credit blocker noted
+                     docs/reviews/M4-review-2.md — M4 review 2 APPROVE at db8e309; all seven exit
+                     criteria PASS; M4-R1–R6 closed
                      Historical (SETUP-01, 2026-11-12): the commit-reference slice landed via PR #42; commitlint
                      green on the landed history (9 commits); the M0 approved snapshot bca69cf
                      had 107 passed; the SETUP-01 tree then had 135 passed (also under an
                      OS-level network denial). Outstanding owner actions: #18/#19 closure, the
                      FT-03/project-definition reviews, the required-check ruleset, README work item.
-Tests executed:      M4 repair snapshot (2026-11-15): backend 556 passed / 4 opt-in skips;
+Tests executed:      Final M4 snapshot (2026-11-15): backend 556 passed / 4 opt-in skips;
                      Cucumber 205 scenarios / 1990 steps passed; strict step gate ok; fixturectl
                      verify exit 0; ruff check + format clean; `git diff --check` clean; feature
                      inventory regenerated (41 files); frontend build + 14 tests passed.
-                     Hosted M4 acceptance run 43713557672 and main merge run 43716166621 passed
-                     all six jobs, including banking and portable self-assurance. M3 close-out
-                     evidence remains in the historical sections.
+                     Hosted M4 acceptance run 43713557672, main merge run 43716166621, review-repair
+                     PR run 43724811108, and final main run 43725911468 passed all six jobs,
+                     including banking and portable self-assurance. M3 close-out evidence remains in
+                     the historical sections.
                      Historical — Expanded-M2 slice (after review-3 repairs): backend 443 passed / 3 opt-in skips; frontend 13 passed;
                      fixturectl verify exit 0; ruff check + format clean; `git diff --check` clean.
                      93 Cucumber scenarios passed (396 Gherkin steps + 372 hook steps); strict gate ok;
