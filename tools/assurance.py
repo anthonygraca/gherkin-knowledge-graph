@@ -458,14 +458,6 @@ def _self_assure(args: argparse.Namespace) -> int:
             ) from exc
         tested_commit = summary.revision
         snapshot = registry.snapshot(args.repository_id, tested_commit)
-        report_data, _ = registry.import_report(
-            args.repository_id,
-            ExecutionImportRequest(
-                report_path=str(report_path),
-                metadata_path=str(metadata),
-                tested_commit=tested_commit,
-            ),
-        )
         indexed = {feature.path: feature.content_hash for feature in snapshot.features}
         collected_inputs.extend(
             ReportInput(
@@ -482,6 +474,14 @@ def _self_assure(args: argparse.Namespace) -> int:
                 id="default",
                 digest=digest_bytes(b'{"policy":"default","policy_version":"1"}'),
             )
+        )
+        report_data, _ = registry.import_report(
+            args.repository_id,
+            ExecutionImportRequest(
+                report_path=str(report_path),
+                metadata_path=str(metadata),
+                tested_commit=tested_commit,
+            ),
         )
         for uri, digest in report_data.sources:
             if indexed.get(uri) != digest:

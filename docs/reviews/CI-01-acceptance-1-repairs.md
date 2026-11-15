@@ -37,3 +37,6 @@ repaired head is recorded on PR #78; the reviewer must observe it.
 - **Late banking manifest failure:** the artifact/link/evidence/policy inputs are built before the
   manifest digest is read; a manifest read failure appends an unavailable `fixture_manifest` entry
   and retains all known inputs.
+- **Self-assurance malformed provenance:** indexed feature inputs and the policy entry are collected
+  before importing the execution report; a malformed-provenance refusal retains the known
+  execution/metadata/feature/policy provenance.

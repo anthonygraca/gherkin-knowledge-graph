@@ -225,6 +225,13 @@ def requirement_report(
         artifact_ids=sorted(
             {entry.id for entry in inputs if entry.kind == "artifact" and entry.id is not None}
         ),
+        historical_ids=sorted(
+            {
+                entry.id
+                for entry in inputs
+                if entry.kind == "historical_artifact" and entry.id is not None
+            }
+        ),
         inputs=list(inputs),
         findings=sorted(payload, key=lambda item: item.finding_id),
         tool_outcome=ToolOutcome.COMPLETED,

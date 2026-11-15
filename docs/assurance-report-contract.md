@@ -226,3 +226,11 @@ extra artifact input entries may exist. A completed self-assurance report carrie
 the exact set of indexed feature paths at the tested commit; every path must have a required,
 available, digested `feature` input entry. Removing an individual artifact/feature entry, or
 downgrading it to optional/unavailable, is a contract failure—not a smaller valid evaluation.
+
+### Historical input coverage
+
+A requirement-assurance report also carries `historical_ids`: the exact set of historical revisions
+consulted for freshness. Every id must have a required, available, digested
+`historical_artifact` input entry, and no extra historical input entries may exist. Removing or
+downgrading one historical entry cannot turn an unknown/absent historical input into a valid
+comparison or a resolved finding.

@@ -143,6 +143,7 @@ class AssuranceReport(_FrozenModel):
     rule_scope: list[RuleId] = Field(default_factory=list)
     artifact_ids: list[str] = Field(default_factory=list)
     feature_ids: list[str] = Field(default_factory=list)
+    historical_ids: list[str] = Field(default_factory=list)
     inputs: list[ReportInput] = Field(default_factory=list)
     coverage: Coverage | None = None
     findings: list[ReportFinding] = Field(default_factory=list)
@@ -163,7 +164,7 @@ class AssuranceReport(_FrozenModel):
     def _rules_sorted(cls, value: list[RuleId]) -> list[RuleId]:
         return sorted(set(value))
 
-    @field_validator("artifact_ids", "feature_ids")
+    @field_validator("artifact_ids", "feature_ids", "historical_ids")
     @classmethod
     def _coverage_sorted(cls, value: list[str]) -> list[str]:
         return sorted(set(value))
@@ -208,6 +209,20 @@ class AssuranceReport(_FrozenModel):
                     raise ValueError(
                         "a completed requirement report requires one artifact input per "
                         "evaluated artifact"
+                    )
+                historical_inputs = {
+                    entry.id
+                    for entry in self.inputs
+                    if entry.kind == "historical_artifact"
+                    and entry.required
+                    and entry.available
+                    and entry.digest is not None
+                    and entry.id is not None
+                }
+                if set(self.historical_ids) != historical_inputs:
+                    raise ValueError(
+                        "a completed requirement report requires one historical input per "
+                        "consulted historical revision"
                     )
             else:
                 feature_inputs = {

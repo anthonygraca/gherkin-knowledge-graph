@@ -28,3 +28,5 @@ Hosted CI on the repaired head is recorded on PR #78; the reviewer must observe 
 - **Artifact completeness:** completed requirement reports now declare `artifact_ids` and completed
   self-assurance reports declare `feature_ids`; the input set must equal that declared set, so
   removing an individual artifact/feature entry cannot masquerade as a smaller complete report.
+- **Historical completeness:** requirement reports declare `historical_ids`; the required historical
+  input entries must equal that set, so removing or downgrading a historical input is refused.
