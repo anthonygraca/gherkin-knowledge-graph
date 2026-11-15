@@ -143,3 +143,82 @@ def test_catalogue_includes_an_enabled_optional_provider(
         ("fake", "fixture"),
         ("cocoindex", "model"),
     ]
+
+
+class TypedFailingDiscovery(FailingDiscovery):
+    """A non-local provider whose typed availability error still crosses the port."""
+
+    def discover(self, artifact_id, *, top_k=5, relation_types=None, baseline=None):
+        self.calls += 1
+        from app.domain.errors import RetrievalUnavailable
+
+        raise RetrievalUnavailable("typed transport unavailable")
+
+
+def test_typed_non_local_provider_failure_is_provider_unavailable(
+    fixture_settings: Settings,
+) -> None:
+    client = TestClient(create_app(fixture_settings))
+    before = client.get("/api/findings", params={"baseline": "baseline-a"}).json()
+    failing = TypedFailingDiscovery()
+    registry = CocoaRegistry(client.app.state.settings, client.app.state.store)
+    registry._cache["cocoindex"] = failing
+    client.app.state.providers = registry
+    response = client.post(
+        "/api/discovery",
+        json={"artifact_id": "REQ-001", "provider": "cocoindex", "baseline": "baseline-a"},
+    )
+    assert response.status_code == 503
+    body = response.json()
+    assert body["code"] == "provider-unavailable"
+    assert body["failed_provider"] == "cocoindex"
+    assert failing.calls == 1
+    assert client.get("/api/findings", params={"baseline": "baseline-a"}).json() == before
+
+
+def test_typed_non_local_construction_failure_is_provider_unavailable(
+    fixture_settings: Settings,
+) -> None:
+    from app.domain.errors import RetrievalUnavailable
+
+    class TypedConstructionRegistry(CocoaRegistry):
+        def _build(self, name: str):
+            if name == "cocoindex":
+                raise RetrievalUnavailable("typed construction unavailable")
+            return super()._build(name)
+
+    client = TestClient(create_app(fixture_settings))
+    client.app.state.providers = TypedConstructionRegistry(
+        client.app.state.settings, client.app.state.store
+    )
+    response = client.post(
+        "/api/discovery",
+        json={"artifact_id": "REQ-001", "provider": "cocoindex", "baseline": "baseline-a"},
+    )
+    assert response.status_code == 503
+    assert response.json()["code"] == "provider-unavailable"
+    assert response.json()["failed_provider"] == "cocoindex"
+
+
+def test_local_provider_availability_keeps_the_ai02_code(
+    fixture_settings: Settings, tmp_path: Path
+) -> None:
+    from dataclasses import replace
+
+    settings = replace(
+        fixture_settings,
+        local_embedding_enabled=True,
+        local_embedding_model_dir=tmp_path / "missing-model",
+        review_journal_path=tmp_path / "journal.ndjson",
+    )
+    client = TestClient(create_app(settings))
+    response = client.post(
+        "/api/discovery",
+        json={
+            "artifact_id": "SCN-001",
+            "provider": "local-embeddinggemma",
+            "baseline": "baseline-a",
+        },
+    )
+    assert response.status_code == 503
+    assert response.json()["code"] == "retrieval-unavailable"
