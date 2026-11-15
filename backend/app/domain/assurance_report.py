@@ -31,6 +31,19 @@ class AssuranceScope(StrEnum):
     GHERKIN_EXECUTABILITY = "gherkin_executability"
 
 
+EVALUATED_INPUT_KINDS = frozenset(
+    {
+        "artifact",
+        "accepted_link_set",
+        "proposed_link_set",
+        "evidence_set",
+        "fixture_manifest",
+        "feature",
+        "execution_report",
+        "provenance_sidecar",
+    }
+)
+
 REQUIRED_INPUT_KINDS: dict[AssuranceScope, frozenset[str]] = {
     AssuranceScope.REQUIREMENT_ASSURANCE: frozenset(
         {
@@ -195,6 +208,17 @@ class AssuranceReport(_FrozenModel):
                     "a completed report is missing mandatory input kinds: "
                     + ", ".join(sorted(missing))
                 )
+            for entry in self.inputs:
+                if not entry.required:
+                    continue
+                if entry.kind in EVALUATED_INPUT_KINDS:
+                    if entry.revision != self.evaluated_revision:
+                        raise ValueError(f"input {entry.kind} must bind to the evaluated revision")
+                elif entry.kind == "historical_artifact":
+                    if entry.revision != entry.id:
+                        raise ValueError(
+                            "historical input must bind to its declared historical revision"
+                        )
             if self.scope is AssuranceScope.REQUIREMENT_ASSURANCE:
                 artifact_inputs = {
                     entry.id

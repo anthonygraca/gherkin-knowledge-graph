@@ -457,6 +457,9 @@ def _self_assure(args: argparse.Namespace) -> int:
                 code="revision-unknown",
             ) from exc
         tested_commit = summary.revision
+        if len(collected_inputs) >= 2:
+            collected_inputs[0] = collected_inputs[0].model_copy(update={"revision": tested_commit})
+            collected_inputs[1] = collected_inputs[1].model_copy(update={"revision": tested_commit})
         snapshot = registry.snapshot(args.repository_id, tested_commit)
         indexed = {feature.path: feature.content_hash for feature in snapshot.features}
         collected_inputs.extend(

@@ -30,3 +30,6 @@ Hosted CI on the repaired head is recorded on PR #78; the reviewer must observe 
   removing an individual artifact/feature entry cannot masquerade as a smaller complete report.
 - **Historical completeness:** requirement reports declare `historical_ids`; the required historical
   input entries must equal that set, so removing or downgrading a historical input is refused.
+- **Revision binding:** completed reports validate that evaluated inputs bind to
+  `evaluated_revision` and historical inputs bind to their declared historical id; contradictory or
+  null revisions are refused before classification.

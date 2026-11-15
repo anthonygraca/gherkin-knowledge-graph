@@ -234,3 +234,11 @@ consulted for freshness. Every id must have a required, available, digested
 `historical_artifact` input entry, and no extra historical input entries may exist. Removing or
 downgrading one historical entry cannot turn an unknown/absent historical input into a valid
 comparison or a resolved finding.
+
+### Input revision binding
+
+In a completed report, every required evaluated input (`artifact`, accepted/proposed link sets,
+evidence set, fixture manifest, feature, execution report, provenance sidecar) must have
+`revision == evaluated_revision`. Every required `historical_artifact` input must have
+`revision == id` (the historical commit it names). A null, mismatched, or contradictory revision
+is a contract failure and cannot be compared.
