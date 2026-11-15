@@ -369,7 +369,7 @@ def write_report(report: AssuranceReport, report_path: Path, manifest_path: Path
 def load_report(path: Path, *, side: str) -> AssuranceReport:
     try:
         raw = json.loads(path.read_text("utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ReportsNotComparable(
             f"The {side} report is not readable JSON: {exc}", invalid_input=side
         ) from exc
@@ -439,7 +439,10 @@ def _validate_report(report: AssuranceReport, *, side: str) -> None:
         raise ReportsNotComparable(f"The {side} evaluation is incomplete.", invalid_input=side)
     if report.evaluated_revision is None:
         raise ReportsNotComparable(f"The {side} resolved revision is absent.", invalid_input=side)
-    if report.identity_kind is IdentityKind.SOURCE_LOCATOR:
+    if (
+        report.identity_kind is IdentityKind.SOURCE_LOCATOR
+        or report.scope is AssuranceScope.GHERKIN_EXECUTABILITY
+    ):
         raise ReportsNotComparable(
             f"The {side} uses source-locator identities; stable cross-revision identity is "
             "unavailable and no reviewed continuity mapping is implemented.",

@@ -532,7 +532,14 @@ Then('the new finding types are reverification_required and verification_failed'
 
 Then('the report includes both resolved revisions and both report digests', function () {
   const payload = this.results.diff.diff;
-  assert.equal(payload.previous_revision, this.results.diff.diff.previous_revision);
+  const previous = JSON.parse(
+    fs.readFileSync(path.join(this.stateDir, 'baseline-a.json'), 'utf8'),
+  );
+  const current = JSON.parse(
+    fs.readFileSync(path.join(this.stateDir, 'baseline-b.json'), 'utf8'),
+  );
+  assert.equal(payload.previous_revision, previous.evaluated_revision);
+  assert.equal(payload.current_revision, current.evaluated_revision);
   assert.match(payload.previous_report_digest, /^sha256:[0-9a-f]{64}$/);
   assert.match(payload.current_report_digest, /^sha256:[0-9a-f]{64}$/);
 });
@@ -628,7 +635,26 @@ Given(
       rehash(previous);
       rehash(current);
     };
-    if (condition === 'the previous resolved revision is absent') {
+    if (condition === 'a source-locator report claims stable identity') {
+      const probe = this.call('assurance_fixture', {
+        feature: 'docs/stories/CI-01.feature',
+        failed: false,
+      });
+      const self = selfAssure(this, { probe });
+      assert.equal(self.status, 0, self.stderr);
+      const forged = clone(self.report);
+      forged.identity_kind = 'stable_fingerprint';
+      rehash(forged);
+      this.results.invalidPrevious = save(this, 'invalid-previous.json', first.report);
+      this.results.invalidCurrent = save(this, 'invalid-current.json', forged);
+      return;
+    } else if (condition === 'a report is not UTF-8') {
+      const bad = path.join(this.stateDir, 'bad-utf8.json');
+      fs.writeFileSync(bad, Buffer.from([0xff, 0xfe, 0x00, 0x7b]));
+      this.results.invalidPrevious = save(this, 'invalid-previous.json', first.report);
+      this.results.invalidCurrent = bad;
+      return;
+    } else if (condition === 'the previous resolved revision is absent') {
       delete previous.evaluated_revision;
       rehashBoth();
     } else if (condition === 'the current resolved revision is absent') {

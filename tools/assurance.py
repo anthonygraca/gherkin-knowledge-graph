@@ -233,8 +233,28 @@ def _evaluate(args: argparse.Namespace) -> int:
                 continue
             try:
                 tested = store.artifacts_at(row.tested_commit)
-            except Exception:  # noqa: BLE001 - an unreadable historical commit is recorded absent
-                continue
+            except Exception as exc:  # noqa: BLE001 - a required historical input is unreadable
+                unavailable = ReportInput(
+                    kind="historical_artifact",
+                    id=row.tested_commit,
+                    revision=row.tested_commit,
+                    digest=None,
+                    available=False,
+                    required=True,
+                )
+                collected_inputs = requirement_inputs(
+                    commit=commit,
+                    artifacts=artifacts,
+                    accepted_links=accepted,
+                    proposed_links=proposed,
+                    evidence=evidence,
+                    historical_inputs=[*historical.values(), unavailable],
+                )
+                raise _CliFailure(
+                    f"historical commit {row.tested_commit!r} is unreadable: {exc}",
+                    stage=FailureStage.INPUT,
+                    code="input-unreadable",
+                ) from exc
             historical[row.tested_commit] = ReportInput(
                 kind="historical_artifact",
                 id=row.tested_commit,
@@ -605,20 +625,23 @@ def _diff(args: argparse.Namespace) -> int:
     except ReportsNotComparable as exc:
         print(canonical_json(refusal_diagnostic(exc)), file=sys.stdout)
         return 2
-    if args.output:
-        write_atomic(args.output, canonical_json(diff) + "\n")
-    print(canonical_json(diff))
-    _summary(
-        args.summary,
-        [
-            "# Findings diff",
-            f"- previous revision: {diff.previous_revision}",
-            f"- current revision: {diff.current_revision}",
-            f"- new: {diff.counts.new}",
-            f"- unchanged: {diff.counts.unchanged}",
-            f"- resolved: {diff.counts.resolved}",
-        ],
-    )
+    try:
+        if args.output:
+            write_atomic(args.output, canonical_json(diff) + "\n")
+        print(canonical_json(diff))
+        _summary(
+            args.summary,
+            [
+                "# Findings diff",
+                f"- previous revision: {diff.previous_revision}",
+                f"- current revision: {diff.current_revision}",
+                f"- new: {diff.counts.new}",
+                f"- unchanged: {diff.counts.unchanged}",
+                f"- resolved: {diff.counts.resolved}",
+            ],
+        )
+    except OSError as exc:
+        return _publication_failure(exc)
     return 0
 
 

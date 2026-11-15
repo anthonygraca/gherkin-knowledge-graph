@@ -6,6 +6,11 @@ Current branch:      main at b6e6931 + M4 PR #78 (accepted at 0aa9c6a; merge pen
 Milestone:           M0, M1, expanded M2, and M3 gates SATISFIED; M4 CI-01/CI-02 acceptance APPROVED
                      at 0aa9c6a; merge and the independent M4 milestone review remain
 Active task:         M4 milestone review and final closeout
+Current branch:      main at 1731aed (PR #78 merged); M4 review findings repaired on
+                     fix/36-m4-review; the M4 re-review is pending
+Milestone:           M0, M1, expanded M2, and M3 gates SATISFIED; M4 CI-01/CI-02 APPROVED; the
+                     independent M4 review 1 requested changes; repairs complete, re-review pending
+Active task:         M4 milestone re-review and final closeout
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
                      docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
                      NEEDS_INPUT; R1–R7 all repaired; AC-1.1…AC-1.8 and AC-2.1…AC-2.5 all PASS;
@@ -57,10 +62,15 @@ Independent review:  docs/reviews/M0-review.md — first review: "M0 not verifie
                      FT-03/project-definition reviews, the required-check ruleset, README work item.
 Tests executed:      M4 accepted snapshot (2026-11-15): backend 553 passed / 4 opt-in skips;
                      Cucumber 203 scenarios / 1972 steps passed; strict step gate ok; fixturectl
+Tests executed:      M4 repair snapshot (2026-11-15): backend 556 passed / 4 opt-in skips;
+                     Cucumber 205 scenarios / 1990 steps passed; strict step gate ok; fixturectl
                      verify exit 0; ruff check + format clean; `git diff --check` clean; feature
                      inventory regenerated (41 files); frontend build + 14 tests passed.
                      Hosted M4 run 43713557672 passed all six jobs, including banking and portable
                      self-assurance. M3 close-out evidence remains in the historical sections.
+                     Hosted M4 acceptance run 43713557672 and main merge run 43716166621 passed
+                     all six jobs, including banking and portable self-assurance. M3 close-out
+                     evidence remains in the historical sections.
                      Historical — Expanded-M2 slice (after review-3 repairs): backend 443 passed / 3 opt-in skips; frontend 13 passed;
                      fixturectl verify exit 0; ruff check + format clean; `git diff --check` clean.
                      93 Cucumber scenarios passed (396 Gherkin steps + 372 hook steps); strict gate ok;
