@@ -612,3 +612,27 @@ def test_snapshot_write_failure_is_typed(
         service.manifest_for("baseline-a")
     assert not list((tmp_path / "retrieval-snapshots" / "snapshots").glob("*.json"))
     assert not list((tmp_path / "retrieval-snapshots" / "baselines").glob("*.json"))
+
+
+def test_pointer_read_failure_is_typed_and_leaves_previous_publication(
+    store: IngestedStore,
+    fixture_settings: Settings,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import pathlib
+
+    service = lifecycle(store, fixture_settings, tmp_path)
+    first = service.refresh("baseline-a", config=config())
+    original = pathlib.Path.read_bytes
+
+    def failing_read(path: pathlib.Path) -> bytes:
+        if path.parent.name == "baselines" and path.name == "baseline-a.json":
+            raise PermissionError("injected pointer read failure")
+        return original(path)
+
+    monkeypatch.setattr(pathlib.Path, "read_bytes", failing_read)
+    with pytest.raises(RetrievalUnavailable):
+        service.refresh("baseline-a", config=config("sha256:" + "b" * 64))
+    assert service.manifest_for("baseline-a").snapshot_binding == first.snapshot_binding
+    assert not list((tmp_path / "retrieval-snapshots" / "staging").glob("*.json"))

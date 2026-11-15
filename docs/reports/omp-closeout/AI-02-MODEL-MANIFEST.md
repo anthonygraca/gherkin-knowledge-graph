@@ -56,10 +56,13 @@ default test/CI path do not install or import this extra.
 |CPU|Intel Core i5-7500T @ 2.70 GHz, 4 logical CPUs|
 |RAM|15 GiB total; no GPU|
 |Model disk footprint|~346 MiB (graph + external data + tokenizer + config)|
-|Runtime load|2.38–2.54 s (ONNX session + tokenizer)|
+|Runtime load|2.38–3.61 s (pytest vs live bridge)|
 |Corpus build (10 banking artifacts, CPU)|5.94–21.81 s across retained runs|
-|Warm query median|0.365–0.664 s over three queries|
+|Warm query median|0.365–2.225 s (pytest vs live bridge; the bridge includes API/thread checks)|
 |RSS delta after load, indexing, and queries|~506–508 MiB|
+
+The live bridge's timing includes the TestClient thread checks and is not directly comparable to
+the pytest measurement; both raw records are retained rather than collapsed into one number.
 
 **Observed smoke result (not a retrieval-quality benchmark):** for `SCN-001`, the model ranks
 `CODE-001` first and `TEST-001` second; `SCN-002` ranks `CODE-002` first; `REQ-001` ranks `SCN-001`

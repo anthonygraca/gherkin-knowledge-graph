@@ -105,6 +105,10 @@ The live record retains:
 * `top_k_rejected=true`, `binding_matches_fixture=true`, and the separate accepted/proposed thread
   arrays with `thread_equal=true`.
 
+The bridge run's raw timing record is **load 3.605 s, index 10.891 s, query median 2.2253 s**
+(`AI-02-live-observations.json`); it includes the API/thread checks and is not directly comparable
+to the pytest measurement above. Both raw records are retained.
+
 The observed weights digest equals the identified manifest digest. No non-loopback request
 completed; the process tree ran in a network namespace with no external interface.
 

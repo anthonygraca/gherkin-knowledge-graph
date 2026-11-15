@@ -405,6 +405,13 @@ class RetrievalLifecycle:
         final_path = self._snapshots / f"{_safe_name(manifest.snapshot_binding)}.json"
         snapshot_existed = final_path.exists()
         pending_path = self._staging / f"{_safe_name(manifest.snapshot_binding)}.json"
+        pointer = self._baselines / f"{_safe_name(manifest.baseline)}.json"
+        try:
+            previous_pointer = pointer.read_bytes() if pointer.is_file() else None
+        except OSError as exc:
+            raise RetrievalUnavailable(
+                f"Retrieval pointer storage failed for {manifest.baseline!r}: {exc}"
+            ) from exc
         if not snapshot_existed:
             try:
                 _atomic_write(pending_path, manifest.model_dump_json(indent=2) + "\n")
@@ -412,8 +419,6 @@ class RetrievalLifecycle:
                 raise RetrievalUnavailable(
                     f"Retrieval snapshot storage failed for {manifest.baseline!r}: {exc}"
                 ) from exc
-        pointer = self._baselines / f"{_safe_name(manifest.baseline)}.json"
-        previous_pointer = pointer.read_bytes() if pointer.is_file() else None
         try:
             _atomic_write(
                 pointer,
