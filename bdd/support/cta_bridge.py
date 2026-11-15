@@ -519,6 +519,128 @@ def op_tracked(args: dict) -> dict:
     return {"files": [line for line in result.stdout.splitlines() if line]}
 
 
+def op_assurance(args: dict) -> dict:
+    """Run the real M4 assurance CLI and return its artifacts."""
+    state = Path(os.environ["CTA_BDD_STATE"]) / "assurance"
+    state.mkdir(parents=True, exist_ok=True)
+    command = args["command"]
+    cli_command = "self-assure" if command == "self" else command
+    argv = [sys.executable, str(ROOT / "tools" / "assurance.py"), cli_command]
+    report_path = Path(args["report"]) if args.get("report") else state / "report.json"
+    manifest_path = Path(args["manifest"]) if args.get("manifest") else state / "manifest.json"
+    summary_path = state / "summary.md"
+    diff_path = state / "diff.json"
+    for stale in (report_path, manifest_path, summary_path, diff_path):
+        stale.unlink(missing_ok=True)
+    if command == "evaluate":
+        argv.extend(
+            [
+                "--repository",
+                args.get("repository", "banking-demo"),
+                "--baseline",
+                args["baseline"],
+                "--report",
+                str(report_path),
+                "--manifest",
+                str(manifest_path),
+                "--summary",
+                str(summary_path),
+                "--evaluator-revision",
+                args.get("evaluator_revision", "cta@test+assurance"),
+            ]
+        )
+        if args.get("fixture_repo"):
+            argv.extend(["--fixture-repo", args["fixture_repo"]])
+    elif command == "self":
+        if args.get("metadata"):
+            metadata = Path(args["metadata"])
+        else:
+            metadata = state / "report.meta.json"
+            metadata.write_text(
+                json.dumps(
+                    {
+                        "repository_id": args["repository_id"],
+                        "tested_commit": args["tested_commit"],
+                    }
+                ),
+                encoding="utf-8",
+            )
+        argv.extend(
+            [
+                "--repo-root",
+                args.get("repo_root", str(ROOT)),
+                "--repository-id",
+                args["repository_id"],
+                "--tested-commit",
+                args["tested_commit"],
+                "--cucumber-report",
+                args["cucumber_report"],
+                "--cucumber-root",
+                args.get("cucumber_root", str(ROOT / "bdd")),
+                "--metadata",
+                str(metadata),
+                "--state-dir",
+                str(state),
+                "--report",
+                str(report_path),
+                "--manifest",
+                str(manifest_path),
+                "--summary",
+                str(summary_path),
+                "--evaluator-revision",
+                args.get("evaluator_revision", "cta@test+assurance"),
+            ]
+        )
+    elif command == "diff":
+        argv.extend(
+            [
+                "--previous",
+                args["previous"],
+                "--current",
+                args["current"],
+                "--output",
+                str(diff_path),
+                "--summary",
+                str(summary_path),
+            ]
+        )
+    elif command == "resolve-revision":
+        event_path = state / "event.json"
+        event_path.write_text(json.dumps(args["event"]), encoding="utf-8")
+        argv.extend(["--event", str(event_path)])
+    else:
+        raise ValueError(f"unknown assurance command {command!r}")
+    if args.get("deny_network") and shutil.which("unshare"):
+        argv = ["unshare", "-rn", *argv]
+    result = subprocess.run(
+        argv,
+        cwd=ROOT,
+        env={**os.environ, "PYTHONPATH": str(ROOT / "backend")},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    response = {
+        "command": command,
+        "status": result.returncode,
+        "stdout": result.stdout,
+        "stderr": result.stderr,
+    }
+    for key, path in (
+        ("report", report_path),
+        ("manifest", manifest_path),
+        ("diff", diff_path),
+    ):
+        if path.is_file():
+            try:
+                response[key] = json.loads(path.read_text("utf-8"))
+            except json.JSONDecodeError:
+                response[key] = path.read_text("utf-8")
+    if summary_path.is_file():
+        response["summary"] = summary_path.read_text("utf-8")
+    return response
+
+
 def op_inventory(args: dict) -> dict:
     path = ROOT / "fixtures" / args["fixture"] / "expected" / "inventory.json"
     return {"inventory": json.loads(path.read_text("utf-8"))}
@@ -1948,6 +2070,7 @@ OPS = {
     "external_build": op_external_build,
     "fixture_repo": op_fixture_repo,
     "inventory": op_inventory,
+    "assurance": op_assurance,
     "tracked": op_tracked,
 }
 

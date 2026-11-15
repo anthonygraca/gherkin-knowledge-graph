@@ -7,6 +7,7 @@ on:
     # Base-branch retargeting fires `edited`, not `synchronize`; the newly applicable
     # commit range must be checked again (independent review finding R1).
     types: [opened, synchronize, reopened, edited]
+  workflow_dispatch:
 
 jobs:
   commit-reference:
@@ -70,6 +71,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The imported report must be attributable to the selected revision, not GitHub's
+          # synthetic test-merge commit.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - uses: actions/setup-node@v4
         with:
@@ -142,3 +147,98 @@ jobs:
 
       - name: Component tests
         run: npm test
+
+  banking-assurance:
+    name: Banking requirement assurance report
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned backend dependencies
+        run: uv sync --project backend --frozen
+
+      - name: Build the deterministic banking fixture
+        run: uv run --project backend python tools/fixturectl.py build
+
+      - name: Evaluate baseline-b and publish the typed report
+        env:
+          EVALUATOR_REVISION: cta@${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/assurance"
+          uv run --project backend python tools/assurance.py evaluate             --repository banking-demo --baseline baseline-b             --report "$RUNNER_TEMP/assurance/banking-report.json"             --manifest "$RUNNER_TEMP/assurance/banking-manifest.json"             --summary "$GITHUB_STEP_SUMMARY"             --evaluator-revision "$EVALUATOR_REVISION"
+
+      - name: Upload the report, manifest, and diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: assurance-banking
+          path: |
+            ${{ runner.temp }}/assurance/banking-report.json
+            ${{ runner.temp }}/assurance/banking-manifest.json
+          if-no-files-found: warn
+
+  self-assurance:
+    name: Portable CTA self-assurance report
+    needs: bdd
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned backend dependencies
+        run: uv sync --project backend --frozen
+
+      - name: Download the acceptance report for this revision
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: cucumber-messages
+          path: ${{ runner.temp }}/cucumber
+
+      - name: Evaluate the selected revision with the imported report
+        env:
+          TESTED_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          EVALUATOR_REVISION: cta@${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/assurance"
+          printf '{"repository_id":"gherkin-knowledge-graph","tested_commit":"%s"}' "$TESTED_COMMIT"             > "$RUNNER_TEMP/assurance/self.meta.json"
+          uv run --project backend python tools/assurance.py self-assure             --repo-root . --repository-id gherkin-knowledge-graph             --tested-commit "$TESTED_COMMIT"             --cucumber-report "$RUNNER_TEMP/cucumber/cucumber-messages.ndjson"             --cucumber-root bdd             --metadata "$RUNNER_TEMP/assurance/self.meta.json"             --state-dir "$RUNNER_TEMP/assurance/state"             --report "$RUNNER_TEMP/assurance/self-report.json"             --manifest "$RUNNER_TEMP/assurance/self-manifest.json"             --summary "$GITHUB_STEP_SUMMARY"             --evaluator-revision "$EVALUATOR_REVISION"             2> "$RUNNER_TEMP/assurance/self-diagnostic.json"
+
+      - name: Upload the self-assurance report, manifest, and diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: assurance-self
+          path: |
+            ${{ runner.temp }}/assurance/self-report.json
+            ${{ runner.temp }}/assurance/self-manifest.json
+            ${{ runner.temp }}/assurance/self-diagnostic.json
+          if-no-files-found: warn
