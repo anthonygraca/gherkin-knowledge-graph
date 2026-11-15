@@ -25,3 +25,6 @@ Hosted CI on the repaired head is recorded on PR #78; the reviewer must observe 
 - **CI02-ACC-R3:** `load_comparable_pair` loads and semantically validates both sides before
   returning; load-stage and semantic-stage failures are collected across both inputs, so mixed
   failures return `invalid_input="both"` with both reasons.
+- **Artifact completeness:** completed requirement reports now declare `artifact_ids` and completed
+  self-assurance reports declare `feature_ids`; the input set must equal that declared set, so
+  removing an individual artifact/feature entry cannot masquerade as a smaller complete report.

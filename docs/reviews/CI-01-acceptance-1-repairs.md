@@ -34,3 +34,6 @@ repaired head is recorded on PR #78; the reviewer must observe it.
 - **CI01-ACC-R5:** coverage uses disjoint scenario keys: executed keys are those with a passed/failed
   execution, skipped keys are skipped-only definitions, and unknown is the indexed total minus their
   union. A mixed outline no longer counts one definition in both buckets.
+- **Late banking manifest failure:** the artifact/link/evidence/policy inputs are built before the
+  manifest digest is read; a manifest read failure appends an unavailable `fixture_manifest` entry
+  and retains all known inputs.

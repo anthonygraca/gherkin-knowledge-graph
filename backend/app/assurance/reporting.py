@@ -222,6 +222,9 @@ def requirement_report(
         evaluator_revision=evaluator_revision_value,
         identity_kind=IdentityKind.STABLE_FINGERPRINT,
         rule_scope=list(REQUIREMENT_RULES),
+        artifact_ids=sorted(
+            {entry.id for entry in inputs if entry.kind == "artifact" and entry.id is not None}
+        ),
         inputs=list(inputs),
         findings=sorted(payload, key=lambda item: item.finding_id),
         tool_outcome=ToolOutcome.COMPLETED,
@@ -268,6 +271,9 @@ def self_report(
         evaluator_revision=evaluator_revision_value,
         identity_kind=IdentityKind.SOURCE_LOCATOR,
         rule_scope=list(PORTABLE_RULES),
+        feature_ids=sorted(
+            {entry.path for entry in inputs if entry.kind == "feature" and entry.path is not None}
+        ),
         inputs=list(inputs),
         coverage=coverage,
         findings=sorted(payload, key=lambda item: item.finding_id),

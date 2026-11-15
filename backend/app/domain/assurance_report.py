@@ -141,6 +141,8 @@ class AssuranceReport(_FrozenModel):
     policy_version: str = POLICY_VERSION
     identity_kind: IdentityKind = IdentityKind.STABLE_FINGERPRINT
     rule_scope: list[RuleId] = Field(default_factory=list)
+    artifact_ids: list[str] = Field(default_factory=list)
+    feature_ids: list[str] = Field(default_factory=list)
     inputs: list[ReportInput] = Field(default_factory=list)
     coverage: Coverage | None = None
     findings: list[ReportFinding] = Field(default_factory=list)
@@ -159,6 +161,11 @@ class AssuranceReport(_FrozenModel):
     @field_validator("rule_scope")
     @classmethod
     def _rules_sorted(cls, value: list[RuleId]) -> list[RuleId]:
+        return sorted(set(value))
+
+    @field_validator("artifact_ids", "feature_ids")
+    @classmethod
+    def _coverage_sorted(cls, value: list[str]) -> list[str]:
         return sorted(set(value))
 
     @field_validator("findings")
@@ -187,6 +194,36 @@ class AssuranceReport(_FrozenModel):
                     "a completed report is missing mandatory input kinds: "
                     + ", ".join(sorted(missing))
                 )
+            if self.scope is AssuranceScope.REQUIREMENT_ASSURANCE:
+                artifact_inputs = {
+                    entry.id
+                    for entry in self.inputs
+                    if entry.kind == "artifact"
+                    and entry.required
+                    and entry.available
+                    and entry.digest is not None
+                    and entry.id is not None
+                }
+                if set(self.artifact_ids) != artifact_inputs:
+                    raise ValueError(
+                        "a completed requirement report requires one artifact input per "
+                        "evaluated artifact"
+                    )
+            else:
+                feature_inputs = {
+                    entry.path
+                    for entry in self.inputs
+                    if entry.kind == "feature"
+                    and entry.required
+                    and entry.available
+                    and entry.digest is not None
+                    and entry.path is not None
+                }
+                if set(self.feature_ids) != feature_inputs:
+                    raise ValueError(
+                        "a completed self-assurance report requires one feature input per "
+                        "indexed feature"
+                    )
             if self.incomplete_reason is not None:
                 raise ValueError("a completed report cannot have incomplete_reason")
             if self.failure_stage is not None or self.failure_code is not None:

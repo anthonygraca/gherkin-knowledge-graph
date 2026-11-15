@@ -245,11 +245,20 @@ def _evaluate(args: argparse.Namespace) -> int:
                     ).encode()
                 ),
             )
+        partial_inputs = requirement_inputs(
+            commit=commit,
+            artifacts=artifacts,
+            accepted_links=accepted,
+            proposed_links=proposed,
+            evidence=evidence,
+            historical_inputs=historical.values(),
+        )
+        collected_inputs = list(partial_inputs)
         manifest_path = settings.baselines_manifest_path
         try:
             manifest_digest = digest_bytes(manifest_path.read_bytes())
         except OSError as exc:
-            collected_inputs = [
+            collected_inputs.append(
                 ReportInput(
                     kind="fixture_manifest",
                     path=str(manifest_path),
@@ -257,7 +266,7 @@ def _evaluate(args: argparse.Namespace) -> int:
                     digest=None,
                     required=True,
                 )
-            ]
+            )
             raise _CliFailure(
                 f"required fixture manifest is unreadable: {exc}",
                 stage=FailureStage.INPUT,

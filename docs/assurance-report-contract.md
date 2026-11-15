@@ -217,3 +217,12 @@ completed findings (including `execution_failed`), exits `0`, and publishes. The
 remains failed; the assurance job does not mask or rewrite it. If artifact/summary publication
 fails, the assurance job is marked failed, but the evaluator's `tool_outcome` in the report is not
 rewritten; publisher failure is not an evaluator failure.
+
+### Artifact and feature coverage (completeness detail)
+
+A completed requirement-assurance report carries `artifact_ids`: the exact set of evaluated
+artifact ids. Every id must have a required, available, digested `artifact` input entry, and no
+extra artifact input entries may exist. A completed self-assurance report carries `feature_ids`:
+the exact set of indexed feature paths at the tested commit; every path must have a required,
+available, digested `feature` input entry. Removing an individual artifact/feature entry, or
+downgrading it to optional/unavailable, is a contract failure—not a smaller valid evaluation.
