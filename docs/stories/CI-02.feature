@@ -70,6 +70,8 @@ Feature: CI-02: Comparable finding sets are classified by stable identity
         | a finding identity does not match its payload |
         | a report digest does not match its contents |
         | an unsupported report version |
+        | a source-locator report claims stable identity |
+        | a report is not UTF-8 |
 
     @SCN-3506
     Scenario: Source locators alone do not establish cross-revision continuity
