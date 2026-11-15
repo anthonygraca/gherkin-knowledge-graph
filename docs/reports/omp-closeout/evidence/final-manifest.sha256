@@ -50,7 +50,7 @@ c14540401931faa25dd7952a3eaeb5a95f44c53f5a8a52860c0e1231deab7edf  docs/reports/o
 b1c43547d3b66d2d9a21f8dd1d526dec50275c0e573d47695b526cb33fa7d392  docs/reports/omp-closeout/evidence/final-step-resolution.log
 8d0296fd8e487b3892be22aa7ed296468d085bddebf2fd1a008551efa6f1522d  docs/reports/omp-closeout/evidence/gt02-recheck.log
 92ba89d3398b0af64e519e88b927868d9337b3ffc74510f69f644a31c4059f2e  docs/reports/omp-closeout/evidence/gt02-recheck.ndjson
-f8d5d1ef91dbcdaa9f2f78f6a53322942e780a57ebe1ec0e8cac524bb76848b2  docs/reports/omp-closeout/evidence/hosted-ci-final-run.json
+b1cf5230c4f2f3f01f605d9726005ef024b58ca263489ad257817dd2f92af264  docs/reports/omp-closeout/evidence/hosted-ci-final-run.json
 56b51e365474e64f765e0fffaa64e52a67cf637a309f7b6ee5cb852ee15dc6d9  docs/reports/omp-closeout/evidence/hosted-ci-round3-cucumber-failure.log
 744cc7c5b8de64c1afacd97ac279f94419e746d58c89fc7f36c40aabf3a0f773  docs/reports/omp-closeout/evidence/hosted-ci-round3-run.json
 bbae103c4c53e228726b9623ef5e906b9825a5e5e86eec0f0271db1d4324cd3a  docs/reports/omp-closeout/evidence/hosted-ci-run.json
@@ -64,7 +64,9 @@ a4e69855570acca8c203439437d7626b6287ea911a0a2882ae9e1149e7e4329f  docs/reviews/A
 ba07883be7dc06f03a4713ae31bcae18d2dfc5911214c70d26e27ee07cc20dcf  docs/reviews/AI-03-acceptance-1.md
 07457da78bb846f8c96906991b2b4b8ce5135a5f1acf009df1bcc029f4c187fa  docs/reviews/AI-03-acceptance-2.md
 be32a26439caecb43dd2174b2f7500f3bd721498d1f62f022c73d9a322eee501  docs/reviews/AI-03-acceptance-3.md
+93b037004452ba4e13165191d793c1553a07f334d4f34b50d3a4d3c2c23d2fb6  docs/reviews/AI-03-acceptance-4.md
 9cfe1e52681e8fb0e087e67b4a458fa5cc93031a5a7fc85eca505428baeafce9  docs/reviews/AI-03-acceptance-prompt-3.md
+a2cb74b1c4dbceaa2b341bfca8c9f18a47dcbf8353029b45c12f903a8a785973  docs/reviews/AI-03-acceptance-prompt-4.md
 04a018ecf2ccba16671697107a300cae8bd0f0b8e886e944574f11ba818ab38e  docs/reviews/AI-03-spec-review-2.md
 6bae773319f5e62acb66f87ad4410efbea7db54af580189f14db7ea9e32a5f15  docs/reviews/AS-06-acceptance-1-repairs.md
 fba5f4b740cbc747c1f086955c979f68f2ce67bd0777ff7c4d45e387aa6c73c8  docs/reviews/AS-06-acceptance-1.md
