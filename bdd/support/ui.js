@@ -97,7 +97,10 @@ export async function startReviewUI(options = {}) {
   const journal = path.join(dir, 'review-journal.ndjson');
   const fixture = builtFixturePath();
   const backendPort = await freePort();
-  const staticPort = await freePort();
+  let staticPort = await freePort();
+  while (staticPort === backendPort) {
+    staticPort = await freePort();
+  }
 
   await stopServer(ui.server, ui.backend);
   const backend = await spawnReviewBackend(backendPort, fixture, journal, providerMode);
@@ -202,7 +205,10 @@ function startStatic(port, backendPort) {
       res.writeHead(200, { 'content-type': type }).end(data);
     });
   });
-  return new Promise((resolve) => server.listen(port, '127.0.0.1', () => resolve(server)));
+  return new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(port, '127.0.0.1', () => resolve(server));
+  });
 }
 
 function chromePath() {
@@ -236,7 +242,10 @@ BeforeAll(async () => {
   }
   const fixture = builtFixturePath();
   const backendPort = await freePort();
-  const staticPort = await freePort();
+  let staticPort = await freePort();
+  while (staticPort === backendPort) {
+    staticPort = await freePort();
+  }
   const backend = spawn(
     PYTHON,
     ['-m', 'uvicorn', 'app.main:app', '--host', '127.0.0.1', '--port', String(backendPort)],
