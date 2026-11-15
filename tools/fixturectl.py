@@ -183,6 +183,21 @@ def copy_overlay(src_dir: Path, dest_dir: Path, tokens: dict[str, str]) -> list[
 
 
 def build_repo(fixture_dir: Path, dest: Path) -> BaselinesManifest:
+    resolved = dest.expanduser().resolve()
+    if (
+        resolved == REPO_ROOT
+        or resolved == FIXTURE_DIR
+        or resolved
+        in {
+            EXPECTED_DIR,
+            API_DIR,
+        }
+    ):
+        raise FixtureToolError(
+            f"refusing to build a fixture repository into tracked CTA content: {resolved}"
+        )
+    if resolved.is_relative_to(REPO_ROOT / ".git"):
+        raise FixtureToolError(f"refusing to build a fixture repository inside .git: {resolved}")
     history = load_model(fixture_dir / "history.json", FixtureHistory)
     tokens = discovery_tokens(fixture_dir / "expected")
     if dest.exists():

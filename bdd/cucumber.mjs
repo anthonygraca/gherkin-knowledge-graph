@@ -10,7 +10,7 @@
 export default {
   import: ['support/world.js', 'support/ui.js', 'step_definitions/**/*.js'],
   paths: ['../docs/stories/*.feature'],
-  tags: 'not @FT-03 and not @AI-06 and not @superseded-by-AS-01 and not @refinement-draft',
+  tags: 'not @FT-03 and not @AI-06 and not @superseded-by-AS-01 and not @refinement-draft and not @live-local',
   format: [
     'summary',
     'message:reports/cucumber-messages.ndjson',

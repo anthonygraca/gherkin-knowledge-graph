@@ -25,7 +25,7 @@ When('the thread for {string} is requested', function (artifactId) {
   this.results.thread = thread;
 });
 
-Then(/^the response contains (.*)$/, function (text) {
+Then(/^the response contains ("[^"]+".*)$/, function (text) {
   const ids = quoted(text);
   const present = new Set([
     this.results.thread.root_id,

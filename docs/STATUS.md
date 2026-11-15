@@ -1,20 +1,14 @@
 # Status
 
 ```text
-Date:                2026-11-13
-Current branch:      main at 4659e01 (AI-06 CocoIndex slice merged); M2 slice is uncommitted
-                     work on main (no branch/PR created in this session)
-Milestone:           M2 — exit gate SATISFIED by independent review 7 (expanded scope); see APPROVAL.md
-                     M1 — exit gate SATISFIED by independent review round 2 at e1497cf;
-                     no open major finding
-                     M2 — implemented locally (five original stories + GT-01/02/03 + PG-01);
-                     expanded-M2 engineering gate APPROVED at submission 7 of 7
-                     M3 — AI-06 PR 1 (CocoIndex capability/contract/live smoke) implemented
-                     locally; review 1 REQUEST_CHANGES (8), review 2 REQUEST_CHANGES (3),
-                     review 3 REQUEST_CHANGES (R2/R5), review 4 REQUEST_CHANGES (R2/R5), all repaired;
-                     review 5 APPROVE (submission 5 of 7); AI06-R9 minor metadata repaired;
-                     AI-02/AI-03/AI-05 open
-Active task:         Expanded M2 — continuous assurance, executable Cucumber, portable ingestion
+Date:                2026-11-14
+Current branch:      main at 827e487 + uncommitted close-out working tree (no branch/PR yet)
+Milestone:           M0, M1, and expanded M2 gates SATISFIED; M3 close-out implemented locally
+                     (AS-06, AS-07, AI-03, AI-02) with approved specifications; independent
+                     acceptance reviews, M3 milestone review, PR, and hosted CI pending
+                     M4 CI-01/CI-02 not started
+Active task:         M3 close-out — review decisions, provider honesty, retrieval lifecycle,
+                     and same-machine EmbeddingGemma 2
 Independent review:  docs/reviews/M0-review.md — first review: "M0 not verified"
                      docs/reviews/M0-rereview-1.md — re-review round 1 (GPT-6.1 Sol, xhigh):
                      NEEDS_INPUT; R1–R7 all repaired; AC-1.1…AC-1.8 and AC-2.1…AC-2.5 all PASS;
@@ -46,12 +40,23 @@ Independent review:  docs/reviews/M0-review.md — first review: "M0 not verifie
                      docs/reviews/AI-06-cocoindex-review-5.md — AI-06 submission 5 of 7
                      APPROVE; R2/R5 closed, R1/R3/R4/R6/R7/R8 remain closed; AI06-R9 minor
                      metadata repaired; approval covers this PR 1 slice only
-Historical (SETUP-01, 2026-11-12): the commit-reference slice landed via PR #42; commitlint
+                     docs/reviews/AS-06-spec-review-5.md — AS-06 specification APPROVE (round 5)
+                     docs/reviews/AS-07-spec-review-3.md — AS-07 specification APPROVE (round 3)
+                     docs/reviews/AI-03-spec-review-2.md — AI-03 specification APPROVE (round 2)
+                     docs/reviews/AI-02-spec-review-2.md — AI-02 specification APPROVE (round 2)
+                     AS-06/AS-07/AI-03/AI-02 acceptance reviews are recorded separately from the
+                     specification approvals; do not infer acceptance from a spec APPROVE.
+                     Historical (SETUP-01, 2026-11-12): the commit-reference slice landed via PR #42; commitlint
                      green on the landed history (9 commits); the M0 approved snapshot bca69cf
                      had 107 passed; the SETUP-01 tree then had 135 passed (also under an
                      OS-level network denial). Outstanding owner actions: #18/#19 closure, the
                      FT-03/project-definition reviews, the required-check ruleset, README work item.
-Tests executed:      Expanded-M2 slice (after review-3 repairs): backend 443 passed / 3 opt-in skips; frontend 13 passed;
+Tests executed:      Close-out tree (2026-11-14): backend 535 passed / 4 opt-in skips; Cucumber
+                     177 scenarios / 1704 steps passed; strict step gate ok; fixturectl verify
+                     exit 0; ruff check + format clean; `git diff --check` clean; feature inventory
+                     regenerated (41 files); Cucumber messages sha256 3d48662a…; AI-02 live pytest
+                     1 passed and SCN-3205 1 scenario / 14 steps under `unshare -rn`.
+                     Historical — Expanded-M2 slice (after review-3 repairs): backend 443 passed / 3 opt-in skips; frontend 13 passed;
                      fixturectl verify exit 0; ruff check + format clean; `git diff --check` clean.
                      93 Cucumber scenarios passed (396 Gherkin steps + 372 hook steps); strict gate ok;
                      messages report sha256 18b5a60e… (docs/reports/omp-m2-bdd/evidence/).

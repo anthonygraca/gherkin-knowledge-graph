@@ -23,7 +23,7 @@ from gherkin.token_scanner import TokenScanner
 ROOT = Path(__file__).resolve().parents[1]
 OUT_JSON = ROOT / "docs" / "feature-inventory.json"
 OUT_MD = ROOT / "docs" / "feature-inventory.md"
-DEFAULT_REPORT = ROOT / "docs" / "reports" / "omp-m2-bdd" / "evidence" / "cucumber-messages.ndjson"
+DEFAULT_REPORT = ROOT / "docs" / "reports" / "omp-closeout" / "evidence" / "final-cucumber.ndjson"
 
 #: Hand-declared disposition per tracked feature file.
 DISPOSITIONS: dict[str, dict[str, str]] = {
@@ -51,26 +51,15 @@ DISPOSITIONS: dict[str, dict[str, str]] = {
     },
     "docs/stories/SETUP-01.feature": {"status": "executed", "reason": ""},
     "docs/stories/AI-01.feature": {"status": "executed", "reason": ""},
-    "docs/stories/AS-06.feature": {
-        "status": "refinement",
-        "reason": "Refinement draft; owner decision on trusted-local-operator identity "
-        "and journal design; implementation pending.",
-    },
-    "docs/stories/AS-07.feature": {
-        "status": "refinement",
-        "reason": "Refinement draft; ready after specification review; depends on AS-06 "
-        "proposal UI.",
-    },
+    "docs/stories/AS-06.feature": {"status": "executed", "reason": ""},
+    "docs/stories/AS-07.feature": {"status": "executed", "reason": ""},
     "docs/stories/AI-02.feature": {
-        "status": "refinement",
-        "reason": "Refinement draft; blocked on owner acceptance of a concrete local "
-        "model/licence/runtime/hardware manifest.",
+        "status": "executed-with-live-opt-in",
+        "reason": "Offline scenarios executed in the default suite; SCN-3205 is @live-local and "
+        "executed under unshare -rn with the accepted local EmbeddingGemma 2 manifest. See "
+        "docs/reports/omp-closeout/AI-02-EVIDENCE.md.",
     },
-    "docs/stories/AI-03.feature": {
-        "status": "refinement",
-        "reason": "Refinement draft; requires owner adoption of the proposed retrieval "
-        "snapshot/cache re-scope.",
-    },
+    "docs/stories/AI-03.feature": {"status": "executed", "reason": ""},
     "docs/stories/CI-01.feature": {
         "status": "refinement",
         "reason": "Refinement draft; M4 implementation gated by M3 exit and owner "

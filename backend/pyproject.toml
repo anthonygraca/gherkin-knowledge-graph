@@ -19,6 +19,15 @@ dev = [
     "ruff>=0.6",
 ]
 
+[project.optional-dependencies]
+# AI-02 live local inference. Never installed or imported by the default offline suite.
+local-embedding = [
+    "huggingface-hub>=0.26,<1",
+    "numpy>=2,<3",
+    "onnxruntime>=1.20,<2",
+    "tokenizers>=0.20,<1",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

@@ -59,11 +59,25 @@ class IngestedStore:
         for name, commit in self.manifest.tags.items():
             if commit == baseline:
                 return name
+        # The documented baseline contract accepts any immutable commit SHA, not only tag
+        # targets. This is what makes evidence-only revisions and intermediate commits readable.
+        try:
+            resolved = self.repository.resolve(baseline)
+        except IngestionError:
+            resolved = None
+        if resolved is not None:
+            for name, commit in self.manifest.tags.items():
+                if commit == resolved:
+                    return name
+            return resolved
         known = ", ".join(f"{name} ({commit})" for name, commit in self.manifest.tags.items())
         raise BaselineNotFound(f"Unknown baseline '{baseline}'. Known baselines: {known}")
 
     def commit_of(self, baseline: str) -> str:
-        return self.manifest.tags[self.resolve_baseline(baseline)]
+        canonical = self.resolve_baseline(baseline)
+        if canonical in self.manifest.tags:
+            return self.manifest.tags[canonical]
+        return canonical
 
     def get_artifact(self, artifact_id: str, *, baseline: str | None = None) -> Artifact:
         canonical, revision = self._revision(baseline)
@@ -194,7 +208,7 @@ class IngestedStore:
 
     def _revision(self, baseline: str | None) -> tuple[str, IngestedRevision]:
         canonical = self.resolve_baseline(baseline)
-        return canonical, self._ingest(self.manifest.tags[canonical])
+        return canonical, self._ingest(self.commit_of(canonical))
 
     def _ingest(self, commit: str) -> IngestedRevision:
         cached = self._cache.get(commit)

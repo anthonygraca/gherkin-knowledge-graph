@@ -18,6 +18,16 @@ from app.settings import Settings
 
 REGISTERED_PROVIDERS: tuple[str, ...] = ("fake",)
 
+#: Presentation metadata, independent of the effective registry. Disabling an optional provider
+#: must not erase the meaning of provenance recorded by an earlier proposal (AS-07).
+PROVIDER_KINDS: dict[str, str] = {
+    "fake": "fixture",
+    "cocoindex": "model",
+    "local-embeddinggemma": "model",
+}
+
+DEFAULT_PROVIDER = "fake"
+
 
 class ProviderRegistry:
     """Builds providers on demand and caches them per process."""
@@ -35,15 +45,35 @@ class ProviderRegistry:
         providers = list(REGISTERED_PROVIDERS)
         if self._settings.cocoindex_enabled:
             providers.append("cocoindex")
+        if self._settings.local_embedding_enabled:
+            providers.append("local-embeddinggemma")
         return providers
+
+    def catalog(self) -> list[dict[str, object]]:
+        """Effective providers with presentation kind; never a hand-maintained copy."""
+        default = (
+            self._settings.discovery_provider
+            if self._settings.discovery_provider in self.registered
+            else DEFAULT_PROVIDER
+        )
+        return [
+            {
+                "name": name,
+                "kind": PROVIDER_KINDS.get(name, "unknown"),
+                "default": name == default,
+            }
+            for name in self.registered
+        ]
 
     def get(self, name: str | None = None) -> CandidateDiscovery:
         resolved = name or self._settings.discovery_provider
         if resolved not in self.registered:
             raise ProviderNotRegistered(
                 f"Unknown discovery provider '{resolved}'. Registered providers: "
-                f"{', '.join(REGISTERED_PROVIDERS)}. Code-search candidates arrive with AI-06 "
-                f"PR 2; they are optional plugins and never required for tests."
+                f"{', '.join(self.registered)}. Code-search candidates arrive with AI-06 "
+                f"PR 2; they are optional plugins and never required for tests.",
+                failed_provider=resolved,
+                registered=self.registered,
             )
         if resolved not in self._cache:
             self._cache[resolved] = self._build(resolved)
@@ -90,6 +120,37 @@ class ProviderRegistry:
     def _build(self, name: str) -> CandidateDiscovery:
         if name == "fake":
             return FakeCandidateDiscovery.from_fixture(self._settings.candidate_index_path)
+        if name == "local-embeddinggemma":
+            if self._repository is None:
+                raise ProviderNotRegistered(
+                    "the local-embeddinggemma provider requires an artifact repository; this "
+                    "registry was constructed without one",
+                    failed_provider=name,
+                    registered=self.registered,
+                )
+            from app.discovery.local_embedding import (
+                LocalEmbeddingCandidateDiscovery,
+                OnnxEmbeddingRuntime,
+                validate_local_endpoint,
+            )
+            from app.domain.errors import RetrievalUnavailable
+            from app.ingestion.repository import GitRepository
+
+            validate_local_endpoint(self._settings.local_embedding_endpoint)
+            if self._settings.local_embedding_model_dir is None:
+                raise RetrievalUnavailable(
+                    "Local inference is enabled but CTA_LOCAL_EMBEDDING_MODEL_DIR is not set; "
+                    "no model is downloaded automatically."
+                )
+            runtime = OnnxEmbeddingRuntime(
+                self._settings.local_embedding_model_dir,
+                expected_weights_digest=self._settings.local_embedding_weights_digest,
+            )
+            return LocalEmbeddingCandidateDiscovery(
+                self._repository,
+                GitRepository(self._settings.fixture_repo),
+                runtime=runtime,
+            )
         if name == "cocoindex":
             if self._repository is None:
                 raise ProviderNotRegistered(

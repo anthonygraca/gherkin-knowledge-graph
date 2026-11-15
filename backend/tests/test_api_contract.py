@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -30,8 +33,14 @@ CONTRACTED_PATHS = {
     "/api/threads/{artifact_id}",
     "/api/findings",
     "/api/discovery",
+    "/api/discovery/providers",
     "/api/ingestion/run",
     "/api/links/{link_id}/review",
+    "/api/link-proposals",
+    "/api/review/config",
+    "/api/workspace/threads/{artifact_id}",
+    "/api/workspace/proposals",
+    "/api/workspace/history",
     "/api/assurance/evaluate",
     # Portable repository surface (schema 0.3.0): read-only, repository-scoped.
     "/api/repositories",
@@ -46,6 +55,10 @@ CONTRACTED_PATHS = {
     "/api/repositories/{repository_id}/relations",
     "/api/repositories/{repository_id}/executable-findings",
     "/api/retrieval/code",
+    "/api/retrieval/refresh",
+    "/api/retrieval/manifests",
+    "/api/retrieval/manifests/{baseline}",
+    "/api/retrieval/combine",
     "/api/answers",
 }
 
@@ -425,35 +438,39 @@ def test_thread_matches_the_committed_example(
 # ------------------------------------------------------------------- contract-only endpoints
 
 
-@pytest.mark.parametrize(
-    ("path", "payload", "story"),
-    [
-        ("/api/links/LNK-007/review", {"decision": "accept", "reviewer_id": "rv-ana"}, "AS-06"),
-    ],
-)
-def test_contract_only_endpoints_are_honest(
-    client: TestClient, path: str, payload: dict[str, object], story: str
-) -> None:
-    response = client.post(path, json=payload)
-    assert response.status_code == 501
+def test_review_writes_are_disabled_without_an_operator(client: TestClient) -> None:
+    response = client.post(
+        "/api/links/LNK-007/review",
+        json={"decision": "accept", "reviewer_id": "rv-ana", "baseline": "baseline-a"},
+    )
+    assert response.status_code == 503
     problem = ProblemDetails.model_validate(response.json())
-    assert problem.type == "urn:cta:error:not-implemented"
-    assert problem.code == "not-implemented"
-    assert problem.story is not None and story in problem.story
-    assert problem.milestone
+    assert problem.type == "urn:cta:error:review-identity-unavailable"
+    assert problem.code == "review-identity-unavailable"
 
 
-def test_endpoints_still_validate_their_payloads(client: TestClient) -> None:
+def test_endpoints_still_validate_their_payloads(
+    client: TestClient, fixture_settings: Settings, tmp_path: Path
+) -> None:
     assert client.post("/api/ingestion/run", json={}).status_code == 422
+    review_client = TestClient(
+        create_app(
+            replace(
+                fixture_settings,
+                review_operator="rv-ana",
+                review_journal_path=tmp_path / "journal.ndjson",
+            )
+        )
+    )
     assert (
-        client.post(
-            "/api/links/LNK-001/review", json={"decision": "maybe", "reviewer_id": "x"}
+        review_client.post(
+            "/api/links/LNK-001/review", json={"decision": "maybe", "reviewer_id": "rv-ana"}
         ).status_code
         == 422
     )
     assert (
-        client.post(
-            "/api/links/LNK-001/review", json={"decision": "accept", "reviewer_id": ""}
+        review_client.post(
+            "/api/links/LNK-001/review", json={"decision": "accept", "reviewer_id": "rv-ana"}
         ).status_code
         == 422
     )

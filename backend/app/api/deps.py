@@ -15,6 +15,8 @@ from app.discovery.registry import ProviderRegistry
 from app.domain.ports import ArtifactRepository
 from app.persistence.ingested import IngestedStore
 from app.persistence.portable import PortableRegistry
+from app.persistence.review import ReviewWorkspace
+from app.retrieval.lifecycle import RetrievalLifecycle
 from app.settings import Settings
 
 
@@ -45,9 +47,19 @@ def provide_portable(request: Request) -> PortableRegistry:
     return request.app.state.portable
 
 
+def provide_review(request: Request) -> ReviewWorkspace:
+    return request.app.state.review
+
+
+def provide_retrieval_lifecycle(request: Request) -> RetrievalLifecycle:
+    return request.app.state.retrieval
+
+
 SettingsDep = Annotated[Settings, Depends(provide_settings)]
 RepositoryDep = Annotated[ArtifactRepository, Depends(provide_repository)]
 StoreDep = Annotated[IngestedStore, Depends(provide_store)]
 EvaluatorDep = Annotated[DeterministicAssuranceEvaluator, Depends(provide_evaluator)]
 ProvidersDep = Annotated[ProviderRegistry, Depends(provide_providers)]
 PortableDep = Annotated[PortableRegistry, Depends(provide_portable)]
+ReviewDep = Annotated[ReviewWorkspace, Depends(provide_review)]
+RetrievalLifecycleDep = Annotated[RetrievalLifecycle, Depends(provide_retrieval_lifecycle)]

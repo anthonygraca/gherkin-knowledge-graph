@@ -28,6 +28,96 @@ function freePort() {
   });
 }
 
+async function stopServer(server, backend) {
+  const line = `[ui harness ${new Date().toISOString()}] stopServer server=${!!server} backend=${backend?.pid ?? "none"}\n`;
+  fs.appendFileSync(path.join(ROOT, 'bdd', '.cache', 'ui-harness.log'), line);
+  if (server) {
+    await new Promise((resolve) => server.close(resolve));
+  }
+  if (backend) {
+    backend.kill('SIGTERM');
+    await new Promise((resolve) => {
+      backend.once('exit', resolve);
+      setTimeout(resolve, 2000);
+    });
+  }
+}
+
+async function spawnReviewBackend(port, fixture, journal, providerMode = "recorded") {
+  const logPath = path.join(path.dirname(journal), "backend.log");
+  const logFd = fs.openSync(logPath, "a");
+  const backend = spawn(
+    PYTHON,
+    [
+      '-m',
+      'uvicorn',
+      'provider_ui_app:app',
+      '--host',
+      '127.0.0.1',
+      '--port',
+      String(port),
+    ],
+    {
+      cwd: path.join(ROOT, 'backend'),
+      env: {
+        ...process.env,
+        PYTHONPATH: [path.join(ROOT, 'backend'), path.join(ROOT, 'bdd', 'support')].join(path.delimiter),
+        CTA_REPO_ROOT: ROOT,
+        CTA_FIXTURES_DIR: path.join(ROOT, 'fixtures'),
+        CTA_FIXTURE_REPO: fixture,
+        CTA_REVIEW_OPERATOR: 'rv-ana',
+        CTA_REVIEW_JOURNAL: journal,
+        CTA_BDD_PROVIDER_MODE: providerMode,
+      },
+      stdio: ['ignore', logFd, logFd],
+    },
+  );
+  backend.on('exit', (code, signal) => {
+    fs.appendFileSync(logPath, `\n[ui harness] backend exited code=${code} signal=${signal}\n`);
+  });
+  await waitFor(`http://127.0.0.1:${port}/health`);
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  if (backend.exitCode !== null) {
+    const log = fs.readFileSync(logPath, 'utf8');
+    throw new Error(`review backend exited after health check:\n${log}`);
+  }
+  return backend;
+}
+
+export async function startReviewUI(options = {}) {
+  const { providerMode = "recorded" } = options;
+  fs.appendFileSync(
+    path.join(ROOT, 'bdd', '.cache', 'ui-harness.log'),
+    `[ui harness ${new Date().toISOString()}] startReviewUI begin backend=${ui?.backend?.pid ?? 'none'}\n`,
+  );
+  if (!ui) throw new Error('the browser UI was not started');
+  const cache = path.join(ROOT, 'bdd', '.cache');
+  fs.mkdirSync(cache, { recursive: true });
+  const dir = fs.mkdtempSync(path.join(cache, 'ui-review-'));
+  const journal = path.join(dir, 'review-journal.ndjson');
+  const fixture = builtFixturePath();
+  const backendPort = await freePort();
+  const staticPort = await freePort();
+
+  await stopServer(ui.server, ui.backend);
+  const backend = await spawnReviewBackend(backendPort, fixture, journal, providerMode);
+  const server = await startStatic(staticPort, backendPort);
+  await waitFor(`http://127.0.0.1:${staticPort}/`);
+
+  ui.backend = backend;
+  ui.backendPort = backendPort;
+  ui.server = server;
+  ui.staticPort = staticPort;
+  ui.baseUrl = `http://127.0.0.1:${staticPort}`;
+  ui.review = { dir, journal };
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  fs.appendFileSync(
+    path.join(ROOT, 'bdd', '.cache', 'ui-harness.log'),
+    `[ui harness ${new Date().toISOString()}] startReviewUI ready backend=${backend.pid} port=${backendPort}\n`,
+  );
+  return ui.review;
+}
+
 function builtFixturePath() {
   const cache = path.join(ROOT, 'bdd', '.cache');
   fs.mkdirSync(cache, { recursive: true });
@@ -178,9 +268,15 @@ BeforeAll(async () => {
     staticPort,
     browser,
     baseUrl: `http://127.0.0.1:${staticPort}`,
+    review: null,
     async api(pathname) {
-      const response = await fetch(`http://127.0.0.1:${backendPort}${pathname}`);
+      const response = await fetch(`http://127.0.0.1:${ui.backendPort}${pathname}`);
       return response.json();
+    },
+    async request(pathname, options = {}) {
+      const response = await fetch(`http://127.0.0.1:${ui.backendPort}${pathname}`, options);
+      const body = await response.json();
+      return { status: response.status, body };
     },
   };
 });
@@ -202,6 +298,10 @@ After(async function (scenario) {
 });
 
 AfterAll(async () => {
+  fs.appendFileSync(
+    path.join(ROOT, 'bdd', '.cache', 'ui-harness.log'),
+    `[ui harness ${new Date().toISOString()}] AfterAll backend=${ui?.backend?.pid ?? 'none'}\n`,
+  );
   if (!ui) return;
   await ui.browser.close();
   await new Promise((resolve) => ui.server.close(resolve));

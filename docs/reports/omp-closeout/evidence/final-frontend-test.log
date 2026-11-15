@@ -1,0 +1,52 @@
+
+> cta-dashboard@0.1.0 test
+> vitest run --run
+
+
+ RUN  v3.2.7 /home/anthonygraca/CSU Fullerton Dropbox/Anthony Graca/cpsc-583-knowledge-representation/project/gherkin-knowledge-graph/frontend
+
+stderr | src/App.test.tsx > findings drill-down (AS-05) > shows the rule, baseline, changed artifact and tested evidence for reverification (SCN-2041)
+An update to App inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/App.test.tsx > findings drill-down (AS-05) > presents a confirmed failure differently from reverification (SCN-2042)
+An update to App inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/App.test.tsx > thread view > shows the accepted chain and its evidence (SCN-805)
+An update to App inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ src/App.test.tsx (14 tests) 2901ms
+   ✓ findings summary > shows counts by type and coverage for baseline-a (SCN-801)  327ms
+   ✓ does not reuse one baseline's evidence for another baseline (AS-05)  1137ms
+
+ Test Files  1 passed (1)
+      Tests  14 passed (14)
+   Start at  19:53:27
+   Duration  4.50s (transform 224ms, setup 96ms, collect 321ms, tests 2.90s, environment 605ms, prepare 119ms)
+

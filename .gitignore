@@ -25,6 +25,9 @@ prompts/
 # CocoIndex Code (ccc)
 /.cocoindex_code/
 
+# AS-06 local review journal (application-owned, never inside the fixture)
+/.cta/
+
 # Cucumber harness caches and generated reports (evidence is copied intentionally)
 bdd/.cache/
 bdd/.bench/

@@ -179,7 +179,7 @@ Priority: **P0** is AI-free MVP; **P1** adds candidate discovery/review; **P2** 
 | F-07 Review | AS-07 | As a reviewer, I want useful behavior when AI is offline and clear fake/real provenance. | C | P1 |
 | F-08 Retrieval | AI-01 | As a developer, I want fake and real `CandidateDiscovery` implementations behind one interface. | A | P0 |
 | F-08 Retrieval | AI-02 | As a developer, I want local EmbeddingGemma 2 inference without shared DGX services. | A | P1 |
-| F-08 Retrieval | AI-03 | As a developer, I want revision-aware incremental embedding refresh. | A | P1 |
+| F-08 Retrieval | AI-03 | As a developer, I want revision-aware retrieval snapshot and cache lifecycle, so that content-change planning, manifests, and honest refresh reporting are reproducible without claiming unobservable backend work. | A | P1 |
 | F-09 Discovery | AI-04 | As a systems engineer, I want ranked candidate code/scenario/requirement links, labeled as proposals. | A | P1 |
 | F-09 Discovery | AI-05 | As a researcher, I want labeled precision/recall and recall@k evaluation of retrieval. | A | P1 |
 | F-10 Automation | CI-01 | As a developer, I want assurance to run when a repo revision changes. | Shared | P2 |

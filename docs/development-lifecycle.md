@@ -83,6 +83,8 @@ Initial issue intake may contain draft Gherkin. Once a file exists, link it at t
 
 Do not add a runner/framework merely to store the specifications. From M2 onward the reviewed CTA acceptance features execute through Cucumber-JS (ADR 0009), with the strict step-resolution gate and Cucumber Messages evidence. Features that still have no bindings (AS-04/AS-05 browser behaviour, SETUP-01 commit history) are declared `not_executed` with reasons in `docs/feature-inventory.json`; a mapping to pytest is never reported as executed Gherkin. No unit-test duplication is required when a substantive existing test already verifies the criterion.
 
+CTA's default discovery provider is `fake`. The documented offline invocation (`uv sync --project backend`, `uv run --project backend pytest backend/tests`) requires no model, network, vector service, or CocoIndex daemon. CocoIndex and local EmbeddingGemma 2 are opt-in plugins behind `CandidateDiscovery`; live model checks are opt-in and excluded from the default suite and CI.
+
 ## A story's development loop
 
 1. **Understand the need.** Identify the source obligation, intended user, expected benefit and relevant risk/control. Infrastructure stories may trace to an engineering constraint with an explicit rationale rather than a fabricated end-user requirement.

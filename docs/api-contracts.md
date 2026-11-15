@@ -235,17 +235,22 @@ always carry the resolved commit SHA.
 Request:
 
 ```json
-{ "artifact_id": "SCN-001", "top_k": 5, "relation_types": null, "provider": null }
+{ "artifact_id": "SCN-001", "top_k": 5, "relation_types": null, "provider": null, "baseline": "baseline-a" }
 ```
 
 * `top_k` 1…50 (default 5); `relation_types` restricts proposals; `provider` overrides the
-  configured default (`CTA_DISCOVERY_PROVIDER`, default `fake`).
+  configured default (`CTA_DISCOVERY_PROVIDER`, default `fake`); `baseline` binds the request to a
+  tag or commit SHA.
+* A registered provider that cannot execute returns `503 provider-unavailable` with
+  `failed_provider`; the application never falls back to `fake`. A valid empty result is `200` with
+  `candidates: []` and retained provider/model/index provenance. Provider failure never becomes a
+  finding.
 
 Response (abridged; `fixtures/api-responses/discovery.SCN-001.json` is the full sample):
 
 ```json
 {
-  "schema_version": "0.5.0",
+  "schema_version": "0.7.0",
   "artifact_id": "SCN-001",
   "provider": "fake",
   "model_version": "fake-fixture-v1",
@@ -269,36 +274,103 @@ Response (abridged; `fixtures/api-responses/discovery.SCN-001.json` is the full 
 Guarantees, asserted by tests: candidates carry no `link_id` and no `review_state`; no accepted
 link or evidence record is created or modified; a known artifact with no proposals returns an
 empty list; unknown artifact → 404 `artifact-not-found`; unknown provider → 400
-`provider-not-registered`.
+`provider-not-registered` with `failed_provider` and `registered_providers`; provider failure →
+503 `provider-unavailable`; no automatic fallback.
 
-## Contract-only endpoints (501)
+### `GET /api/discovery/providers`
 
-Each returns a problem document naming the owning story and milestone, and each validates its body
-first, so the contract is real even though the behaviour is not implemented:
-
-| Endpoint | Body | Owning work |
-| --- | --- | --- |
-| `POST /api/links/{link_id}/review` | `{ "decision": "accept" \| "reject", "reviewer_id": "rv-ana", "reason": null }` | AS-06 (C, M1/M2) |
+Returns the effective registry with presentation kind:
 
 ```json
 {
-  "type": "urn:cta:error:not-implemented",
-  "title": "Not implemented in this milestone",
-  "status": 501,
-  "detail": "Link review with reviewer identity, timestamp, reason, and immutable decision history is implemented with AS-06. Accepting a link will not change verification status: an accepted link is not evidence of behaviour.",
-  "instance": "/api/links/LNK-007/review",
-  "code": "not-implemented",
-  "story": "AS-06 (C-PR1 onward)",
-  "milestone": "M1/M2"
+  "schema_version": "0.7.0",
+  "default": "fake",
+  "providers": [
+    {"name": "fake", "kind": "fixture", "default": true},
+    {"name": "cocoindex", "kind": "model", "default": false}
+  ]
 }
 ```
+
+`kind` comes from the versioned provider-kind table, not from the provider name. Optional providers
+absent from the effective registry are not listed; historical proposals retain their recorded
+provenance and are labelled from the static table.
+
+### Local embedding provider (AI-02, additive)
+
+When `CTA_LOCAL_EMBEDDING=1` and a local model directory is installed, the effective registry also
+lists `local-embeddinggemma` (`kind: model`). It implements the same request/response contract; a
+remote endpoint is `400 invalid-request` before any connection, and missing weights or malformed
+embeddings are `503 retrieval-unavailable`. The exact manifest is in
+`docs/reports/omp-closeout/AI-02-MODEL-MANIFEST.md`.
+
+## Review workspace endpoints (schema 0.6.0, additive; AS-06)
+
+All review/workspace routes are loopback-only. A missing `Origin` header is allowed for local
+non-browser clients; a present Origin must be an `http(s)` loopback origin. The full normative
+contract is in `docs/stories/AS-06.md`.
+
+### `POST /api/link-proposals`
+
+Explicit capture of a discovery candidate as a proposed link. The body names the endpoints, the
+relation, a required `baseline`, both submitted endpoint content hashes, and optional reported
+provider/model/index provenance. `201` returns `{schema_version, link, snapshot, review_revision,
+created: true}`. An identical pending snapshot returns `200` with `created: false`; an unknown or
+wrong-direction endpoint is `422 proposal-invalid`; a hash mismatch is `409 proposal-stale`; a
+different pending snapshot for the same triple **at the same baseline** is
+`409 proposal-conflict`; a terminal decision for that baseline is `409 review-conflict`. A capture
+at a different baseline is a distinct proposal. No validation or conflict failure appends an
+event. A confirmed journal rollback returns `503 review-storage-unavailable` with
+`durability: "not_committed"` and publishes nothing; an unconfirmed rollback returns the same code
+with `durability: "indeterminate"`, publishes nothing to the live projection, and may recover as a
+complete pending capture after restart — never as an accepted link.
+
+### `POST /api/links/{link_id}/review`
+
+```json
+{"decision": "accept", "reviewer_id": "rv-ana", "baseline": "baseline-a", "reason": null}
+```
+
+Returns the resulting `TraceLink` (`200`). The response keeps the existing link shape; the
+append-only audit record is available from `GET /api/workspace/history`. `reviewer_id` must equal
+the server-assigned operator. Reject requires a nonblank reason. Precedence: identity unavailable
+`503`, identity mismatch `403`, validation `422`, missing proposal `404`, reason rules `422`,
+terminal conflict `409`, stale endpoint content `409`, storage failure `503` with `durability`.
+Acceptance never runs assurance or changes evidence/findings.
+
+### Workspace reads
+
+|Endpoint|Response|
+|---|---|
+|`GET /api/workspace/threads/{artifact_id}?baseline=`|Thread fields plus `review_revision`; decisions projected over immutable baseline facts.|
+|`GET /api/workspace/proposals?baseline=`|`{schema_version, baseline, review_revision, proposals: [{link, snapshot \| null, binding}]}` — the pending queue.|
+|`GET /api/workspace/history?baseline=`|`{schema_version, baseline, review_revision, events}` — capture/decision events applicable to the baseline.|
+|`GET /api/review/config`|`{schema_version, enabled, operator, loopback_only}`.|
+
+Baseline reads (`/api/threads`, `/api/findings`, `/api/artifacts`, `/api/links`) are unchanged by
+decisions. The workspace thread follows accepted and proposed links to assemble the review
+neighbourhood, then keeps `accepted_links` and `proposed_links` partitioned.
+
+## Retrieval lifecycle endpoints (schema 0.8.0, additive; AI-03)
+
+|Endpoint|Behaviour|
+|---|---|
+|`POST /api/retrieval/refresh`|Body `{baseline, previous_baseline?, config?}`. Plans content changes and publishes a `RetrievalManifest`. The default adapter reports backend identity and `items_embedded` as `not_available`; an adapter failure is `503 retrieval-unavailable` with no publication. Evidence-only content with identical configuration reuses the corpus cache key and publishes a new commit-bound snapshot binding.|
+|`GET /api/retrieval/manifests`|`{schema_version, manifests}` for all published snapshots.|
+|`GET /api/retrieval/manifests/{baseline}`|The current manifest for a tag or commit, or `404 retrieval-snapshot-not-found`.|
+|`POST /api/retrieval/combine`|Body `{snapshot_binding, batches: [{snapshot_binding, provider, provider_index_revision, model_version, candidates}]}`. A batch whose own candidates disagree with its declared binding is internally inconsistent and returns `422 request-validation`; a valid batch whose binding differs from the request binding returns `409 mixed-index-context`. Neither returns a combined list. Compatible batches are combined and re-ranked; the response retains each batch's provider provenance. The batch adaptation preserves the provider's own index revision separately from the CTA snapshot binding.|
+
+Manifests are application-owned, outside the fixture/evaluated repository, and revision-bound. The
+corpus cache key excludes commits; the snapshot binding includes the commit. CTA never claims an
+internal CocoIndex embedding count; unavailable backend data is `null`/`not_available`.
 
 ## Conventions for consumers
 
 * Switch on `status` and `code`, never on message text.
-* Treat 501 as "not yet", not as an error to retry.
 * Read proposals only from `proposed_links` / `candidates`; never treat them as accepted.
 * Do not cache findings across baselines: `evaluated_baseline` is part of their meaning.
+* No endpoint currently returns 501; the problem shape remains reserved for a future contract-only
+  capability.
 
 
 ## Portable repository endpoints (schema 0.5.0, additive)
