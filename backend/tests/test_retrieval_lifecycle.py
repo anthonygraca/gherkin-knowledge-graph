@@ -636,3 +636,41 @@ def test_pointer_read_failure_is_typed_and_leaves_previous_publication(
         service.refresh("baseline-a", config=config("sha256:" + "b" * 64))
     assert service.manifest_for("baseline-a").snapshot_binding == first.snapshot_binding
     assert not list((tmp_path / "retrieval-snapshots" / "staging").glob("*.json"))
+
+
+def test_bind_uses_the_manifest_baseline_provider_identity(
+    store: IngestedStore, fixture_settings: Settings, tmp_path: Path
+) -> None:
+    from tests.test_local_embedding import KeywordRuntime
+
+    from app.discovery.local_embedding import LocalEmbeddingCandidateDiscovery
+    from app.ingestion.repository import GitRepository
+
+    provider = LocalEmbeddingCandidateDiscovery(
+        store,
+        GitRepository(fixture_settings.fixture_repo),
+        runtime=KeywordRuntime(),
+    )
+    local_config = RetrievalConfig(
+        provider=provider.provider_name,
+        model_id="embeddinggemma-2-text-270m-q8_0",
+        model_version=provider.model_version,
+        weights_digest="not_available",
+        runtime="deterministic",
+        formatting_version="ai03-test-v1",
+    )
+    service = lifecycle(store, fixture_settings, tmp_path)
+    manifest_a = service.refresh("baseline-a", config=local_config)
+    manifest_b = service.refresh("baseline-b", config=local_config)
+    assert provider.index_revision == provider.binding_for("baseline-b")
+
+    batch_a = service.bind(manifest_a, provider, "SCN-001")
+    assert batch_a.provider_index_revision == provider.binding_for("baseline-a")
+    assert all(
+        candidate.index_revision == manifest_a.snapshot_binding for candidate in batch_a.candidates
+    )
+    batch_b = service.bind(manifest_b, provider, "SCN-001")
+    assert batch_b.provider_index_revision == provider.binding_for("baseline-b")
+    empty_a = service.bind(manifest_a, provider, "CODE-001")
+    assert empty_a.candidates == []
+    assert empty_a.provider_index_revision == provider.binding_for("baseline-a")

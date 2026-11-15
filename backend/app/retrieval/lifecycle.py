@@ -315,15 +315,20 @@ class RetrievalLifecycle:
             top_k=top_k,
             baseline=manifest.baseline,
         )
+        provider_identity = (
+            provider.binding_for(manifest.baseline)
+            if callable(getattr(provider, "binding_for", None))
+            else provider.index_revision
+        )
         provider_bindings = {candidate.index_revision for candidate in provider_candidates}
         if len(provider_bindings) > 1:
             raise MixedIndexContext(
                 "Provider returned candidates from more than one index revision: "
                 + ", ".join(sorted(provider_bindings))
             )
-        if provider_bindings and provider.index_revision not in provider_bindings:
+        if provider_bindings and provider_identity not in provider_bindings:
             raise MixedIndexContext(
-                f"Provider identity {provider.index_revision!r} does not match its candidate "
+                f"Provider identity {provider_identity!r} does not match its candidate "
                 "index revisions."
             )
         bound = [
@@ -333,7 +338,7 @@ class RetrievalLifecycle:
         return SnapshotBoundBatch(
             snapshot_binding=manifest.snapshot_binding,
             provider=provider.provider_name,
-            provider_index_revision=provider.index_revision,
+            provider_index_revision=provider_identity,
             model_version=provider.model_version,
             candidates=bound,
         )
